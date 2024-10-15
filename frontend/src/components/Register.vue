@@ -4,6 +4,7 @@
       <!-- Use #F5F5F5 for background -->
       <div class="text-center" style="color: #ffe5cf">
         <!-- Use #FFE5CF for text color -->
+        <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
         <h1 class="h3 mb-3 font-weight-normal">Register</h1>
       </div>
       <form>
