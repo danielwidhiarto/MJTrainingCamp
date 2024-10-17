@@ -19,13 +19,15 @@
       <router-link to="/history-class">History Class</router-link>
     </div>
 
-    <!-- Profile icon remains visible -->
+    <!-- Profile icon redirects to Profile Page -->
     <div class="navbar-right">
-      <img
-        src="../assets/profile-icon.png"
-        alt="Profile"
-        class="profile-icon"
-      />
+      <router-link to="/profile">
+        <img
+          src="../assets/profile-icon.png"
+          alt="Profile"
+          class="profile-icon"
+        />
+      </router-link>
     </div>
   </nav>
 </template>
