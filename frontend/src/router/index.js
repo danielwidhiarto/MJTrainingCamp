@@ -65,13 +65,16 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
 
-  if (to.name === 'AdminDashboard' && role !== 'ROLE_ADMIN') {
-    // If trying to access Admin Dashboard and user is not admin, redirect to User Home
+  // Allow access to login and register without token
+  if (to.name === 'Login' || to.name === 'Register') {
+    next() // Allow access to Login and Register routes
+  } else if (to.name === 'AdminDashboard' && role !== 'ROLE_ADMIN') {
+    // If trying to access Admin Dashboard and user is not admin, redirect to Member Dashboard
     next({ name: 'MemberDashboard' })
   } else if (to.name === 'TrainerDashboard' && role !== 'ROLE_TRAINER') {
-    // If trying to access Trainer Dashboard and user is not a trainer, redirect to User Home
+    // If trying to access Trainer Dashboard and user is not a trainer, redirect to Member Dashboard
     next({ name: 'MemberDashboard' })
-  } else if (to.name !== 'Login' && !token) {
+  } else if (!token) {
     // If trying to access a protected route and not logged in, redirect to Login
     next({ name: 'Login' })
   } else {
