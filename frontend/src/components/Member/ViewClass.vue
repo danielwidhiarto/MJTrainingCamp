@@ -1,64 +1,27 @@
 <template>
-  <div class="view-class">
-    <h1>View Class</h1>
-    <p>Here are the classes available for you:</p>
-    <ul class="class-list">
-      <li v-for="classItem in classes" :key="classItem.id">
-        <h2>{{ classItem.title }}</h2>
-        <p>{{ classItem.description }}</p>
-        <button @click="viewClassDetails(classItem.id)">View Details</button>
-      </li>
-    </ul>
+  <div>
+    <Navbar />
+    <div class="container">
+      <h1>ViewClass</h1>
+      <p>Welcome to your ViewClass page!</p>
+      <!-- Add more content specific to the user here -->
+    </div>
   </div>
 </template>
 
 <script>
+import Navbar from '../Navbar.vue' // Import the Navbar component
+
 export default {
   name: 'ViewClass',
-  data() {
-    return {
-      classes: [
-        {
-          id: 1,
-          title: 'Introduction to Programming',
-          description: 'Learn the basics of programming.',
-        },
-        {
-          id: 2,
-          title: 'Advanced JavaScript',
-          description: 'Deep dive into JavaScript.',
-        },
-        {
-          id: 3,
-          title: 'Web Development Fundamentals',
-          description: 'Learn how to build websites.',
-        },
-      ],
-    }
-  },
-  methods: {
-    viewClassDetails(classId) {
-      // Logic to view class details goes here
-      alert(`Viewing details for class with ID: ${classId}`)
-    },
+  components: {
+    Navbar,
   },
 }
 </script>
 
 <style>
-.view-class {
+.container {
   padding: 20px;
-}
-
-.class-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.class-list li {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 8px;
 }
 </style>
