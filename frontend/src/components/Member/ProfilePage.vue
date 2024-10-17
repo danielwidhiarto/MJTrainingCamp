@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2' // Import SweetAlert2
 import Navbar from '../Navbar.vue' // Import the Navbar component
 
 export default {
@@ -40,10 +41,21 @@ export default {
   },
   methods: {
     logout() {
-      // Handle the logout logic here
-      alert('Logging out...')
-      // Redirect to login or clear session, etc.
-      this.$router.push('/')
+      // Notify the user using SweetAlert2
+      Swal.fire({
+        title: 'Logged Out!',
+        text: 'You have been logged out successfully.',
+        icon: 'success',
+        confirmButtonColor: '#557c56',
+      }).then(() => {
+        // Once the user presses OK, clear localStorage and redirect
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
+        localStorage.removeItem('idUser')
+
+        // Redirect to login or home page
+        this.$router.push('/login') // Assuming '/login' is your login route
+      })
     },
   },
 }
