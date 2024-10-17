@@ -115,5 +115,20 @@ export default {
 </script>
 
 <style>
-/* Add your styles here */
+.container {
+  max-width: 400px;
+  padding: 20px;
+  background-color: #f5f5f5;
+
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 90%;
+    padding: 15px;
+  }
+}
 </style>
