@@ -31,6 +31,22 @@ const routes = [
     name: 'TrainerDashboard',
     component: TrainerDashboard,
   },
+
+  {
+    path: '/buy-membership',
+    name: 'BuyMembership',
+    component: () => import('../components/Member/BuyMembership.vue'), // Create this component as needed
+  },
+  {
+    path: '/view-class',
+    name: 'ViewClass',
+    component: () => import('../components/Member/ViewClass.vue'), // Create this component as needed
+  },
+  {
+    path: '/history-class',
+    name: 'HistoryClass',
+    component: () => import('../components/Member/HistoryClass.vue'), // Create this component as needed
+  },
 ]
 
 // Create the router instance
