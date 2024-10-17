@@ -47,6 +47,11 @@ const routes = [
     name: 'HistoryClass',
     component: () => import('../components/Member/HistoryClass.vue'), // Create this component as needed
   },
+  {
+    path: '/profile-page',
+    name: 'ProfilePage',
+    component: () => import('../components/Member/ProfilePage.vue'), // Create this component as needed
+  },
 ]
 
 // Create the router instance
