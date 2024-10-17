@@ -69,6 +69,7 @@
 
 <script>
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'Register',
@@ -92,14 +93,29 @@ export default {
             pNumber: this.pNumber,
           },
         )
-        console.log('Registration successful:', response.data)
-        // Redirect or show success message
+        // Show success alert on successful registration
+        Swal.fire({
+          title: 'Registration Successful!',
+          text: 'You have successfully registered.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        }).then(() => {
+          this.$router.push('/') // Redirect to login page after success
+        })
       } catch (error) {
-        console.error(
-          'Registration error:',
-          error.response ? error.response.data : error.message,
-        )
-        // Show error message to the user
+        const errorMessage =
+          error.response?.data?.message ||
+          'An error occurred while registering. Please try again later.'
+
+        Swal.fire({
+          title:
+            errorMessage === 'Email is already in use'
+              ? 'Email Already Exists'
+              : 'Registration Failed',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        })
       }
     },
   },
