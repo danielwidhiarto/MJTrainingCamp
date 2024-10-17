@@ -1,6 +1,6 @@
 package com.project.bookMembership.trainer;
 
-import com.project.bookMembership.user.Role;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
