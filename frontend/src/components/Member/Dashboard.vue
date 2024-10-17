@@ -1,17 +1,27 @@
 <template>
-  <div class="container">
-    <h1>User Home</h1>
-    <p>Welcome to your home page!</p>
-    <!-- Add more content specific to the user here -->
+  <div>
+    <Navbar />
+    <div class="container">
+      <h1>User Home</h1>
+      <p>Welcome to your home page!</p>
+      <!-- Add more content specific to the user here -->
+    </div>
   </div>
 </template>
 
 <script>
+import Navbar from '../Navbar.vue' // Import the Navbar component
+
 export default {
   name: 'MemberDashboard',
+  components: {
+    Navbar,
+  },
 }
 </script>
 
 <style>
-/* Add your styles here */
+.container {
+  padding: 20px;
+}
 </style>
