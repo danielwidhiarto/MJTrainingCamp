@@ -1,17 +1,16 @@
 <template>
   <div class="container mt-5">
-    <!-- Use #F5F5F5 for background -->
     <div class="text-center" style="color: #e65100">
-      <!-- Use #FFE5CF for text color -->
       <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
     </div>
-    <form>
+    <form @submit.prevent="registerUser">
       <div class="mb-3">
         <label for="name" class="form-label">Full Name</label>
         <input
           type="text"
           class="form-control"
+          v-model="name"
           id="full_name"
           placeholder="Enter your full name"
           required
@@ -22,6 +21,7 @@
         <input
           type="email"
           class="form-control"
+          v-model="email"
           id="email"
           placeholder="Enter your email"
           required
@@ -32,18 +32,20 @@
         <input
           type="password"
           class="form-control"
+          v-model="password"
           id="password"
           placeholder="Enter your password"
           required
         />
       </div>
       <div class="mb-3">
-        <label for="email" class="form-label">Phone Number</label>
+        <label for="phoneNumber" class="form-label">Phone Number</label>
         <input
-          type="number"
+          type="text"
           class="form-control"
-          id="number"
-          placeholder="Enter your phonenumber"
+          v-model="pNumber"
+          id="phoneNumber"
+          placeholder="Enter your phone number"
           required
         />
       </div>
@@ -54,47 +56,71 @@
       >
         Register
       </button>
-      <!-- Use #557C56 for button color -->
     </form>
     <div class="text-center mt-3" style="color: #557c56">
-      <!-- Use #FFE5CF for text color -->
       <p>
         Already have an account?
         <router-link to="/" style="color: #e65100">Sign in here!</router-link>
       </p>
-      <!-- Use #557C56 for link color -->
     </div>
     <div class="blur-overlay"></div>
-    <!-- Add a blur overlay -->
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'Register',
+  data() {
+    return {
+      name: '',
+      email: '',
+      password: '',
+      pNumber: '',
+    }
+  },
+  methods: {
+    async registerUser() {
+      try {
+        const response = await axios.post(
+          'http://localhost:8081/api/v1/auth/register',
+          {
+            name: this.name,
+            email: this.email,
+            password: this.password,
+            pNumber: this.pNumber,
+          },
+        )
+        console.log('Registration successful:', response.data)
+        // Redirect or show success message
+      } catch (error) {
+        console.error(
+          'Registration error:',
+          error.response ? error.response.data : error.message,
+        )
+        // Show error message to the user
+      }
+    },
+  },
 }
 </script>
 
 <style>
 .container {
-  max-width: 400px; /* Smaller container width */
+  max-width: 400px;
   padding: 20px;
   background-color: #f5f5f5;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 0 auto; /* Center the container */
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .container {
-    max-width: 90%; /* Make container width responsive */
+    max-width: 90%;
     padding: 15px;
   }
-}
-
-.bg-light {
-  position: relative;
-  overflow: hidden;
 }
 
 .blur-overlay {
