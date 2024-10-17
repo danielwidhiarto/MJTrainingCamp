@@ -40,9 +40,9 @@
       <div class="mb-3">
         <label for="email" class="form-label">Phone Number</label>
         <input
-          type="number"
+          type="text"
           class="form-control"
-          id="number"
+          id="phoneNumber"
           placeholder="Enter your phonenumber"
           required
         />
