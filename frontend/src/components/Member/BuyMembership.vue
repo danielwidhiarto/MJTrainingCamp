@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import Navbar from '../Navbar.vue' // Import the Navbar component
+import Navbar from './Navbar.vue' // Import the Navbar component
 
 export default {
   name: 'BuyMembership',

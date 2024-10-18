@@ -21,7 +21,7 @@
 
 <script>
 import Swal from 'sweetalert2' // Import SweetAlert2
-import Navbar from '../Navbar.vue' // Import the Navbar component
+import Navbar from './Navbar.vue' // Import the Navbar component
 
 export default {
   name: 'ProfilePage',
