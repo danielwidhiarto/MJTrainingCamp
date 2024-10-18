@@ -90,11 +90,11 @@ export default {
         }).then(() => {
           // Redirect based on role
           if (role === 'ROLE_ADMIN') {
-            this.$router.push('/admin-dashboard') // Redirect to admin dashboard
+            this.$router.push('/admin/dashboard') // Redirect to admin dashboard
           } else if (role === 'ROLE_TRAINER') {
             this.$router.push('/trainer-dashboard') // Redirect to trainer dashboard
           } else {
-            this.$router.push('/member-dashboard') // Redirect to user home
+            this.$router.push('/member/dashboard') // Redirect to user home
           }
         })
       } catch (error) {
