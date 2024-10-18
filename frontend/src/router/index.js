@@ -32,6 +32,7 @@ const routes = [
     component: TrainerDashboard,
   },
 
+  //Member
   {
     path: '/buy-membership',
     name: 'BuyMembership',
@@ -40,7 +41,7 @@ const routes = [
   {
     path: '/view-class',
     name: 'ViewClass',
-    component: () => import('../components/Member/ViewClass.vue'), // Create this component as needed
+    component: () => import('../components/Admin/ManagePackage.vue'), // Create this component as needed
   },
   {
     path: '/history-class',
@@ -51,6 +52,28 @@ const routes = [
     path: '/profile-page',
     name: 'ProfilePage',
     component: () => import('../components/Member/ProfilePage.vue'), // Create this component as needed
+  },
+
+  //Admin
+  {
+    path: '/admin/manage-package',
+    name: 'ManagePackage',
+    component: () => import('../components/Admin/ManagePackage.vue'), // Create this component as needed
+  },
+  {
+    path: '/admin/manage-class',
+    name: 'ManageClass',
+    component: () => import('../components/Admin/ManageClass.vue'), // Create this component as needed
+  },
+  {
+    path: '/admin/verify-payment',
+    name: 'VerifyPayment',
+    component: () => import('../components/Admin/VerifyPayment.vue'), // Create this component as needed
+  },
+  {
+    path: '/admin/manage-member',
+    name: 'ManageMember',
+    component: () => import('../components/Admin/ManageMember.vue'), // Create this component as needed
   },
 ]
 
