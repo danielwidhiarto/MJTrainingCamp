@@ -13,10 +13,9 @@
 
     <!-- Center links for navigation -->
     <div :class="['navbar-center', { 'navbar-center-active': isMenuOpen }]">
-      <router-link to="/member-dashboard">Home</router-link>
-      <router-link to="/buy-membership">Buy Membership</router-link>
-      <router-link to="/view-class">View Class</router-link>
-      <router-link to="/history-class">History Class</router-link>
+      <router-link to="/member/buy-membership">Buy Membership</router-link>
+      <router-link to="/member/view-class">View Class</router-link>
+      <router-link to="/member/class-history">Class History</router-link>
     </div>
 
     <!-- Profile icon redirects to Profile Page -->

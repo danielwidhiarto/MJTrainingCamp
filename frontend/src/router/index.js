@@ -17,39 +17,39 @@ const routes = [
     component: Register,
   },
   {
-    path: '/member-dashboard',
+    path: '/member/dashboard',
     name: 'MemberDashboard',
     component: MemberDashboard,
   },
   {
-    path: '/admin-dashboard',
+    path: '/admin/dashboard',
     name: 'AdminDashboard',
     component: AdminDashboard,
   },
   {
-    path: '/trainer-dashboard',
+    path: '/trainer/dashboard',
     name: 'TrainerDashboard',
     component: TrainerDashboard,
   },
 
   //Member
   {
-    path: '/buy-membership',
+    path: '/member/buy-membership',
     name: 'BuyMembership',
     component: () => import('../components/Member/BuyMembership.vue'), // Create this component as needed
   },
   {
-    path: '/view-class',
+    path: '/member/view-class',
     name: 'ViewClass',
     component: () => import('../components/Admin/ManagePackage.vue'), // Create this component as needed
   },
   {
-    path: '/history-class',
-    name: 'HistoryClass',
-    component: () => import('../components/Member/HistoryClass.vue'), // Create this component as needed
+    path: '/member/class-history',
+    name: 'ClassHistory',
+    component: () => import('../components/Member/ClassHistory.vue'), // Create this component as needed
   },
   {
-    path: '/profile-page',
+    path: '/member/profile-page',
     name: 'ProfilePage',
     component: () => import('../components/Member/ProfilePage.vue'), // Create this component as needed
   },
