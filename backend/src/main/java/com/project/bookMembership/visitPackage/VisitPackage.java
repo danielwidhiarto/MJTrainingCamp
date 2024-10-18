@@ -39,8 +39,8 @@ public class VisitPackage {
     private Transaction transaction;
 
 
-    private Date startDate;
-    private Date endDate;
+    // private Date startDate;
+    // private Date endDate;
     private Long price;
     private Long visitNumber;
     private long visitUsed;
