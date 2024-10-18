@@ -2,18 +2,18 @@
   <div>
     <Navbar />
     <div class="container">
-      <h1>Admin Dashboard</h1>
-      <p>Welcome to your home page!</p>
+      <h1>ManageClass</h1>
+      <p>Welcome to your Manage Class page!</p>
       <!-- Add more content specific to the user here -->
     </div>
   </div>
 </template>
 
 <script>
-import Navbar from '../Admin/Navbar.vue' // Import the Navbar component
+import Navbar from './Navbar.vue' // Import the Navbar component
 
 export default {
-  name: 'AdminDashboard',
+  name: 'ManageClass',
   components: {
     Navbar,
   },
