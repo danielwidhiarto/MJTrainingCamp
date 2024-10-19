@@ -54,6 +54,31 @@
           </form>
         </div>
       </div>
+
+      <!-- Trainer List -->
+      <table class="table table-striped" v-if="trainers.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="trainer in trainers" :key="trainer.id">
+            <td>{{ trainer.id }}</td>
+            <td>{{ trainer.trainerName }}</td>
+            <td>{{ trainer.email }}</td>
+            <td>{{ trainer.pNumber }}</td>
+            <td>{{ trainer.trainerDescription }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else>
+        <p>No trainers found.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -70,6 +95,7 @@ export default {
   },
   data() {
     return {
+      trainers: [], // Trainers data fetched from API
       newTrainer: {
         trainerName: '',
         email: '',
@@ -84,11 +110,31 @@ export default {
     // Fetch the token from localStorage
     this.token = localStorage.getItem('token')
 
-    if (!this.token) {
+    if (this.token) {
+      this.fetchTrainers() // Fetch trainers when component is created
+    } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
   },
   methods: {
+    // Fetch trainers from API
+    async fetchTrainers() {
+      try {
+        const response = await axios.get(
+          'http://localhost:8081/api/v1/trainer/getall',
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          },
+        )
+        this.trainers = response.data // Store fetched trainers in the trainers array
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'Failed to fetch trainers.', 'error')
+      }
+    },
+    // Add a new trainer
     async addTrainer() {
       try {
         const response = await axios.post(
@@ -101,6 +147,9 @@ export default {
             },
           },
         )
+
+        // Add the new trainer to the list
+        this.trainers.push(response.data)
 
         // Clear the form fields after adding
         this.newTrainer = {
