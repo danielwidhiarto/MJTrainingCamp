@@ -5,5 +5,7 @@ import com.project.bookMembership.classes.TrainingClass;
 public interface TrainerService {
     Trainer save(TrainerRequest request);
     List<TrainingClass> getTrainerSchedule(TrainerScheduleRequest trainerScheduleRequest);
-    public Trainer findTrainerById(Long idTrainer);
+    Trainer findTrainerById(Long idTrainer);
+    List<Trainer> getAll();
+
 } 

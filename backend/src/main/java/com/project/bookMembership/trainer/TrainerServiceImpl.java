@@ -77,5 +77,17 @@ public class TrainerServiceImpl implements TrainerService{
                 .orElseThrow(() -> new RuntimeException("Trainer not found with id: " + idTrainer));
    
     }
+
+
+    public List<Trainer> getAll() {
+        List<Trainer> trainer = trainerRepo.findAll(); 
+
+  
+        if (trainer.isEmpty()) {
+            throw new RuntimeException("No trainers available at the moment.");
+        }
+        
+        return trainer;
+    }
     
 }
