@@ -2,8 +2,11 @@ package com.project.bookMembership.trainer;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +58,30 @@ public class TrainerController {
         return ResponseEntity.ok(responseList);
     }
 
+
+ @GetMapping("/getall")
+public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
+    try {
+        // Fetch all trainers from the service
+        List<Trainer> trainers = trainerService.getAll(); 
+
+        // Map trainers to TrainerResponse (assuming TrainerResponse is defined)
+        List<TrainerResponse> responseList = trainers.stream()
+            .map(trainer -> TrainerResponse.builder()
+                    .idTrainer(trainer.getIdTrainer())     // Assuming idTrainer is a field in Trainer
+                    .trainerName(trainer.getTrainerName()) // Assuming trainerName is a field in Trainer
+                    .trainerDescription(trainer.getTrainerDescription()) // Assuming trainerDescription is a field in Trainer
+                    .build())
+            .collect(Collectors.toList());
+
+        // Return the response
+        return ResponseEntity.ok(responseList);
+
+    } catch (RuntimeException e) {
+        // Handle runtime exceptions and return a 500 response
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Collections.emptyList()); // Or return an error message
+    }
+}
  
 }
