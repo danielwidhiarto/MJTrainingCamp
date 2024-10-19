@@ -90,7 +90,7 @@
                 :key="trainer.id"
                 :value="trainer.id"
               >
-                {{ trainer.id }} - {{ trainer.trainerName }}
+                {{ trainer.idTrainer }} - {{ trainer.trainerName }}
               </option>
             </select>
           </div>
