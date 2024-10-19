@@ -54,7 +54,7 @@ export default {
         localStorage.removeItem('idUser')
 
         // Redirect to login or home page
-        this.$router.push('/login') // Assuming '/login' is your login route
+        this.$router.push('/') // Assuming '/login' is your login route
       })
     },
   },
