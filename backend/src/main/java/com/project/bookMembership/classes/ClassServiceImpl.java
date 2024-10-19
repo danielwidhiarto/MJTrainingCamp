@@ -3,6 +3,8 @@ package com.project.bookMembership.classes;
 import java.util.List;
 
 
+import com.project.bookMembership.DTO.ClassDetailResponse;
+import com.project.bookMembership.DTO.GetClassResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import com.project.bookMembership.trainer.Trainer;
 import com.project.bookMembership.trainer.TrainerRepo;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
+import java.util.stream.Collectors;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,13 +29,19 @@ public class ClassServiceImpl implements ClassService {
     private final TrainerRepo trainerRepo;
     private final JwtService jwtService;
     private final UserRepo userRepo;
+    private final ClassDetailRepository classDetailRepository;
+    private final ClassTrainerDetailRepo classTrainerDetailRepo;
+
+
     @Autowired
-    public ClassServiceImpl(TrainingClassRepo trainingClassRepo, ClassTrainerDetailRepo classTrainerRepo,TrainerRepo trainerRepo, JwtService jwtService,UserRepo userRepo) {
+    public ClassServiceImpl(ClassTrainerDetailRepo classTrainerDetailRepo,TrainingClassRepo trainingClassRepo, ClassTrainerDetailRepo classTrainerRepo,TrainerRepo trainerRepo, JwtService jwtService,UserRepo userRepo, ClassDetailRepository classDetailRepository) {
         this.trainingClassRepo = trainingClassRepo;
         this.classTrainerRepo = classTrainerRepo; 
         this.trainerRepo = trainerRepo; 
         this.jwtService = jwtService; 
         this.userRepo = userRepo; 
+        this.classDetailRepository = classDetailRepository;
+        this.classTrainerDetailRepo = classTrainerDetailRepo;
     }
 
 
@@ -67,27 +76,56 @@ public class ClassServiceImpl implements ClassService {
         return savedClass;
     }
 
-    @Override
-    public List<TrainingClass> getTrainingClass() {
+    public List<GetClassResponse> getTrainingClass() {
+        List<TrainingClass> classes = trainingClassRepo.findAll();
+        List<GetClassResponse> responseList = new ArrayList<>();
 
-           List<TrainingClass> classes = trainingClassRepo.findAll();
-    
         if (classes.isEmpty()) {
-           return new ArrayList<>();
+            return responseList; // Return empty list if no classes found
         }
-    
-        return classes;
+
+        for (TrainingClass trainingClass : classes) {
+            // Fetch all class details for each class
+            List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
+
+            // Map class details to ClassDetailResponse
+            List<ClassDetailResponse> classMembers = classDetails.stream()
+                    .map(classDetail -> new ClassDetailResponse(
+                            classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                    .collect(Collectors.toList());
+
+            ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
+
+
+            Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
+
+
+            GetClassResponse classResponse = GetClassResponse.builder()
+                    .idClass(trainingClass.getIdClass())
+                    .className(trainingClass.getClassName())
+                    .classRequirement(trainingClass.getClassRequirement())
+                    .classDate(trainingClass.getClassDate())
+                    .classTime(trainingClass.getClassTime())
+                    .classCapasity(trainingClass.getClassCapasity())
+                    .idTrainer(trainer != null ? trainer.getIdTrainer() : null)
+                    .classMembers(classMembers) // Set class members here
+                    .build();
+
+            responseList.add(classResponse);
+        }
+
+        return responseList;
     }
 
     @Override
     public List<TrainingClass> getTrainingClassById(Long id) {
-        
+
         Optional<TrainingClass> trainingClass = trainingClassRepo.findById(id);
-    
+
         if (trainingClass.isEmpty()) {
            return new ArrayList<>();
         }
-    
+
         return List.of(trainingClass.get());
     }
 

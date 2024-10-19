@@ -2,6 +2,7 @@ package com.project.bookMembership.DTO;
 
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +26,5 @@ public class GetClassResponse {
     private String className;
     private Long idTrainer;
 
-    // private List<ClassDetailResponse> classMembers;
+     private List<ClassDetailResponse> classMembers;
 }

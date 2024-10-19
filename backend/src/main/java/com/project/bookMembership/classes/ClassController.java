@@ -35,8 +35,6 @@ public class ClassController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addClass(@RequestBody ClassRequest classRequest) {
-        
-         
 
         try {
             classService.save(classRequest);
@@ -49,8 +47,7 @@ public class ClassController {
 
     @PostMapping("/book")
     public ResponseEntity<String> book(@RequestBody ClassDetailRequest classDetailRequest) {
-      
-       
+
         try {
         classDetailService.book(classDetailRequest);
         return ResponseEntity.ok("Class booked successfully");
@@ -58,38 +55,57 @@ public class ClassController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage()); 
         }
     }
-    
+
+//    @GetMapping("/getClasses")
+//    public ResponseEntity<List<GetClassResponse>> getClasses(@RequestParam(required = false) Long id,
+//                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
+//
+//        List<TrainingClass> trainingClasses = new ArrayList<>();
+//
+//        if (id != null) {
+//            trainingClasses = classService.getTrainingClassById(id);
+//        } else if (date != null) {
+//            trainingClasses = classService.getTrainingClassByDate(date);
+//        } else {
+//            trainingClasses = classService.getTrainingClass();
+//        }
+//
+//
+//
+//        List<GetClassResponse> responseList = trainingClasses.stream()
+//            .map(trainingClass -> GetClassResponse.builder()
+//                .idClass(trainingClass.getIdClass())
+//                .className((trainingClass.getClassName()))
+//                .classRequirement(trainingClass.getClassRequirement())
+//                .classDate(trainingClass.getClassDate())
+//                .classTime(trainingClass.getClassTime())
+//                .classCapasity(trainingClass.getClassCapasity())
+//
+//                .build())
+//            .collect(Collectors.toList());
+//
+//
+//        return ResponseEntity.ok(responseList);
+//    }
+
     @GetMapping("/getClasses")
-    public ResponseEntity<List<GetClassResponse>> getClasses(@RequestParam(required = false) Long id,
-                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
-    
-        List<TrainingClass> trainingClasses = new ArrayList<>();
-        
+    public ResponseEntity<List<GetClassResponse>> getClasses(
+            @RequestParam(required = false) Long id,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
+
+        List<GetClassResponse> classResponses = new ArrayList<>();
+
         if (id != null) {
-            trainingClasses = classService.getTrainingClassById(id);
+//            classResponses = classService.getTrainingClassById(id); // Ensure this returns List<GetClassResponse>
         } else if (date != null) {
-            trainingClasses = classService.getTrainingClassByDate(date);
+//            classResponses = classService.getTrainingClassByDate(date); // Ensure this returns List<GetClassResponse>
         } else {
-            trainingClasses = classService.getTrainingClass(); 
+            classResponses = classService.getTrainingClass(); // This returns List<GetClassResponse>
         }
 
-
-        List<GetClassResponse> responseList = trainingClasses.stream()
-            .map(trainingClass -> GetClassResponse.builder()
-                .idClass(trainingClass.getIdClass())
-                .className((trainingClass.getClassName()))
-                .classRequirement(trainingClass.getClassRequirement())
-                .classDate(trainingClass.getClassDate())
-                .classTime(trainingClass.getClassTime())
-                .classCapasity(trainingClass.getClassCapasity())
-                
-                .build())
-            .collect(Collectors.toList());
-    
-       
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(classResponses);
     }
-    
+
     
     @GetMapping("/getHistory")
     public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
