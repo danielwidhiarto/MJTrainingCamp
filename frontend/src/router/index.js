@@ -75,6 +75,11 @@ const routes = [
     name: 'ManageMember',
     component: () => import('../components/Admin/ManageMember.vue'), // Create this component as needed
   },
+  {
+    path: '/admin/profile-page',
+    name: 'ProfilePage',
+    component: () => import('../components/Admin/ProfilePage.vue'), // Create this component as needed
+  },
 ]
 
 // Create the router instance
