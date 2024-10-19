@@ -4,8 +4,9 @@
     <div class="container mt-4">
       <h1 class="mb-4 text-center">Manage Trainers</h1>
 
-      <!-- Button to Trigger Add Trainer Modal -->
-      <div class="text-center mb-4">
+      <!-- Button to Trigger Add Trainer Modal - Positioned Right -->
+      <div class="d-flex justify-content-between mb-3">
+        <h5></h5>
         <button class="btn btn-success" @click="isAddModalOpen = true">
           Add New Trainer
         </button>
