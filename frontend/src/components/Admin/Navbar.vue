@@ -21,7 +21,7 @@
 
     <!-- Profile icon redirects to Profile Page -->
     <div class="navbar-right">
-      <router-link to="/profile-page">
+      <router-link to="/admin/profile-page">
         <img
           src="../assets/profile-icon.png"
           alt="Profile"
