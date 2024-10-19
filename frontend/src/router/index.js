@@ -5,6 +5,7 @@ import MemberDashboard from '../components/Member/Dashboard.vue'
 import AdminDashboard from '../components/Admin/Dashboard.vue'
 import TrainerDashboard from '../components/Trainer/Dashboard.vue'
 
+// Define routes
 const routes = [
   {
     path: '/',
@@ -20,65 +21,77 @@ const routes = [
     path: '/member/dashboard',
     name: 'MemberDashboard',
     component: MemberDashboard,
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
     path: '/admin/dashboard',
     name: 'AdminDashboard',
     component: AdminDashboard,
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
     path: '/trainer/dashboard',
     name: 'TrainerDashboard',
     component: TrainerDashboard,
+    meta: { requiresAuth: true, roles: ['ROLE_TRAINER'] },
   },
 
-  //Member
+  // Member routes
   {
     path: '/member/buy-membership',
     name: 'BuyMembership',
-    component: () => import('../components/Member/BuyMembership.vue'), // Create this component as needed
+    component: () => import('../components/Member/BuyMembership.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
     path: '/member/view-class',
     name: 'ViewClass',
-    component: () => import('../components/Member/ViewClass.vue'), // Create this component as needed
+    component: () => import('../components/Member/ViewClass.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
     path: '/member/class-history',
     name: 'ClassHistory',
-    component: () => import('../components/Member/ClassHistory.vue'), // Create this component as needed
+    component: () => import('../components/Member/ClassHistory.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
     path: '/member/profile-page',
     name: 'ProfilePage',
-    component: () => import('../components/Member/ProfilePage.vue'), // Create this component as needed
+    component: () => import('../components/Member/ProfilePage.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
 
-  //Admin
+  // Admin routes
   {
     path: '/admin/manage-package',
     name: 'ManagePackage',
-    component: () => import('../components/Admin/ManagePackage.vue'), // Create this component as needed
+    component: () => import('../components/Admin/ManagePackage.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
     path: '/admin/manage-class',
     name: 'ManageClass',
-    component: () => import('../components/Admin/ManageClass.vue'), // Create this component as needed
+    component: () => import('../components/Admin/ManageClass.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
     path: '/admin/verify-payment',
     name: 'VerifyPayment',
-    component: () => import('../components/Admin/VerifyPayment.vue'), // Create this component as needed
+    component: () => import('../components/Admin/VerifyPayment.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
     path: '/admin/manage-member',
     name: 'ManageMember',
-    component: () => import('../components/Admin/ManageMember.vue'), // Create this component as needed
+    component: () => import('../components/Admin/ManageMember.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
     path: '/admin/profile-page',
-    name: 'ProfilePage',
-    component: () => import('../components/Admin/ProfilePage.vue'), // Create this component as needed
+    name: 'AdminProfilePage',
+    component: () => import('../components/Admin/ProfilePage.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
 ]
 
@@ -93,20 +106,31 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
 
-  // Allow access to login and register without token
-  if (to.name === 'Login' || to.name === 'Register') {
-    next() // Allow access to Login and Register routes
-  } else if (to.name === 'AdminDashboard' && role !== 'ROLE_ADMIN') {
-    // If trying to access Admin Dashboard and user is not admin, redirect to Member Dashboard
-    next({ name: 'MemberDashboard' })
-  } else if (to.name === 'TrainerDashboard' && role !== 'ROLE_TRAINER') {
-    // If trying to access Trainer Dashboard and user is not a trainer, redirect to Member Dashboard
-    next({ name: 'MemberDashboard' })
-  } else if (!token) {
-    // If trying to access a protected route and not logged in, redirect to Login
-    next({ name: 'Login' })
+  // Redirect logged-in users from login/register to the dashboard
+  if (token && (to.name === 'Login' || to.name === 'Register')) {
+    next({ name: 'MemberDashboard' }) // or any other default route for logged-in users
+    return
+  }
+
+  // Handle protected routes
+  if (to.meta.requiresAuth) {
+    if (!token) {
+      // If not logged in, redirect to Login
+      next({ name: 'Login' })
+    } else if (!to.meta.roles.includes(role)) {
+      // If user doesn't have the required role, redirect accordingly
+      if (role === 'ROLE_ADMIN') {
+        next({ name: 'AdminDashboard' })
+      } else if (role === 'ROLE_TRAINER') {
+        next({ name: 'TrainerDashboard' })
+      } else {
+        next({ name: 'MemberDashboard' })
+      }
+    } else {
+      next() // User is authenticated and authorized
+    }
   } else {
-    next() // Allow access to the route
+    next() // Allow access to non-protected routes
   }
 })
 
