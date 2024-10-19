@@ -33,7 +33,7 @@
                 <td>{{ trainer.trainerName }}</td>
                 <td>{{ trainer.email }}</td>
                 <!-- email is not in the response, so you can remove or adjust it -->
-                <td>{{ trainer.pNumber }}</td>
+                <td>{{ trainer.pnumber }}</td>
                 <!-- pNumber is also missing, adjust as needed -->
                 <td>{{ trainer.trainerDescription }}</td>
               </tr>
