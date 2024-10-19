@@ -19,6 +19,8 @@ import com.project.bookMembership.DTO.TrainerScheduleRequest;
 import com.project.bookMembership.DTO.TrainerScheduleResponse;
 import com.project.bookMembership.auth.AuthenticationService;
 import com.project.bookMembership.classes.TrainingClass;
+import com.project.bookMembership.user.User;
+import com.project.bookMembership.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +31,7 @@ public class TrainerController {
     
     private final TrainerService trainerService;
     private final AuthenticationService service;
+    private final UserService userService;
 
     @PostMapping("/add")
     public ResponseEntity<String> addClass(@RequestBody TrainerRequest trainerRequest) {
@@ -62,30 +65,42 @@ public class TrainerController {
         return ResponseEntity.ok(responseList);
     }
 
-
- @GetMapping("/getall")
+    @GetMapping("/getall")
 public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
     try {
-        // Fetch all trainers from the service
+        // Get all trainers
         List<Trainer> trainers = trainerService.getAll(); 
 
-        // Map trainers to TrainerResponse (assuming TrainerResponse is defined)
+        // Create a response list
         List<TrainerResponse> responseList = trainers.stream()
-            .map(trainer -> TrainerResponse.builder()
-                    .idTrainer(trainer.getIdTrainer())     // Assuming idTrainer is a field in Trainer
-                    .trainerName(trainer.getTrainerName()) // Assuming trainerName is a field in Trainer
-                    .trainerDescription(trainer.getTrainerDescription()) // Assuming trainerDescription is a field in Trainer
-                    .build())
+            .map(trainer -> {
+                Long idtrainer = trainer.getIdTrainer();
+                System.out.println("Fetching user for trainer ID: " + idtrainer);
+                
+                User user = userService.getUserByTrainerId(idtrainer)
+                        .orElseThrow(() -> new RuntimeException("User not found for trainer: " + trainer.getIdTrainer()));
+
+                // Build the TrainerResponse object
+                return TrainerResponse.builder()
+                        .idTrainer(trainer.getIdTrainer())    
+                        .trainerName(trainer.getTrainerName()) 
+                        .trainerDescription(trainer.getTrainerDescription())
+                        .email(user.getEmail())          // Add email from the user
+                        .pNumber(user.getPNumber())      // Add phone number from the user
+                        .build();
+            })
             .collect(Collectors.toList());
 
         // Return the response
         return ResponseEntity.ok(responseList);
 
     } catch (RuntimeException e) {
-        // Handle runtime exceptions and return a 500 response
+        // Handle runtime exceptions and return a 404 response
+        e.printStackTrace(); // Log the exception for debugging
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Collections.emptyList()); // Or return an error message
     }
 }
+
  
 }

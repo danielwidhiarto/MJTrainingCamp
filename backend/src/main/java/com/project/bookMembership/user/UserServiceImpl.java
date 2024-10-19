@@ -1,5 +1,8 @@
 package com.project.bookMembership.user;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,14 @@ public class UserServiceImpl implements UserService {
         return (user != null) ? user.getIdUser() : null;
     }
 
+    
+
+    @Override
+    public Optional<User> getUserByTrainerId(Long id) {
+        // Find the user by ID, returning an Optional
+        return userRepo.findByIdTrainer(id);
+    }
+    
     
 
 }
