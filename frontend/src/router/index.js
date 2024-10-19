@@ -41,7 +41,7 @@ const routes = [
   {
     path: '/member/view-class',
     name: 'ViewClass',
-    component: () => import('../components/Admin/ManagePackage.vue'), // Create this component as needed
+    component: () => import('../components/Member/ViewClass.vue'), // Create this component as needed
   },
   {
     path: '/member/class-history',
