@@ -76,6 +76,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
+    path: '/admin/manage-trainer',
+    name: 'ManageTrainer',
+    component: () => import('../components/Admin/ManageTrainer.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+  },
+  {
     path: '/admin/verify-payment',
     name: 'VerifyPayment',
     component: () => import('../components/Admin/VerifyPayment.vue'),

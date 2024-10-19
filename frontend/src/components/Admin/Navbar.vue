@@ -15,6 +15,7 @@
     <div :class="['navbar-center', { 'navbar-center-active': isMenuOpen }]">
       <router-link to="/admin/manage-package">Manage Package</router-link>
       <router-link to="/admin/manage-class">Manage Class</router-link>
+      <router-link to="/admin/manage-trainer">Manage Trainer</router-link>
       <router-link to="/admin/verify-payment">Verify Payment</router-link>
       <router-link to="/admin/manage-member">Manage Member</router-link>
     </div>
