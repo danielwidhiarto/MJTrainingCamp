@@ -6,7 +6,7 @@
 
       <!-- Button to Trigger Add Class Modal -->
       <div class="d-flex justify-content-between mb-3">
-        <h5>Class List</h5>
+        <h5></h5>
         <button class="btn btn-success" @click="isAddModalOpen = true">
           Add New Class
         </button>
