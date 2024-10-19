@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.project.bookMembership.DTO.TrainerRequest;
+import com.project.bookMembership.DTO.TrainerScheduleRequest;
 import com.project.bookMembership.classes.TrainingClass;
 import com.project.bookMembership.classes.TrainingClassRepo;
 import com.project.bookMembership.config.JwtService;

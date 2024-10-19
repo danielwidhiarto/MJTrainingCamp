@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.bookMembership.DTO.ClassDetailRequest;
+import com.project.bookMembership.DTO.ClassHistoryRequest;
+import com.project.bookMembership.DTO.ClassRequest;
+import com.project.bookMembership.DTO.GetClassResponse;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
+import com.project.bookMembership.DTO.ClassHistoryRequest;
+import com.project.bookMembership.DTO.ClassRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.trainer.Trainer;
 import com.project.bookMembership.trainer.TrainerRepo;
@@ -76,7 +78,6 @@ public class ClassServiceImpl implements ClassService {
     
         return classes;
     }
-
 
     @Override
     public List<TrainingClass> getTrainingClassById(Long id) {

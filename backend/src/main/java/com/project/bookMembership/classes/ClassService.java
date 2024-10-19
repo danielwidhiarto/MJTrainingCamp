@@ -1,6 +1,10 @@
 package com.project.bookMembership.classes;
 
 import java.util.List;
+
+import com.project.bookMembership.DTO.ClassHistoryRequest;
+import com.project.bookMembership.DTO.ClassRequest;
+
 import java.util.Date;
 
 

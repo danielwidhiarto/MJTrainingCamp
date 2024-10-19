@@ -7,6 +7,7 @@ import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
 import com.project.bookMembership.visitPackage.VisitPackage;
 import com.project.bookMembership.visitPackage.VisitPackageRepo;
+import com.project.bookMembership.DTO.ClassDetailRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.membership.Membership;
 import com.project.bookMembership.membership.MembershipRepo;

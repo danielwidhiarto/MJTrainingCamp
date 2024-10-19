@@ -3,6 +3,7 @@ package com.project.bookMembership.visitPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.project.bookMembership.DTO.VisitPackageRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.transaction.Transaction;
 import com.project.bookMembership.transaction.TransactionService;

@@ -7,9 +7,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.bookMembership.DTO.AuthenticationRequest;
+import com.project.bookMembership.DTO.AuthenticationResponse;
+import com.project.bookMembership.DTO.RegisterRequest;
+import com.project.bookMembership.DTO.TrainerRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.trainer.Trainer;
-import com.project.bookMembership.trainer.TrainerRequest;
 import com.project.bookMembership.trainer.TrainerService;
 import com.project.bookMembership.user.Role;
 import com.project.bookMembership.user.User;
@@ -56,7 +59,7 @@ public class AuthenticationService {
     var user = User.builder()
         .name(request.getName())
         .email(request.getEmail())
-        .pNumber(request.getPNumber())
+        .pNumber(request.getpNumber())
         .password(passwordEncoder.encode(request.getPassword()))
         .role(Role.ROLE_TRAINER)
         .registrationDate(currentdate)
@@ -69,6 +72,7 @@ public class AuthenticationService {
         .token(jwtToken)
         .build();
 }
+
 public AuthenticationResponse authenticate(AuthenticationRequest request) {
     try {
         authenticationManager.authenticate(

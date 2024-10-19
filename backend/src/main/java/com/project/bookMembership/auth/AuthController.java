@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.bookMembership.DTO.AuthenticationRequest;
+import com.project.bookMembership.DTO.AuthenticationResponse;
+import com.project.bookMembership.DTO.ErrorResponse;
+import com.project.bookMembership.DTO.RegisterRequest;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController

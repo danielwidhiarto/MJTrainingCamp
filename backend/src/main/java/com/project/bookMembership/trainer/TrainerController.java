@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Collectors;
 
+import com.project.bookMembership.DTO.TrainerRequest;
+import com.project.bookMembership.DTO.TrainerResponse;
+import com.project.bookMembership.DTO.TrainerScheduleRequest;
+import com.project.bookMembership.DTO.TrainerScheduleResponse;
 import com.project.bookMembership.auth.AuthenticationService;
 import com.project.bookMembership.classes.TrainingClass;
 
