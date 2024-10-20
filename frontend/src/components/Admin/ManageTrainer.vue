@@ -33,7 +33,7 @@
                 <td>{{ trainer.trainerName }}</td>
                 <td>{{ trainer.email }}</td>
                 <!-- email is not in the response, so you can remove or adjust it -->
-                <td>{{ trainer.pNumber }}</td>
+                <td>{{ trainer.pnumber }}</td>
                 <!-- pNumber is also missing, adjust as needed -->
                 <td>{{ trainer.trainerDescription }}</td>
               </tr>
@@ -69,6 +69,17 @@
               id="trainerEmail"
               required
               placeholder="Enter trainer email"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="trainerPassword" class="form-label">Password</label>
+            <input
+              type="password"
+              v-model="newTrainer.password"
+              class="form-control"
+              id="trainerPassword"
+              required
+              placeholder="Enter password"
             />
           </div>
           <div class="mb-3">
@@ -120,7 +131,7 @@ export default {
       newTrainer: {
         trainerName: '',
         email: '',
-        password: '',
+        password: '', // Added password field
         pNumber: '',
         trainerDescription: '',
       },
