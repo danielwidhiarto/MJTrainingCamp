@@ -8,8 +8,8 @@
       <!-- Membership Plans Section -->
       <div class="card-container">
         <div class="card" v-for="(plan, index) in membershipPlans" :key="index">
-          <h2>{{ plan.price }}</h2>
-          <h3>{{ plan.title }}</h3>
+          <h2>Rp. {{ plan.price }}</h2>
+          <h3>{{ plan.packageName }}</h3>
           <p>{{ plan.description }}</p>
           <button class="select-plan-button">Pilih Plan</button>
         </div>
@@ -24,8 +24,8 @@
             v-for="(visit, index) in visitPackages"
             :key="index"
           >
-            <h2>{{ visit.price }}</h2>
-            <h3>{{ visit.title }}</h3>
+            <h2>Rp. {{ visit.price }}</h2>
+            <h3>{{ visit.packageName }}</h3>
             <p>{{ visit.description }}</p>
             <button class="select-visit-button">Beli Paket Visit</button>
           </div>
@@ -37,6 +37,8 @@
 
 <script>
 import Navbar from './Navbar.vue' // Import the Navbar component
+import axios from 'axios' // Import axios for HTTP requests
+import Swal from 'sweetalert2' // Import SweetAlert
 
 export default {
   name: 'BuyMembership',
@@ -45,52 +47,47 @@ export default {
   },
   data() {
     return {
-      membershipPlans: [
-        {
-          price: 'Rp.100.000',
-          title: 'Paket 1 bulan',
-          description: '  Cocok untuk yang ingin eksplorasi sesuai kebutuhan.',
-        },
-        {
-          price: 'Rp.200.000',
-          title: 'Paket 2 bulan',
-          description:
-            'Dapatkan akses penuh selama dua bulan untuk menjelajahi lebih banyak kelas.',
-        },
-        {
-          price: 'Rp.300.000',
-          title: 'Paket 3 bulan',
-          description:
-            'Paket ini memberi Anda akses penuh selama tiga bulan untuk memaksimalkan pengalaman belajar Anda.',
-        },
-        {
-          price: 'Rp.400.000',
-          title: 'Paket 6 bulan',
-          description:
-            'Paket yang sempurna bagi Anda yang ingin berkomitmen dalam waktu yang lebih lama.',
-        },
-      ],
-      visitPackages: [
-        {
-          price: 'Rp.50.000',
-          title: 'Paket Visit 1 Kuota',
-          description:
-            'Paket visit Kelas ini menawarkan 1 kuota untuk mencoba kelas. Akses ke fasilitas lengkap dan program yang fleksibel.',
-        },
-        {
-          price: 'Rp.120.000',
-          title: 'Paket Visit 3 Kuota',
-          description:
-            'Paket ini menawarkan 3 kuota untuk mencoba kelas. Cocok untuk eksplorasi lebih lanjut.',
-        },
-        {
-          price: 'Rp.200.000',
-          title: 'Paket Visit 5 Kuota',
-          description:
-            'Paket ini menawarkan 5 kuota untuk memaksimalkan pengalaman belajar Anda dengan lebih banyak kelas.',
-        },
-      ],
+      membershipPlans: [], // Initialize empty array for membership plans
+      visitPackages: [], // Initialize empty array for visit packages
     }
+  },
+  created() {
+    this.fetchPackages() // Fetch packages when the component is created
+  },
+  methods: {
+    async fetchPackages() {
+      try {
+        const token = localStorage.getItem('token') // Get the token from local storage
+        const response = await axios.get(
+          'http://localhost:8081/api/v1/package/get',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Include the token in the headers
+            },
+          },
+        )
+        const packages = response.data
+
+        // Filter membership and visit packages
+        this.membershipPlans = packages.filter(
+          packageItem => packageItem.type === 'Membership',
+        )
+        this.visitPackages = packages.filter(
+          packageItem => packageItem.type === 'Visit',
+        )
+      } catch (error) {
+        console.error(error)
+        if (error.response && error.response.status === 403) {
+          Swal.fire(
+            'Error',
+            'Access forbidden. Please check your permissions.',
+            'error',
+          )
+        } else {
+          Swal.fire('Error', 'Failed to fetch packages.', 'error')
+        }
+      }
+    },
   },
 }
 </script>
