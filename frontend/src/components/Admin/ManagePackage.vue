@@ -12,34 +12,67 @@
         </button>
       </div>
 
-      <!-- Package List -->
+      <!-- Membership Packages Table -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Packages List</div>
+        <div class="card-header bg-primary text-white">Membership Packages</div>
         <div class="card-body">
-          <table class="table table-striped" v-if="packages.length > 0">
+          <table
+            class="table table-striped"
+            v-if="membershipPackages.length > 0"
+          >
             <thead>
               <tr>
-                <th>Package Name</th>
-                <th>Price</th>
-                <th>Type</th>
-                <th>Visit Number</th>
+                <th @click="sort('packageName')">Package Name</th>
+                <th @click="sort('price')">Price</th>
                 <th>Duration (months)</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="packageItem in packages" :key="packageItem.id">
+              <tr
+                v-for="packageItem in sortedMembershipPackages"
+                :key="packageItem.id"
+              >
                 <td>{{ packageItem.packageName }}</td>
                 <td>{{ packageItem.price }}</td>
-                <td>{{ packageItem.type }}</td>
-                <td>{{ packageItem.visitNumber }}</td>
                 <td>{{ packageItem.duration }}</td>
                 <td>{{ packageItem.status }}</td>
               </tr>
             </tbody>
           </table>
           <div v-else>
-            <p class="text-center">No packages found.</p>
+            <p class="text-center">No membership packages found.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visit Packages Table -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">Visit Packages</div>
+        <div class="card-body">
+          <table class="table table-striped" v-if="visitPackages.length > 0">
+            <thead>
+              <tr>
+                <th @click="sort('packageName')">Package Name</th>
+                <th @click="sort('price')">Price</th>
+                <th>Visit Number</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="packageItem in sortedVisitPackages"
+                :key="packageItem.id"
+              >
+                <td>{{ packageItem.packageName }}</td>
+                <td>{{ packageItem.price }}</td>
+                <td>{{ packageItem.visitNumber }}</td>
+                <td>{{ packageItem.status }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else>
+            <p class="text-center">No visit packages found.</p>
           </div>
         </div>
       </div>
@@ -137,6 +170,7 @@ export default {
       },
       token: null, // Token for authorization will be fetched from localStorage
       isAddModalOpen: false, // Control the visibility of the add modal
+      sortKey: 'packageName', // Sort key for sorting packages
     }
   },
   created() {
@@ -148,6 +182,30 @@ export default {
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
+  },
+  computed: {
+    membershipPackages() {
+      return this.packages.filter(
+        packageItem => packageItem.type === 'Membership',
+      )
+    },
+    visitPackages() {
+      return this.packages.filter(packageItem => packageItem.type === 'Visit')
+    },
+    sortedMembershipPackages() {
+      return this.membershipPackages.sort((a, b) => {
+        if (a[this.sortKey] < b[this.sortKey]) return -1
+        if (a[this.sortKey] > b[this.sortKey]) return 1
+        return 0
+      })
+    },
+    sortedVisitPackages() {
+      return this.visitPackages.sort((a, b) => {
+        if (a[this.sortKey] < b[this.sortKey]) return -1
+        if (a[this.sortKey] > b[this.sortKey]) return 1
+        return 0
+      })
+    },
   },
   methods: {
     // Fetch packages from API
@@ -232,6 +290,10 @@ export default {
         this.newPackage.visitNumber = '' // Reset visit number when type changes to Membership
       }
     },
+    // Sort packages
+    sort(key) {
+      this.sortKey = key
+    },
   },
 }
 </script>
@@ -279,7 +341,7 @@ h1 {
 .btn-close {
   position: absolute;
   top: 10px;
-  right: 10 px;
+  right: 10px;
   background: none;
   border: none;
   font-size: 1.5rem;
