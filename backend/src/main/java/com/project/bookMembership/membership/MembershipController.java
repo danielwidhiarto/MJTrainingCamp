@@ -1,14 +1,12 @@
 package com.project.bookMembership.membership;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.project.bookMembership.DTO.MembershipRequest;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/membership")
@@ -19,10 +17,14 @@ public class MembershipController {
 
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buymembership(@ModelAttribute MembershipRequest membershipRequest) {
+    public ResponseEntity<String> buymembership(
+            @ModelAttribute MembershipRequest membershipRequest,
+            @RequestPart("buktiTransfer") MultipartFile buktiTransfer) {
 
-        
-        membershipService.save(membershipRequest); 
+
+        // Save the membership request
+        membershipService.save(membershipRequest);
+
 
         return ResponseEntity.ok("Buy membership successfully");
     }
