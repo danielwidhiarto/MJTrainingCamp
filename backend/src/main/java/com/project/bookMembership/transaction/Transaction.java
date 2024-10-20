@@ -42,7 +42,7 @@ public class Transaction {
 
     private Date visitStartDate;
     private Date visitEndDate;
-    // private String paymentType;
+     private String paymentType;
     private String paymentMethod;
     private String paymentStatus;
     private Long transactionPrice;

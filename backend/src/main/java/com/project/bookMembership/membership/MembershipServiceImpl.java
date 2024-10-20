@@ -45,7 +45,7 @@ public Membership save(MembershipRequest membershipRequest) {
     Transaction transaction = Transaction.builder()
         //     .visitStartDate(membershipRequest.getVisitStartDate())
         //     .visitEndDate(membershipRequest.getVisitEndDate())
-        //     .paymentType(membershipRequest.getPaymentType())
+             .paymentType("Membership")
             .paymentMethod(membershipRequest.getPaymentMethod())
             .paymentStatus("WAITING FOR APPROVAL")
             .transactionPrice(membershipRequest.getTransactionPrice())
