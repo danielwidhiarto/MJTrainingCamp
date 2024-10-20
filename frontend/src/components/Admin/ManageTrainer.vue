@@ -72,6 +72,17 @@
             />
           </div>
           <div class="mb-3">
+            <label for="trainerPassword" class="form-label">Password</label>
+            <input
+              type="password"
+              v-model="newTrainer.password"
+              class="form-control"
+              id="trainerPassword"
+              required
+              placeholder="Enter password"
+            />
+          </div>
+          <div class="mb-3">
             <label for="trainerPhone" class="form-label">Phone Number</label>
             <input
               type="text"
@@ -120,7 +131,7 @@ export default {
       newTrainer: {
         trainerName: '',
         email: '',
-        password: '',
+        password: '', // Added password field
         pNumber: '',
         trainerDescription: '',
       },
