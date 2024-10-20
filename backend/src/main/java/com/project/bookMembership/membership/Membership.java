@@ -1,5 +1,6 @@
 package com.project.bookMembership.membership;
 
+
 import java.util.Date;
 
 import com.project.bookMembership.transaction.Transaction;
@@ -36,7 +37,7 @@ public class Membership {
     @ManyToOne
     @JoinColumn(name = "transaction_id", nullable = true)
     private Transaction transaction;
-   
+
 
 
     private Date startDate;
