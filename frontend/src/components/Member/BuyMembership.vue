@@ -8,7 +8,7 @@
       <!-- Membership Plans Section -->
       <div class="card-container">
         <div class="card" v-for="(plan, index) in membershipPlans" :key="index">
-          <h2>Rp. {{ plan.price }}</h2>
+          <h2>{{ plan.price }}</h2>
           <h3>{{ plan.packageName }}</h3>
           <p>{{ plan.description }}</p>
           <button class="select-plan-button">Pilih Plan</button>
@@ -24,7 +24,7 @@
             v-for="(visit, index) in visitPackages"
             :key="index"
           >
-            <h2>Rp. {{ visit.price }}</h2>
+            <h2>{{ visit.price }}</h2>
             <h3>{{ visit.packageName }}</h3>
             <p>{{ visit.description }}</p>
             <button class="select-visit-button">Beli Paket Visit</button>
