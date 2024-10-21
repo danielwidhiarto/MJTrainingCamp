@@ -12,5 +12,10 @@ import lombok.NoArgsConstructor;
 public class GetTransactionResponse {
 
     private Long idTransaction;
+
+    private String paymentType;
+    private String paymentMethod;
+    private String paymentStatus;
+    private Long transactionPrice;
     private byte[] buktiTransfer;
 }

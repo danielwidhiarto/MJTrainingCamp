@@ -29,12 +29,14 @@ public class TransactionServiceImpl implements TransactionService {
     public Optional<GetTransactionResponse> getById(Long id) {
         Optional<Transaction> transaction = transactionRepository.findById(id);
 
-    
-    
         return transaction.map(tx -> {
             GetTransactionResponse response = new GetTransactionResponse();
             response.setIdTransaction(tx.getIdTransaction());
-    
+            response.setPaymentMethod(tx.getPaymentMethod());
+            response.setPaymentType(tx.getPaymentType());
+            response.setTransactionPrice(tx.getTransactionPrice());
+
+
             try {
                 byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
                 response.setBuktiTransfer(decompressedImage);
