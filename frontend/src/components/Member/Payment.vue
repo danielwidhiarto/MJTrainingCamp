@@ -44,11 +44,11 @@ export default {
   },
   methods: {
     async fetchPackageDetails() {
-      const packageId = this.route.params.packageId // Get the packageId from route parameters
+      const idPackage = this.route.params.idPackage // Get the idPackage from route parameters
       try {
         const token = localStorage.getItem('token') // Get the token from local storage
         const response = await axios.get(
-          `http://localhost:8081/api/v1/package/get/${packageId}`,
+          `http://localhost:8081/api/v1/package/get/${idPackage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Include the token in the headers

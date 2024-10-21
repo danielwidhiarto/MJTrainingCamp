@@ -44,7 +44,7 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
-    path: '/member/payment/:packageId',
+    path: '/member/payment/:idPackage',
     name: 'Payment',
     component: () => import('../components/Member/Payment.vue'),
     meta: { requiresAuth: true, roles: ['ROLE_USER'] },

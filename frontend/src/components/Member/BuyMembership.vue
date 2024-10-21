@@ -11,7 +11,10 @@
           <h2>{{ plan.price }}</h2>
           <h3>{{ plan.packageName }}</h3>
           <p>{{ plan.description }}</p>
-          <button class="select-plan-button" @click="goToPayment(plan.id)">
+          <button
+            class="select-plan-button"
+            @click="goToPayment(plan.idPackage)"
+          >
             Pilih Plan
           </button>
         </div>
@@ -29,7 +32,10 @@
             <h2>{{ visit.price }}</h2>
             <h3>{{ visit.packageName }}</h3>
             <p>{{ visit.description }}</p>
-            <button class="select-visit-button" @click="goToPayment(visit.id)">
+            <button
+              class="select-visit-button"
+              @click="goToPayment(visit.idPackage)"
+            >
               Beli Paket Visit
             </button>
           </div>
@@ -81,8 +87,8 @@ export default {
       }
     }
 
-    const goToPayment = packageId => {
-      router.push({ name: 'Payment', params: { packageId } }) // Navigate to the payment page with the package ID
+    const goToPayment = idPackage => {
+      router.push({ name: 'Payment', params: { idPackage } }) // Navigate to the payment page with the package ID
     }
 
     onMounted(fetchPackages) // Fetch packages when the component is mounted
