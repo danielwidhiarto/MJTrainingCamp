@@ -40,8 +40,8 @@ public class Transaction {
     @JoinColumn(name = "Visit_id", nullable = true)
     private VisitPackage visitPackage;
 
-    private Date visitStartDate;
-    private Date visitEndDate;
+//    private Date visitStartDate;
+//    private Date visitEndDate;
      private String paymentType;
     private String paymentMethod;
     private String paymentStatus;

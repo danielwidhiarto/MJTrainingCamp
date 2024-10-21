@@ -39,8 +39,6 @@ public Membership save(MembershipRequest membershipRequest) {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
 
-         
-
     // Create Transaction entityy
     Transaction transaction = Transaction.builder()
         //     .visitStartDate(membershipRequest.getVisitStartDate())

@@ -1,14 +1,14 @@
 package com.project.bookMembership.visitPackage;
 
+import com.project.bookMembership.DTO.MembershipRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.project.bookMembership.DTO.VisitPackageRequest;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/visitpackage")
@@ -19,12 +19,25 @@ public class VisitPackageController {
     private final VisitPackageService visitPackageService;
 
     @PostMapping("/buy")
-    public ResponseEntity<String> addClass(@RequestBody VisitPackageRequest visitPackageRequest) {
-       
-        visitPackageService.save(visitPackageRequest); 
+    public ResponseEntity<String> addClass(@ModelAttribute VisitPackageRequest visitPackageRequest, @RequestPart("buktiTransfer") MultipartFile buktiTransfer) {
 
-        return ResponseEntity.ok("Buy visit package successfully");
+        try {
+            // Example check for empty file
+            if (buktiTransfer.isEmpty()) {
+                throw new RuntimeException("Bukti Transfer Is required");
+            }
+
+            // Save the buy visit request
+            visitPackageService.save(visitPackageRequest);
+
+            return ResponseEntity.ok("Buy visit successfully");
+
+        } catch (RuntimeException e) {
+            // Log the exception (optional)
+            System.err.println("Error: " + e.getMessage());
+
+            // Return a bad request status with error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
     }
-
-
 }

@@ -9,6 +9,9 @@ import com.project.bookMembership.transaction.Transaction;
 import com.project.bookMembership.transaction.TransactionService;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
+import utils.ImageUtils;
+
+import java.io.IOException;
 
 @Service
 
@@ -33,21 +36,20 @@ public class VisitPackageServiceImpl implements VisitPackageService{
 
     @Override
     public VisitPackage save(VisitPackageRequest visitPackageRequest) {
-
+        try {
         String emailz = jwtService.extractUsername(visitPackageRequest.getToken());
         User user = userRepo.findByEmail(emailz)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         Transaction transaction = Transaction.builder()
-            .visitStartDate(visitPackageRequest.getVisitStartDate())
-            .visitEndDate(visitPackageRequest.getVisitEndDate())
-            // .paymentType(visitPackageRequest.getPaymentType())
+//            .visitStartDate(visitPackageRequest.getVisitStartDate())
+//            .visitEndDate(visitPackageRequest.getVisitEndDate())
+             .paymentType("Visit")
             .paymentMethod(visitPackageRequest.getPaymentMethod())
-            .paymentStatus(visitPackageRequest.getPaymentStatus())
+            .paymentStatus("WAITING FOR APPROVAL")
             .transactionPrice(visitPackageRequest.getTransactionPrice())
+                .buktiTransfer(ImageUtils.compressImage(visitPackageRequest.getBuktiTransfer().getBytes()))
             .build();
-
-
 
             transactionService.save(transaction);
 
@@ -58,7 +60,7 @@ public class VisitPackageServiceImpl implements VisitPackageService{
             // .endDate(visitPackageRequest.getEndDate())
             .price(visitPackageRequest.getPrice())
             .visitNumber(visitPackageRequest.getVisitNumber())
-            .visitUsed(visitPackageRequest.getVisitUsed())
+//            .visitUsed(visitPackageRequest.getVisitUsed())
             .build();
 
    
@@ -67,11 +69,13 @@ public class VisitPackageServiceImpl implements VisitPackageService{
 
     transaction.setVisitPackage(vpPackage);
 
-  
     transactionService.save(transaction);
 
- 
     return savedVPackage;
+    } catch (
+    IOException e) {
+        throw new RuntimeException("Error processing image", e);  // Handle IOException by wrapping it
+    }
     }
     
 }
