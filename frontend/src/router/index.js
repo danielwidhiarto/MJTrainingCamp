@@ -44,6 +44,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
+    path: '/member/payment/:idPackage',
+    name: 'Payment',
+    component: () => import('../components/Member/Payment.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
+  },
+  {
     path: '/member/view-class',
     name: 'ViewClass',
     component: () => import('../components/Member/ViewClass.vue'),
@@ -98,6 +104,14 @@ const routes = [
     name: 'AdminProfilePage',
     component: () => import('../components/Admin/ProfilePage.vue'),
     meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+  },
+
+  //Trainer
+  {
+    path: '/trainer/profile-page',
+    name: 'TrainerProfilePage',
+    component: () => import('../components/Trainer/ProfilePage.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_TRAINER'] },
   },
 ]
 
