@@ -11,7 +11,9 @@
           <h2>{{ plan.price }}</h2>
           <h3>{{ plan.packageName }}</h3>
           <p>{{ plan.description }}</p>
-          <button class="select-plan-button">Pilih Plan</button>
+          <button class="select-plan-button" @click="goToPayment(plan.id)">
+            Pilih Plan
+          </button>
         </div>
       </div>
 
@@ -27,7 +29,9 @@
             <h2>{{ visit.price }}</h2>
             <h3>{{ visit.packageName }}</h3>
             <p>{{ visit.description }}</p>
-            <button class="select-visit-button">Beli Paket Visit</button>
+            <button class="select-visit-button" @click="goToPayment(visit.id)">
+              Beli Paket Visit
+            </button>
           </div>
         </div>
       </div>
@@ -39,55 +43,55 @@
 import Navbar from './Navbar.vue' // Import the Navbar component
 import axios from 'axios' // Import axios for HTTP requests
 import Swal from 'sweetalert2' // Import SweetAlert
+import { useRouter } from 'vue-router' // Import useRouter for navigation
+import { onMounted, ref } from 'vue' // Import onMounted and ref
 
 export default {
   name: 'BuyMembership',
   components: {
     Navbar,
   },
-  data() {
-    return {
-      membershipPlans: [], // Initialize empty array for membership plans
-      visitPackages: [], // Initialize empty array for visit packages
-    }
-  },
-  created() {
-    this.fetchPackages() // Fetch packages when the component is created
-  },
-  methods: {
-    async fetchPackages() {
+  setup() {
+    const router = useRouter() // Access the router instance
+    const membershipPlans = ref([]) // Use ref for reactivity
+    const visitPackages = ref([])
+
+    const fetchPackages = async () => {
       try {
-        const token = localStorage.getItem('token') // Get the token from local storage
+        const token = localStorage.getItem('token')
         const response = await axios.get(
           'http://localhost:8081/api/v1/package/get',
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Include the token in the headers
+              Authorization: `Bearer ${token}`,
             },
           },
         )
         const packages = response.data
 
-        // Filter membership and visit packages
-        this.membershipPlans = packages.filter(
+        membershipPlans.value = packages.filter(
           packageItem => packageItem.type === 'Membership',
         )
-        this.visitPackages = packages.filter(
+        visitPackages.value = packages.filter(
           packageItem => packageItem.type === 'Visit',
         )
       } catch (error) {
         console.error(error)
-        if (error.response && error.response.status === 403) {
-          Swal.fire(
-            'Error',
-            'Access forbidden. Please check your permissions.',
-            'error',
-          )
-        } else {
-          Swal.fire('Error', 'Failed to fetch packages.', 'error')
-        }
+        Swal.fire('Error', 'Failed to fetch packages.', 'error')
       }
-    },
+    }
+
+    const goToPayment = packageId => {
+      router.push({ name: 'Payment', params: { packageId } }) // Navigate to the payment page with the package ID
+    }
+
+    onMounted(fetchPackages) // Fetch packages when the component is mounted
+
+    return {
+      membershipPlans,
+      visitPackages,
+      goToPayment,
+    }
   },
 }
 </script>
