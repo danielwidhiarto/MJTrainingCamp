@@ -105,6 +105,14 @@ const routes = [
     component: () => import('../components/Admin/ProfilePage.vue'),
     meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
+
+  //Trainer
+  {
+    path: '/trainer/profile-page',
+    name: 'TrainerProfilePage',
+    component: () => import('../components/Trainer/ProfilePage.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_TRAINER'] },
+  },
 ]
 
 // Create the router instance
