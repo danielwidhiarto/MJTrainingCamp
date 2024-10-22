@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,6 +77,17 @@ public class TransactionServiceImpl implements TransactionService {
 
             return response;
         }).collect(Collectors.toList());
+    }
+    public Transaction updateTransactionStatus(Long id, String newStatus) {
+        Optional<Transaction> optionalTransaction = transactionRepository.findById(id);
+
+        if (optionalTransaction.isPresent()) {
+            Transaction transaction = optionalTransaction.get();
+            transaction.setPaymentStatus(newStatus);
+            return transactionRepository.save(transaction);
+        } else {
+            throw new RuntimeException("Transaction not found with ID: " + id);
+        }
     }
 
 }

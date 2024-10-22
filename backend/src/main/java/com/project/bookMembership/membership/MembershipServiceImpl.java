@@ -59,7 +59,7 @@ public Membership save(MembershipRequest membershipRequest) {
             .startDate(membershipRequest.getStartDate())
             .endDate(membershipRequest.getEndDate())
             .price(membershipRequest.getPrice())
-        //     .duration(membershipRequest.getDuration())
+            .duration(membershipRequest.getDuration())
             .build();
 
     // Save Membership entity to obtain the generated membershipId
