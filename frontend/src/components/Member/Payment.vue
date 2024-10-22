@@ -19,6 +19,9 @@
 
         <div v-if="packageDetails.type === 'Membership'" class="mt-4">
           <h5>Membership Duration</h5>
+          <p>
+            <strong>Duration:</strong> {{ packageDetails.duration }} month(s)
+          </p>
           <p><strong>Start Date:</strong> {{ startDate }}</p>
           <p><strong>End Date:</strong> {{ endDate }}</p>
         </div>
@@ -51,12 +54,6 @@
 
         <div v-if="selectedPaymentMethod === 'QRIS'" class="text-center mt-4">
           <h5>Scan QR Code to Pay</h5>
-          <img
-            src="../../assets/qris.png"
-            alt="QR Code"
-            class="img-fluid"
-            style="max-width: 300px"
-          />
         </div>
 
         <div v-if="selectedPaymentMethod === 'Bank Transfer'" class="mt-4">
@@ -178,6 +175,7 @@ export default {
       if (packageDetails.value.type === 'Membership') {
         formData.append('startDate', startDate.value)
         formData.append('endDate', endDate.value)
+        formData.append('duration', packageDetails.value.duration)
       }
 
       formData.append('price', packageDetails.value.price)
