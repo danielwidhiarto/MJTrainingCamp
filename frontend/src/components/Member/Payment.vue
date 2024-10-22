@@ -1,89 +1,133 @@
 <template>
   <div>
     <Navbar />
-    <div class="container my-5">
-      <h1 class="text-center mb-4">Payment Page</h1>
-      <p class="text-center">Welcome to your Payment Page!</p>
+    <div class="container-fluid py-5 bg-light">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+          <div class="card shadow-lg p-5">
+            <h1 class="text-center mb-4">Complete Your Payment</h1>
 
-      <div v-if="packageDetails" class="card shadow p-4">
-        <h2 class="text-center mb-4">Package Details</h2>
-        <div class="mb-3">
-          <strong>Package Name:</strong> {{ packageDetails.packageName }}
-        </div>
-        <div class="mb-3">
-          <strong>Price:</strong> Rp {{ packageDetails.price }}
-        </div>
-        <div class="mb-3">
-          <strong>Description:</strong> {{ packageDetails.description }}
-        </div>
+            <div v-if="packageDetails">
+              <h2 class="text-center text-primary mb-3">Package Overview</h2>
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <p>
+                    <strong>Package Name:</strong>
+                    {{ packageDetails.packageName }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Price:</strong> Rp {{ packageDetails.price }}</p>
+                </div>
+              </div>
 
-        <div v-if="packageDetails.type === 'Membership'" class="mt-4">
-          <h5>Membership Duration</h5>
-          <p>
-            <strong>Duration:</strong> {{ packageDetails.duration }} month(s)
-          </p>
-          <p><strong>Start Date:</strong> {{ startDate }}</p>
-          <p><strong>End Date:</strong> {{ endDate }}</p>
+              <div class="row mb-4">
+                <div class="col-md-12">
+                  <p>
+                    <strong>Description:</strong>
+                    {{ packageDetails.description }}
+                  </p>
+                </div>
+              </div>
+
+              <div v-if="packageDetails.type === 'Membership'" class="row mb-4">
+                <div class="col-md-4">
+                  <p>
+                    <strong>Duration:</strong>
+                    {{ packageDetails.duration }} month(s)
+                  </p>
+                </div>
+                <div class="col-md-4">
+                  <p><strong>Start Date:</strong> {{ startDate }}</p>
+                </div>
+                <div class="col-md-4">
+                  <p><strong>End Date:</strong> {{ endDate }}</p>
+                </div>
+              </div>
+
+              <hr class="my-4" />
+
+              <h4 class="text-center mt-4">Select Payment Method</h4>
+              <div class="d-flex justify-content-around my-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id="qris"
+                    value="QRIS"
+                    v-model="selectedPaymentMethod"
+                  />
+                  <label class="form-check-label" for="qris">QRIS</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id="bank"
+                    value="Bank Transfer"
+                    v-model="selectedPaymentMethod"
+                  />
+                  <label class="form-check-label" for="bank"
+                    >Bank Transfer</label
+                  >
+                </div>
+              </div>
+
+              <div
+                v-if="selectedPaymentMethod === 'QRIS'"
+                class="text-center mt-3"
+              >
+                <h5>Scan QR Code to Pay</h5>
+                <img
+                  src="../../assets/qris.png"
+                  alt="QR Code"
+                  class="img-fluid"
+                  style="max-width: 300px"
+                />
+              </div>
+
+              <div
+                v-if="selectedPaymentMethod === 'Bank Transfer'"
+                class="mt-4"
+              >
+                <h5>Bank Transfer Details</h5>
+                <p><strong>Bank:</strong> BCA</p>
+                <p><strong>Account Number:</strong> 0661749406</p>
+                <p><strong>Account Name:</strong> Your Company Name</p>
+              </div>
+
+              <hr class="my-4" />
+
+              <h4 class="text-center mt-4">Upload Payment Proof</h4>
+              <div class="form-group">
+                <input
+                  type="file"
+                  class="form-control"
+                  @change="handleFileUpload"
+                />
+              </div>
+
+              <div
+                class="d-flex justify-content-between align-items-center mt-4"
+              >
+                <h4>Total Payment: Rp {{ packageDetails.price }}</h4>
+                <button
+                  class="btn btn-success"
+                  :disabled="!paymentProof"
+                  @click="processPayment"
+                >
+                  Proceed to Payment
+                </button>
+              </div>
+            </div>
+
+            <div v-else class="text-center mt-5">
+              <p>Loading package details...</p>
+            </div>
+          </div>
         </div>
-
-        <hr />
-
-        <h4 class="mt-4">Select Payment Method</h4>
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="paymentMethod"
-            id="qris"
-            value="QRIS"
-            v-model="selectedPaymentMethod"
-          />
-          <label class="form-check-label" for="qris">QRIS</label>
-        </div>
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="paymentMethod"
-            id="bank"
-            value="Bank Transfer"
-            v-model="selectedPaymentMethod"
-          />
-          <label class="form-check-label" for="bank">Bank Transfer</label>
-        </div>
-
-        <div v-if="selectedPaymentMethod === 'QRIS'" class="text-center mt-4">
-          <h5>Scan QR Code to Pay</h5>
-        </div>
-
-        <div v-if="selectedPaymentMethod === 'Bank Transfer'" class="mt-4">
-          <h5>Bank Transfer Details</h5>
-          <p><strong>Bank:</strong> BCA</p>
-          <p><strong>Account Number:</strong> 0661749406</p>
-          <p><strong>Account Name:</strong> Your Company Name</p>
-        </div>
-
-        <hr />
-
-        <h4 class="mt-4">Upload Payment Proof</h4>
-        <div class="form-group">
-          <input type="file" class="form-control" @change="handleFileUpload" />
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mt-4">
-          <h4>Total Payment: Rp {{ packageDetails.price }}</h4>
-          <button
-            class="btn btn-primary"
-            :disabled="!paymentProof"
-            @click="processPayment"
-          >
-            Proceed to Payment
-          </button>
-        </div>
-      </div>
-
-      <div v-else class="text-center mt-5">
-        <p>Loading package details...</p>
       </div>
     </div>
   </div>
@@ -193,15 +237,22 @@ export default {
             },
           },
         )
-        Swal.fire('Payment', 'Payment processing completed.', 'success')
-        router.push({ name: 'MemberDashboard' })
+        Swal.fire('Payment', 'Payment completed.', 'success').then(() => {
+          router.push({ name: 'MemberDashboard' })
+        })
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to process payment.', 'error')
       }
     }
 
-    onMounted(fetchPackageDetails)
+    onMounted(() => {
+      if (!localStorage.getItem('refreshed')) {
+        localStorage.setItem('refreshed', 'true')
+        window.location.reload()
+      }
+      fetchPackageDetails()
+    })
 
     return {
       packageDetails,
@@ -217,9 +268,9 @@ export default {
 </script>
 
 <style>
-.container {
-  max-width: 600px;
-  margin: auto;
+.container-fluid {
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 .card {
   border-radius: 15px;
