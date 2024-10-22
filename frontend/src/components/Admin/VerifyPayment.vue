@@ -5,11 +5,19 @@
       <h1 class="text-center mb-4">Manage Member Transactions</h1>
 
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          Submitted Transactions
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <span>Submitted Transactions</span>
+          <button class="btn btn-secondary btn-sm" @click="toggleSort">
+            {{ showPendingOnly ? 'Show All' : 'Show Pending Only' }}
+          </button>
         </div>
         <div class="card-body">
-          <table class="table table-striped" v-if="transactions.length > 0">
+          <table
+            class="table table-striped"
+            v-if="filteredTransactions.length > 0"
+          >
             <thead>
               <tr>
                 <th>TransactionID</th>
@@ -23,8 +31,9 @@
             </thead>
             <tbody>
               <tr
-                v-for="(transaction, index) in transactions"
+                v-for="(transaction, index) in filteredTransactions"
                 :key="transaction.id"
+                :class="statusClass(transaction.paymentStatus)"
               >
                 <td>{{ transaction.idTransaction }}</td>
                 <td>{{ transaction.paymentType }}</td>
@@ -34,6 +43,7 @@
                 <td>{{ transaction.paymentStatus }}</td>
                 <td>
                   <button
+                    v-if="!isVerifiedOrDeclined(transaction.paymentStatus)"
                     class="btn btn-info btn-sm"
                     @click="showDetails(transaction)"
                   >
@@ -85,18 +95,21 @@
             />
           </div>
 
-          <div class="mt-4 d-flex justify-content-between">
-            <button
-              class="btn btn-danger"
-              @click="updateTransactionStatus('DECLINED')"
-            >
-              Decline
-            </button>
+          <div
+            v-if="!isVerifiedOrDeclined(selectedTransaction.paymentStatus)"
+            class="mt-4 d-flex justify-content-between"
+          >
             <button
               class="btn btn-success"
               @click="updateTransactionStatus('VERIFIED')"
             >
               Accept
+            </button>
+            <button
+              class="btn btn-danger"
+              @click="updateTransactionStatus('DECLINED')"
+            >
+              Decline
             </button>
           </div>
         </div>
@@ -118,22 +131,38 @@ export default {
       transactions: [],
       selectedTransaction: {},
       isModalOpen: false,
+      showPendingOnly: true, // Control for showing only pending transactions
     }
   },
-  async mounted() {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get(
-        'http://localhost:8081/api/v1/transaction/get',
-        { headers: { Authorization: `Bearer ${token}` } },
-      )
-      this.transactions = response.data
-    } catch (error) {
-      console.error(error)
-      Swal.fire('Error', 'Failed to load transactions.', 'error')
-    }
+  mounted() {
+    this.fetchTransactions() // Load transactions when the component mounts
+  },
+  computed: {
+    filteredTransactions() {
+      return this.showPendingOnly
+        ? this.transactions.filter(
+            t =>
+              t.paymentStatus !== 'VERIFIED' && t.paymentStatus !== 'DECLINED',
+          )
+        : this.transactions
+    },
   },
   methods: {
+    async fetchTransactions() {
+      try {
+        const token = localStorage.getItem('token')
+        const response = await axios.get(
+          'http://localhost:8081/api/v1/transaction/get',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        )
+        this.transactions = response.data
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'Failed to load transactions.', 'error')
+      }
+    },
     showDetails(transaction) {
       this.selectedTransaction = transaction
       this.isModalOpen = true
@@ -144,7 +173,7 @@ export default {
     async updateTransactionStatus(status) {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.patch(
+        await axios.patch(
           `http://localhost:8081/api/v1/transaction/update/${this.selectedTransaction.idTransaction}`,
           { transactionStatus: status },
           {
@@ -156,11 +185,22 @@ export default {
         )
         Swal.fire('Success', `Transaction ${status} successfully.`, 'success')
         this.closeModal()
-        this.mounted() // Refresh transactions
+        await this.fetchTransactions() // Refresh the list after updating
       } catch (error) {
         console.error(error)
-        Swal.fire('Error', `Failed to update transaction status.`, 'error')
+        Swal.fire('Error', 'Failed to update transaction status.', 'error')
       }
+    },
+    isVerifiedOrDeclined(status) {
+      return status === 'VERIFIED' || status === 'DECLINED'
+    },
+    statusClass(status) {
+      if (status === 'VERIFIED') return 'table-success'
+      if (status === 'DECLINED') return 'table-danger'
+      return 'table-warning'
+    },
+    toggleSort() {
+      this.showPendingOnly = !this.showPendingOnly
     },
   },
 }
@@ -181,9 +221,16 @@ export default {
   margin-top: 10px;
 }
 
-.thead-dark {
-  background-color: #343a40;
-  color: white;
+.table-success {
+  background-color: #d4edda !important;
+}
+
+.table-danger {
+  background-color: #f8d7da !important;
+}
+
+.table-warning {
+  background-color: #fff3cd !important;
 }
 
 .custom-modal {
