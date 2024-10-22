@@ -84,6 +84,21 @@
               style="max-width: 400px"
             />
           </div>
+
+          <div class="mt-4 d-flex justify-content-between">
+            <button
+              class="btn btn-danger"
+              @click="updateTransactionStatus('DECLINED')"
+            >
+              Decline
+            </button>
+            <button
+              class="btn btn-success"
+              @click="updateTransactionStatus('VERIFIED')"
+            >
+              Accept
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -125,6 +140,27 @@ export default {
     },
     closeModal() {
       this.isModalOpen = false
+    },
+    async updateTransactionStatus(status) {
+      try {
+        const token = localStorage.getItem('token')
+        const response = await axios.patch(
+          `http://localhost:8081/api/v1/transaction/update/${this.selectedTransaction.idTransaction}`,
+          { transactionStatus: status },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        Swal.fire('Success', `Transaction ${status} successfully.`, 'success')
+        this.closeModal()
+        this.mounted() // Refresh transactions
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', `Failed to update transaction status.`, 'error')
+      }
     },
   },
 }
