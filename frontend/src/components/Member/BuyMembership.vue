@@ -88,7 +88,7 @@ export default {
     }
 
     const goToPayment = idPackage => {
-      router.push({ name: 'Payment', params: { idPackage } }) // Navigate to the payment page with the package ID
+      router.push({ name: 'Payment', params: { idPackage } })
     }
 
     onMounted(fetchPackages) // Fetch packages when the component is mounted
