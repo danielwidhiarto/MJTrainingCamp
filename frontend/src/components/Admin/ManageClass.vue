@@ -87,8 +87,8 @@
               <option value="" disabled>Select a Trainer</option>
               <option
                 v-for="trainer in trainers"
-                :key="trainer.id"
-                :value="trainer.id"
+                :key="trainer.idTrainer"
+                :value="trainer.idTrainer"
               >
                 {{ trainer.idTrainer }} - {{ trainer.trainerName }}
               </option>
@@ -159,6 +159,8 @@ export default {
     // Add a new class
     async addClass() {
       try {
+        console.log('New Class Payload:', this.newClass) // Log the payload
+
         const response = await axios.post(
           'http://localhost:8081/api/v1/class/add',
           this.newClass,
@@ -194,10 +196,12 @@ export default {
           window.location.reload()
         })
       } catch (error) {
-        console.error(error)
+        console.error('Error Response:', error.response) // Log the error response
+
         Swal.fire(
           'Error!',
-          'Failed to add the class. Please try again.',
+          error.response?.data?.message ||
+            'Failed to add the class. Please try again.',
           'error',
         )
       }
