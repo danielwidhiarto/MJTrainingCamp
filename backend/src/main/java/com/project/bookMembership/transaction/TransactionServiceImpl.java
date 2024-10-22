@@ -39,6 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentMethod(tx.getPaymentMethod());
             response.setPaymentType(tx.getPaymentType());
             response.setTransactionPrice(tx.getTransactionPrice());
+            response.setPaymentStatus(tx.getPaymentStatus());
 
 
             try {
@@ -62,6 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentMethod(tx.getPaymentMethod());
             response.setPaymentType(tx.getPaymentType());
             response.setTransactionPrice(tx.getTransactionPrice());
+            response.setPaymentStatus(tx.getPaymentStatus());
 
             // Check if buktiTransfer is null before decompressing
             if (tx.getBuktiTransfer() != null) {
