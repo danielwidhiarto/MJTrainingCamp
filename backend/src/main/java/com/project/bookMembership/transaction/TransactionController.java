@@ -3,6 +3,7 @@ package com.project.bookMembership.transaction;
 import java.util.List;
 import java.util.Optional;
 
+import com.project.bookMembership.DTO.UpdateTransactionStatusRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,21 +16,21 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/transaction")
 @RequiredArgsConstructor
 public class TransactionController {
-     private final TransactionService transactionService;
+    private final TransactionService transactionService;
 
-     @PostMapping("/get")
-     public ResponseEntity<GetTransactionResponse> getTransaction(@RequestParam Long id) {
-         Optional<GetTransactionResponse> transactionResponse = transactionService.getById(id);
-
-         if (transactionResponse.isPresent()) {
-
-             return ResponseEntity.ok(transactionResponse.get());
-         } else {
-
-             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-         }
-        // return ResponseEntity.of(transactionResponse);
-}
+//     @PostMapping("/get")
+//     public ResponseEntity<GetTransactionResponse> getTransaction(@RequestParam Long id) {
+//         Optional<GetTransactionResponse> transactionResponse = transactionService.getById(id);
+//
+//         if (transactionResponse.isPresent()) {
+//
+//             return ResponseEntity.ok(transactionResponse.get());
+//         } else {
+//
+//             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//         }
+//        // return ResponseEntity.of(transactionResponse);
+//}
 
 
     @GetMapping("/get")
@@ -55,4 +56,15 @@ public class TransactionController {
         }
     }
 
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<?> updateTransactionStatus(@PathVariable Long id, @RequestBody UpdateTransactionStatusRequest updateRequest) {
+        try {
+            // Update the transaction status
+            transactionService.updateTransactionStatus(id, updateRequest.getTransactionStatus());
+            return ResponseEntity.ok("Transaction status updated successfully");
+        } catch (RuntimeException ex) {
+            // Handle the exception and return a BAD_REQUEST status with the error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
 }
