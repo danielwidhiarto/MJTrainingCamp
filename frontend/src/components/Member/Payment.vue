@@ -16,6 +16,13 @@
         <div class="mb-3">
           <strong>Description:</strong> {{ packageDetails.description }}
         </div>
+
+        <div v-if="packageDetails.type === 'Membership'" class="mt-4">
+          <h5>Membership Duration</h5>
+          <p><strong>Start Date:</strong> {{ startDate }}</p>
+          <p><strong>End Date:</strong> {{ endDate }}</p>
+        </div>
+
         <hr />
 
         <h4 class="mt-4">Select Payment Method</h4>
@@ -91,6 +98,7 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import dayjs from 'dayjs'
 
 export default {
   name: 'PaymentPage',
@@ -101,6 +109,8 @@ export default {
     const packageDetails = ref(null)
     const selectedPaymentMethod = ref('')
     const paymentProof = ref(null)
+    const startDate = ref('')
+    const endDate = ref('')
 
     const fetchPackageDetails = async () => {
       const idPackage = route.params.idPackage
@@ -119,17 +129,27 @@ export default {
       try {
         const response = await axios.get(
           `http://localhost:8081/api/v1/package/get?id=${idPackage}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          { headers: { Authorization: `Bearer ${token}` } },
         )
         packageDetails.value = response.data
+
+        if (packageDetails.value.type === 'Membership') {
+          const { startDate: start, endDate: end } = calculateDates(
+            packageDetails.value.duration,
+          )
+          startDate.value = start
+          endDate.value = end
+        }
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to load package details.', 'error')
       }
+    }
+
+    const calculateDates = duration => {
+      const start = dayjs().format('YYYY-MM-DD')
+      const end = dayjs().add(duration, 'month').format('YYYY-MM-DD')
+      return { startDate: start, endDate: end }
     }
 
     const handleFileUpload = event => {
@@ -144,30 +164,43 @@ export default {
       }
     }
 
-    const processPayment = () => {
+    const processPayment = async () => {
       if (!selectedPaymentMethod.value) {
         Swal.fire('Error', 'Please select a payment method.', 'error')
         return
       }
 
+      const token = localStorage.getItem('token')
       const formData = new FormData()
-      formData.append('paymentProof', paymentProof.value)
+      formData.append('buktiTransfer', paymentProof.value)
       formData.append('paymentMethod', selectedPaymentMethod.value)
 
-      // Simulate sending payment proof to backend
-      axios
-        .post('http://localhost:8081/api/v1/payment/submit', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+      if (packageDetails.value.type === 'Membership') {
+        formData.append('startDate', startDate.value)
+        formData.append('endDate', endDate.value)
+      }
+
+      formData.append('price', packageDetails.value.price)
+      formData.append('transactionPrice', packageDetails.value.price)
+      formData.append('token', token)
+
+      try {
+        await axios.post(
+          'http://localhost:8081/api/v1/membership/buy',
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        })
-        .then(() => {
-          Swal.fire('Payment', 'Payment processing completed.', 'success')
-        })
-        .catch(error => {
-          console.error(error)
-          Swal.fire('Error', 'Failed to process payment.', 'error')
-        })
+        )
+        Swal.fire('Payment', 'Payment processing completed.', 'success')
+        router.push({ name: 'MemberDashboard' })
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'Failed to process payment.', 'error')
+      }
     }
 
     onMounted(fetchPackageDetails)
@@ -176,6 +209,8 @@ export default {
       packageDetails,
       selectedPaymentMethod,
       paymentProof,
+      startDate,
+      endDate,
       handleFileUpload,
       processPayment,
     }
