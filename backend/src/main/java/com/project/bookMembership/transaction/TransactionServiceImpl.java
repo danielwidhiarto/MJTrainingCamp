@@ -1,6 +1,9 @@
 package com.project.bookMembership.transaction;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,4 +50,32 @@ public class TransactionServiceImpl implements TransactionService {
             } 
         });
     }
+
+    @Override
+    public List<GetTransactionResponse> getAllTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+
+        return transactions.stream().map(tx -> {
+            GetTransactionResponse response = new GetTransactionResponse();
+            response.setIdTransaction(tx.getIdTransaction());
+            response.setPaymentMethod(tx.getPaymentMethod());
+            response.setPaymentType(tx.getPaymentType());
+            response.setTransactionPrice(tx.getTransactionPrice());
+
+            // Check if buktiTransfer is null before decompressing
+            if (tx.getBuktiTransfer() != null) {
+                try {
+                    byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
+                    response.setBuktiTransfer(decompressedImage);
+                } catch (DataFormatException | IOException exception) {
+                    throw new RuntimeException("Error decompressing image for Transaction ID: " + tx.getIdTransaction(), exception);
+                }
+            } else {
+                response.setBuktiTransfer(null); // or set to a default value if needed
+            }
+
+            return response;
+        }).collect(Collectors.toList());
     }
+
+}
