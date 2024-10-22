@@ -73,6 +73,7 @@ curl --location 'http://localhost:8081/api/v1/membership/buy' \
 --form 'startDate="2024-10-19"' \
 --form 'endDate="2024-11-19"' \
 --form 'price="50000"' \
+--form 'duration="5"' \
 --form 'paymentMethod="credit_card"' \
 --form 'transactionPrice="50000"'
 
