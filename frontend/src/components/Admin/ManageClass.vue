@@ -12,13 +12,35 @@
         </button>
       </div>
 
-      <!-- Class List (For future implementation) -->
+      <!-- Class List -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">Class List</div>
         <div class="card-body">
-          <p class="text-center">
-            No classes found. Add a new class to get started!
-          </p>
+          <table class="table table-striped" v-if="classes.length > 0">
+            <thead>
+              <tr>
+                <th>Class Name</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Capacity</th>
+                <th>Trainer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="classItem in classes" :key="classItem.idClass">
+                <td>{{ classItem.className }}</td>
+                <td>{{ classItem.classDate }}</td>
+                <td>{{ classItem.classTime }}</td>
+                <td>{{ classItem.classCapasity }}</td>
+                <td>{{ classItem.trainerName }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else>
+            <p class="text-center">
+              No classes found. Add a new class to get started!
+            </p>
+          </div>
         </div>
       </div>
 
@@ -80,7 +102,6 @@
               required
             ></textarea>
           </div>
-          <!-- Trainer Dropdown -->
           <div class="mb-3">
             <label for="idTrainer" class="form-label">Select Trainer</label>
             <select v-model="newClass.idTrainer" class="form-select" required>
@@ -90,7 +111,7 @@
                 :key="trainer.idTrainer"
                 :value="trainer.idTrainer"
               >
-                {{ trainer.idTrainer }} - {{ trainer.trainerName }}
+                {{ trainer.trainerName }}
               </option>
             </select>
           </div>
@@ -102,10 +123,10 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue' // Import the Navbar component
-import CustomModal from '../CustomModal.vue' // Import the Custom Modal component
-import axios from 'axios' // Import axios for HTTP requests
-import Swal from 'sweetalert2' // Import SweetAlert
+import Navbar from './Navbar.vue'
+import CustomModal from '../CustomModal.vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'ManageClass',
@@ -115,6 +136,7 @@ export default {
   },
   data() {
     return {
+      classes: [], // Store the list of classes
       newClass: {
         classDate: '',
         classTime: '',
@@ -123,44 +145,52 @@ export default {
         idTrainer: '',
         className: '',
       },
-      trainers: [], // Store the list of trainers
-      token: null, // Token for authorization will be fetched from localStorage
-      isAddModalOpen: false, // Control the visibility of the add modal
+      trainers: [],
+      token: null,
+      isAddModalOpen: false,
     }
   },
   created() {
-    // Fetch the token from localStorage
     this.token = localStorage.getItem('token')
 
     if (this.token) {
-      this.fetchTrainers() // Fetch trainers when component is created
+      this.fetchTrainers()
+      this.fetchClasses() // Fetch classes on component creation
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
   },
   methods: {
-    // Fetch trainers from API
     async fetchTrainers() {
       try {
         const response = await axios.get(
           'http://localhost:8081/api/v1/trainer/getall',
           {
-            headers: {
-              Authorization: `Bearer ${this.token}`,
-            },
+            headers: { Authorization: `Bearer ${this.token}` },
           },
         )
-        this.trainers = response.data // Store fetched trainers in the trainers array
+        this.trainers = response.data
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to fetch trainers.', 'error')
       }
     },
-    // Add a new class
+    async fetchClasses() {
+      try {
+        const response = await axios.get(
+          'http://localhost:8081/api/v1/class/getClasses',
+          {
+            headers: { Authorization: `Bearer ${this.token}` },
+          },
+        )
+        this.classes = response.data
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'Failed to fetch classes.', 'error')
+      }
+    },
     async addClass() {
       try {
-        console.log('New Class Payload:', this.newClass) // Log the payload
-
         const response = await axios.post(
           'http://localhost:8081/api/v1/class/add',
           this.newClass,
@@ -172,7 +202,6 @@ export default {
           },
         )
 
-        // Clear the form fields after adding
         this.newClass = {
           classDate: '',
           classTime: '',
@@ -182,28 +211,19 @@ export default {
           className: '',
         }
 
-        // Close the modal after adding the class
         this.isAddModalOpen = false
 
-        // Show a success alert
         Swal.fire({
           title: 'Class Added!',
           text: 'The new class has been added successfully.',
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          // Refresh the page after pressing OK
-          window.location.reload()
+          this.fetchClasses() // Refresh the class list after adding
         })
       } catch (error) {
-        console.error('Error Response:', error.response) // Log the error response
-
-        Swal.fire(
-          'Error!',
-          error.response?.data?.message ||
-            'Failed to add the class. Please try again.',
-          'error',
-        )
+        console.error(error)
+        Swal.fire('Error!', 'Failed to add the class.', 'error')
       }
     },
   },
@@ -229,7 +249,6 @@ h1 {
   color: #333;
 }
 
-/* Custom Modal Styling (In case it's needed here as well) */
 .custom-modal {
   position: fixed;
   top: 0;
