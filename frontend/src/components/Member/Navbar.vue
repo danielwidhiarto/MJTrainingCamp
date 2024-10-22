@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="../assets/logo.jpg" alt="Logo" class="logo" />
+      <img src="../../assets/logo.jpg" alt="Logo" class="logo" />
     </div>
 
     <!-- Hamburger Menu for Mobile -->
@@ -22,7 +22,7 @@
     <div class="navbar-right">
       <router-link to="/member/profile-page">
         <img
-          src="../assets/profile-icon.png"
+          src="../../assets/profile-icon.png"
           alt="Profile"
           class="profile-icon"
         />

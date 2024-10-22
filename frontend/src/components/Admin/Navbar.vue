@@ -24,7 +24,7 @@
     <div class="navbar-right">
       <router-link to="/admin/profile-page">
         <img
-          src="../assets/profile-icon.png"
+          src="../../assets/profile-icon.png"
           alt="Profile"
           class="profile-icon"
         />
