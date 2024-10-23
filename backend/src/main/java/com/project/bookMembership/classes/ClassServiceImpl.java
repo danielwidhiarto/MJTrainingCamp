@@ -31,7 +31,8 @@ public class ClassServiceImpl implements ClassService {
 
 
     @Autowired
-    public ClassServiceImpl(ClassTrainerDetailRepo classTrainerDetailRepo,TrainingClassRepo trainingClassRepo, ClassTrainerDetailRepo classTrainerRepo,TrainerRepo trainerRepo, JwtService jwtService,UserRepo userRepo, ClassDetailRepository classDetailRepository) {
+    public ClassServiceImpl(ClassTrainerDetailRepo classTrainerDetailRepo,TrainingClassRepo trainingClassRepo, ClassTrainerDetailRepo classTrainerRepo,
+                                TrainerRepo trainerRepo, JwtService jwtService,UserRepo userRepo, ClassDetailRepository classDetailRepository) {
         this.trainingClassRepo = trainingClassRepo;
         this.classTrainerRepo = classTrainerRepo; 
         this.trainerRepo = trainerRepo; 
@@ -59,7 +60,6 @@ public class ClassServiceImpl implements ClassService {
       
         Trainer trainer = trainerRepo.findById(request.getIdTrainer())
         .orElseThrow(() -> new RuntimeException("Trainer not found"));
-
 
         var classTrainerDetail = ClassTrainerDetail.builder()
             .idTrainer(trainer)  
@@ -189,8 +189,7 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest) {
         String email = jwtService.extractUsername(classHistoryRequest.getToken());
-        
-        // Fetch the user as an Optional
+
         Optional<User> optionalUser = userRepo.findByEmail(email);
         
 

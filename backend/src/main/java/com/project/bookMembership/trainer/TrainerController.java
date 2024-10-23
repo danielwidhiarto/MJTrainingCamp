@@ -80,13 +80,13 @@ public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
                 User user = userService.getUserByTrainerId(idtrainer)
                         .orElseThrow(() -> new RuntimeException("User not found for trainer: " + trainer.getIdTrainer()));
 
-                // Build the TrainerResponse object
+
                 return TrainerResponse.builder()
                         .idTrainer(trainer.getIdTrainer())    
                         .trainerName(trainer.getTrainerName()) 
                         .trainerDescription(trainer.getTrainerDescription())
-                        .email(user.getEmail())          // Add email from the user
-                        .pNumber(user.getPNumber())      // Add phone number from the user
+                        .email(user.getEmail())
+                        .PNumber(user.getPNumber())
                         .build();
             })
             .collect(Collectors.toList());
@@ -95,7 +95,7 @@ public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
         return ResponseEntity.ok(responseList);
 
     } catch (RuntimeException e) {
-        // Handle runtime exceptions and return a 404 response
+
         e.printStackTrace(); // Log the exception for debugging
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Collections.emptyList()); // Or return an error message
