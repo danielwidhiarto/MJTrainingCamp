@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <div class="text-center" style="color: #e65100">
+    <div class="text-center" style="color: #ff4500">
       <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
     </div>
@@ -9,7 +9,7 @@
         <label for="name" class="form-label">Full Name</label>
         <input
           type="text"
-          class="form-control"
+          class="form-control form-input"
           v-model="name"
           id="full_name"
           placeholder="Enter your full name"
@@ -20,7 +20,7 @@
         <label for="email" class="form-label">Email address</label>
         <input
           type="email"
-          class="form-control"
+          class="form-control form-input"
           v-model="email"
           id="email"
           placeholder="Enter your email"
@@ -31,7 +31,7 @@
         <label for="password" class="form-label">Password</label>
         <input
           type="password"
-          class="form-control"
+          class="form-control form-input"
           v-model="password"
           id="password"
           placeholder="Enter your password"
@@ -42,28 +42,21 @@
         <label for="phoneNumber" class="form-label">Phone Number</label>
         <input
           type="text"
-          class="form-control"
+          class="form-control form-input"
           v-model="pNumber"
           id="phoneNumber"
           placeholder="Enter your phone number"
           required
         />
       </div>
-      <button
-        type="submit"
-        class="btn"
-        style="background-color: #557c56; color: #ffffff; width: 100%"
-      >
-        Register
-      </button>
+      <button type="submit" class="btn register-button">Register</button>
     </form>
-    <div class="text-center mt-3" style="color: #557c56">
-      <p>
+    <div class="text-center mt-3">
+      <p class="login-text">
         Already have an account?
-        <router-link to="/" style="color: #e65100">Sign in here!</router-link>
+        <router-link to="/" class="login-link">Sign in here!</router-link>
       </p>
     </div>
-    <div class="blur-overlay"></div>
   </div>
 </template>
 
@@ -93,7 +86,6 @@ export default {
             pNumber: this.pNumber,
           },
         )
-        // Show success alert on successful registration
         Swal.fire({
           title: 'Registration Successful!',
           text: 'You have successfully registered.',
@@ -122,21 +114,67 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
-  max-width: 400px;
-  padding: 20px;
-  background-color: #f5f5f5;
-
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
 }
 
+.text-center h1 {
+  font-weight: bold;
+  color: #ff4500;
+}
+
+.form-input {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #ff4500;
+  box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
+}
+
+.register-button {
+  background-color: #ff4500;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+.register-button:hover {
+  background-color: #e03b00;
+}
+
+.login-text {
+  color: #555;
+}
+
+.login-link {
+  color: #ff4500;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
     max-width: 90%;
-    padding: 15px;
+    padding: 30px;
   }
 }
 </style>

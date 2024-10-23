@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <div class="text-center" style="color: #e65100">
+    <div class="text-center" style="color: #ff4500">
       <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
       <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
     </div>
@@ -9,7 +9,7 @@
         <label for="email" class="form-label">Email address</label>
         <input
           type="email"
-          class="form-control"
+          class="form-control form-input"
           v-model="email"
           id="email"
           placeholder="Enter your email"
@@ -20,33 +20,26 @@
         <label for="password" class="form-label">Password</label>
         <input
           type="password"
-          class="form-control"
+          class="form-control form-input"
           v-model="password"
           id="password"
           placeholder="Enter your password"
           required
         />
       </div>
-      <div class="mb-3">
-        <a href="#" class="text-muted">Forgot Password?</a>
+      <div class="mb-3 text-end">
+        <a href="#" class="forgot-password">Forgot Password?</a>
       </div>
-      <button
-        type="submit"
-        class="btn"
-        style="background-color: #557c56; color: #ffffff; width: 100%"
-      >
-        Sign In
-      </button>
+      <button type="submit" class="btn login-button">Sign In</button>
     </form>
-    <div class="text-center mt-3" style="color: #557c56">
-      <p>
+    <div class="text-center mt-3">
+      <p class="signup-text">
         Don't have an account?
-        <router-link to="/register" style="color: #e65100"
+        <router-link to="/register" class="signup-link"
           >Sign up now!</router-link
         >
       </p>
     </div>
-    <div class="blur-overlay"></div>
   </div>
 </template>
 
@@ -73,28 +66,24 @@ export default {
           },
         )
 
-        // Assuming the response contains token, role, and userId
         const { token, role, idUser } = response.data
 
-        // Store token in localStorage (or use Vuex for state management)
         localStorage.setItem('token', token)
         localStorage.setItem('role', role)
         localStorage.setItem('idUser', idUser)
 
-        // Show success alert
         Swal.fire({
           title: 'Login Successful!',
           text: 'You have successfully logged in.',
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          // Redirect based on role
           if (role === 'ROLE_ADMIN') {
-            this.$router.push('/admin/dashboard') // Redirect to admin dashboard
+            this.$router.push('/admin/dashboard')
           } else if (role === 'ROLE_TRAINER') {
-            this.$router.push('/trainer-dashboard') // Redirect to trainer dashboard
+            this.$router.push('/trainer-dashboard')
           } else {
-            this.$router.push('/member/dashboard') // Redirect to user home
+            this.$router.push('/member/dashboard')
           }
         })
       } catch (error) {
@@ -114,21 +103,77 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
-  max-width: 400px;
-  padding: 20px;
-  background-color: #f5f5f5;
-
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
 }
 
+.text-center h1 {
+  font-weight: bold;
+  color: #ff4500;
+}
+
+.form-input {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #ff4500;
+  box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
+}
+
+.forgot-password {
+  color: #ff4500;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-button {
+  background-color: #ff4500;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #e03b00;
+}
+
+.signup-text {
+  color: #555;
+}
+
+.signup-link {
+  color: #ff4500;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
     max-width: 90%;
-    padding: 15px;
+    padding: 30px;
   }
 }
 </style>
