@@ -4,19 +4,19 @@
     <div class="container mt-4">
       <h1 class="mb-4 text-center">Manage Trainers</h1>
 
-      <!-- Button to Trigger Add Trainer Modal - Positioned Right -->
+      <!-- Button to Trigger Add Trainer Modal -->
       <div class="d-flex justify-content-between mb-3">
         <h5></h5>
-        <button class="btn btn-success" @click="isAddModalOpen = true">
+        <button class="btn add-trainer-button" @click="isAddModalOpen = true">
           Add New Trainer
         </button>
       </div>
 
       <!-- Trainer List -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Trainers List</div>
+        <div class="card-header bg-dark text-white">Trainers List</div>
         <div class="card-body">
-          <table class="table table-striped" v-if="trainers.length > 0">
+          <table class="table table-hover" v-if="trainers.length > 0">
             <thead>
               <tr>
                 <th>ID</th>
@@ -29,12 +29,9 @@
             <tbody>
               <tr v-for="trainer in trainers" :key="trainer.idTrainer">
                 <td>{{ trainer.idTrainer }}</td>
-                <!-- Use idTrainer instead of id -->
                 <td>{{ trainer.trainerName }}</td>
                 <td>{{ trainer.email }}</td>
-                <!-- email is not in the response, so you can remove or adjust it -->
-                <td>{{ trainer.pnumber }}</td>
-                <!-- pNumber is also missing, adjust as needed -->
+                <td>{{ trainer.pNumber }}</td>
                 <td>{{ trainer.trainerDescription }}</td>
               </tr>
             </tbody>
@@ -45,7 +42,7 @@
         </div>
       </div>
 
-      <!-- Add Trainer Modal (Using the Custom Modal Component) -->
+      <!-- Add Trainer Modal -->
       <CustomModal :visible="isAddModalOpen" @close="isAddModalOpen = false">
         <h5 class="modal-title mb-4 text-center">Add New Trainer</h5>
         <form @submit.prevent="addTrainer">
@@ -104,7 +101,7 @@
               placeholder="Enter description"
             ></textarea>
           </div>
-          <button type="submit" class="btn btn-success w-100">
+          <button type="submit" class="btn add-trainer-button w-100">
             Add Trainer
           </button>
         </form>
@@ -114,10 +111,10 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue' // Import the Navbar component
-import CustomModal from '../CustomModal.vue' // Import the Custom Modal component
-import axios from 'axios' // Import axios for HTTP requests
-import Swal from 'sweetalert2' // Import SweetAlert
+import Navbar from './Navbar.vue'
+import CustomModal from '../CustomModal.vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'ManageTrainer',
@@ -127,30 +124,28 @@ export default {
   },
   data() {
     return {
-      trainers: [], // Trainers data fetched from API
+      trainers: [],
       newTrainer: {
         trainerName: '',
         email: '',
-        password: '', // Added password field
+        password: '',
         pNumber: '',
         trainerDescription: '',
       },
-      token: null, // Token for authorization will be fetched from localStorage
-      isAddModalOpen: false, // Control the visibility of the add modal
+      token: null,
+      isAddModalOpen: false,
     }
   },
   created() {
-    // Fetch the token from localStorage
     this.token = localStorage.getItem('token')
 
     if (this.token) {
-      this.fetchTrainers() // Fetch trainers when component is created
+      this.fetchTrainers()
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
   },
   methods: {
-    // Fetch trainers from API
     async fetchTrainers() {
       try {
         const response = await axios.get(
@@ -161,13 +156,12 @@ export default {
             },
           },
         )
-        this.trainers = response.data // Store fetched trainers in the trainers array
+        this.trainers = response.data
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to fetch trainers.', 'error')
       }
     },
-    // Add a new trainer
     async addTrainer() {
       try {
         const response = await axios.post(
@@ -181,10 +175,8 @@ export default {
           },
         )
 
-        // Add the new trainer to the list
         this.trainers.push(response.data)
 
-        // Clear the form fields after adding
         this.newTrainer = {
           trainerName: '',
           email: '',
@@ -193,17 +185,14 @@ export default {
           trainerDescription: '',
         }
 
-        // Close the modal after adding the trainer
         this.isAddModalOpen = false
 
-        // Show a success alert and refresh the page when the user presses "OK"
         Swal.fire({
           title: 'Trainer Added!',
           text: 'The new trainer has been added successfully.',
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          // Refresh the page after pressing OK
           window.location.reload()
         })
       } catch (error) {
@@ -219,53 +208,79 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
-  padding: 20px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ff4500;
 }
 
 .card {
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary,
-.btn-success {
+.card-header {
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-h1 {
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-/* Custom Modal Styling */
-.custom-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.custom-modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
-  position: relative;
-}
-
-.btn-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
+.add-trainer-button {
+  background-color: #ff4500;
+  color: #ffffff;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+  border-radius: 8px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.add-trainer-button:hover {
+  background-color: #e03b00;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f9f0;
+}
+
+/* Modal Styling */
+.modal-title {
+  color: #ff4500;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ff4500;
+  box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .card-header {
+    font-size: 1.1rem;
+  }
 }
 </style>

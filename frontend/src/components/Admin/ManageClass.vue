@@ -7,16 +7,16 @@
       <!-- Button to Trigger Add Class Modal -->
       <div class="d-flex justify-content-between mb-3">
         <h5></h5>
-        <button class="btn btn-success" @click="isAddModalOpen = true">
+        <button class="btn add-class-button" @click="isAddModalOpen = true">
           Add New Class
         </button>
       </div>
 
       <!-- Class List -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Class List</div>
+        <div class="card-header bg-dark text-white">Class List</div>
         <div class="card-body">
-          <table class="table table-striped" v-if="classes.length > 0">
+          <table class="table table-hover" v-if="classes.length > 0">
             <thead>
               <tr>
                 <th>Class Name</th>
@@ -115,7 +115,9 @@
               </option>
             </select>
           </div>
-          <button type="submit" class="btn btn-success w-100">Add Class</button>
+          <button type="submit" class="btn add-class-button w-100">
+            Add Class
+          </button>
         </form>
       </CustomModal>
     </div>
@@ -136,7 +138,7 @@ export default {
   },
   data() {
     return {
-      classes: [], // Store the list of classes
+      classes: [],
       newClass: {
         classDate: '',
         classTime: '',
@@ -155,7 +157,7 @@ export default {
 
     if (this.token) {
       this.fetchTrainers()
-      this.fetchClasses() // Fetch classes on component creation
+      this.fetchClasses()
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
@@ -219,7 +221,7 @@ export default {
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          this.fetchClasses() // Refresh the class list after adding
+          this.fetchClasses()
         })
       } catch (error) {
         console.error(error)
@@ -230,52 +232,79 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
-  padding: 20px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ff4500;
 }
 
 .card {
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary,
-.btn-success {
+.card-header {
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-h1 {
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-.custom-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.custom-modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
-  position: relative;
-}
-
-.btn-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
+.add-class-button {
+  background-color: #ff4500;
+  color: #ffffff;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+  border-radius: 8px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.add-class-button:hover {
+  background-color: #e03b00;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f9f0;
+}
+
+/* Modal Styling */
+.modal-title {
+  color: #ff4500;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ff4500;
+  box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .card-header {
+    font-size: 1.1rem;
+  }
 }
 </style>

@@ -1,7 +1,9 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="../../assets/logo.jpg" alt="Logo" class="logo" />
+      <router-link to="/member/dashboard">
+        <img src="../../assets/logo.jpg" alt="Logo" class="logo" />
+      </router-link>
     </div>
 
     <!-- Hamburger Menu for Mobile -->
@@ -56,30 +58,43 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #557c56;
+  background-color: black; /* Black background */
   color: #ffffff;
+  position: relative;
+  z-index: 10;
 }
 
 .navbar-left .logo {
-  height: 40px;
+  height: 45px; /* Reduce logo size */
+  object-fit: contain;
 }
 
+/* Center navigation links */
 .navbar-center {
   display: flex;
-  gap: 20px;
+  gap: 30px;
 }
 
 .navbar-center a {
-  color: #ffffff;
+  color: #ff4500; /* Orange-red color */
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
   text-decoration: none;
+  transition: color 0.3s;
 }
 
 .navbar-center a:hover {
-  text-decoration: underline;
+  color: #e03b00; /* Darker shade on hover */
 }
 
-.navbar-right .profile-icon {
-  height: 40px;
+/* Profile icon from Bootstrap */
+.profile-icon {
+  height: 45px;
+}
+
+.profile-icon:hover {
+  color: #e03b00; /* Darker shade on hover */
 }
 
 /* Hamburger Menu for Mobile */
@@ -93,36 +108,54 @@ export default {
 .navbar-hamburger .bar {
   width: 25px;
   height: 3px;
-  background-color: #ffffff;
+  background-color: #ff4500;
+  transition: background-color 0.3s;
+}
+
+.navbar-hamburger:hover .bar {
+  background-color: #e03b00;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
   .navbar-center {
-    display: none; /* Hide links by default on mobile */
+    display: none;
     position: absolute;
     top: 60px;
     left: 0;
     width: 100%;
-    background-color: #557c56;
+    background-color: #000;
     flex-direction: column;
     text-align: center;
-    gap: 15px;
+    gap: 20px;
     padding: 20px 0;
+    z-index: 9;
   }
 
-  /* Show navbar links when the menu is active */
   .navbar-center-active {
     display: flex;
   }
 
   .navbar-hamburger {
-    display: flex; /* Show hamburger menu on mobile */
+    display: flex;
   }
 
-  /* Keep profile icon always visible */
   .navbar-right {
-    display: flex; /* Profile icon stays visible on all screen sizes */
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-left .logo {
+    height: 35px; /* Adjust logo size for smaller screens */
+  }
+
+  .navbar-center a {
+    font-size: 0.9rem;
+  }
+
+  .profile-icon {
+    font-size: 1.3rem; /* Adjust icon size for smaller screens */
   }
 }
 </style>

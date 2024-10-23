@@ -4,22 +4,19 @@
     <div class="container mt-4">
       <h1 class="mb-4 text-center">Manage Packages</h1>
 
-      <!-- Button to Trigger Add Package Modal - Positioned Right -->
+      <!-- Button to Trigger Add Package Modal -->
       <div class="d-flex justify-content-between mb-3">
         <h5></h5>
-        <button class="btn btn-success" @click="isAddModalOpen = true">
+        <button class="btn add-package-button" @click="isAddModalOpen = true">
           Add New Package
         </button>
       </div>
 
       <!-- Membership Packages Table -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Membership Packages</div>
+        <div class="card-header bg-dark text-white">Membership Packages</div>
         <div class="card-body">
-          <table
-            class="table table-striped"
-            v-if="membershipPackages.length > 0"
-          >
+          <table class="table table-hover" v-if="membershipPackages.length > 0">
             <thead>
               <tr>
                 <th @click="sort('packageName')">Package Name</th>
@@ -34,7 +31,7 @@
                 :key="packageItem.id"
               >
                 <td>{{ packageItem.packageName }}</td>
-                <td>{{ packageItem.price }}</td>
+                <td>Rp {{ packageItem.price.toLocaleString() }}</td>
                 <td>{{ packageItem.duration }}</td>
                 <td>{{ packageItem.status }}</td>
               </tr>
@@ -48,9 +45,9 @@
 
       <!-- Visit Packages Table -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Visit Packages</div>
+        <div class="card-header bg-dark text-white">Visit Packages</div>
         <div class="card-body">
-          <table class="table table-striped" v-if="visitPackages.length > 0">
+          <table class="table table-hover" v-if="visitPackages.length > 0">
             <thead>
               <tr>
                 <th @click="sort('packageName')">Package Name</th>
@@ -65,7 +62,7 @@
                 :key="packageItem.id"
               >
                 <td>{{ packageItem.packageName }}</td>
-                <td>{{ packageItem.price }}</td>
+                <td>Rp {{ packageItem.price.toLocaleString() }}</td>
                 <td>{{ packageItem.visitNumber }}</td>
                 <td>{{ packageItem.status }}</td>
               </tr>
@@ -136,7 +133,7 @@
               </option>
             </select>
           </div>
-          <button type="submit" class="btn btn-success w-100">
+          <button type="submit" class="btn add-package-button w-100">
             Add Package
           </button>
         </form>
@@ -146,10 +143,10 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue' // Import the Navbar component
-import CustomModal from '../CustomModal.vue' // Import the Custom Modal component
-import axios from 'axios' // Import axios for HTTP requests
-import Swal from 'sweetalert2' // Import SweetAlert
+import Navbar from './Navbar.vue'
+import CustomModal from '../CustomModal.vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'ManagePackage',
@@ -159,26 +156,24 @@ export default {
   },
   data() {
     return {
-      packages: [], // Store the list of packages
+      packages: [],
       newPackage: {
         packageName: '',
         price: '',
         type: '',
         visitNumber: '',
         duration: '',
-        status: 'available', // Set status automatically
+        status: 'available',
       },
-      token: null, // Token for authorization will be fetched from localStorage
-      isAddModalOpen: false, // Control the visibility of the add modal
-      sortKey: 'packageName', // Sort key for sorting packages
+      token: null,
+      isAddModalOpen: false,
+      sortKey: 'packageName',
     }
   },
   created() {
-    // Fetch the token from localStorage
     this.token = localStorage.getItem('token')
-
     if (this.token) {
-      this.fetchPackages() // Fetch packages when component is created
+      this.fetchPackages()
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error')
     }
@@ -193,22 +188,17 @@ export default {
       return this.packages.filter(packageItem => packageItem.type === 'Visit')
     },
     sortedMembershipPackages() {
-      return this.membershipPackages.sort((a, b) => {
-        if (a[this.sortKey] < b[this.sortKey]) return -1
-        if (a[this.sortKey] > b[this.sortKey]) return 1
-        return 0
-      })
+      return this.membershipPackages.sort((a, b) =>
+        a[this.sortKey] < b[this.sortKey] ? -1 : 1,
+      )
     },
     sortedVisitPackages() {
-      return this.visitPackages.sort((a, b) => {
-        if (a[this.sortKey] < b[this.sortKey]) return -1
-        if (a[this.sortKey] > b[this.sortKey]) return 1
-        return 0
-      })
+      return this.visitPackages.sort((a, b) =>
+        a[this.sortKey] < b[this.sortKey] ? -1 : 1,
+      )
     },
   },
   methods: {
-    // Fetch packages from API
     async fetchPackages() {
       try {
         const response = await axios.get(
@@ -219,13 +209,12 @@ export default {
             },
           },
         )
-        this.packages = response.data // Store fetched packages in the packages array
+        this.packages = response.data
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to fetch packages.', 'error')
       }
     },
-    // Add a new package
     async addPackage() {
       try {
         const response = await axios.post(
@@ -239,30 +228,25 @@ export default {
           },
         )
 
-        // Add the new package to the list
         this.packages.push(response.data)
 
-        // Clear the form fields after adding
         this.newPackage = {
           packageName: '',
           price: '',
           type: '',
           visitNumber: '',
           duration: '',
-          status: 'available', // Set status automatically
+          status: 'available',
         }
 
-        // Close the modal after adding the package
         this.isAddModalOpen = false
 
-        // Show a success alert and refresh the page when the user presses "OK"
         Swal.fire({
           title: 'Package Added!',
           text: 'The new package has been added successfully.',
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          // Refresh the page after pressing OK
           window.location.reload()
         })
       } catch (error) {
@@ -274,23 +258,13 @@ export default {
         )
       }
     },
-    // Edit a package
-    editPackage(packageId) {
-      // Implement package editing logic here
-    },
-    // Delete a package
-    deletePackage(packageId) {
-      // Implement package deletion logic here
-    },
-    // Handle type change
     onTypeChange() {
       if (this.newPackage.type === 'Visit') {
-        this.newPackage.duration = '' // Reset duration when type changes to Visit
+        this.newPackage.duration = ''
       } else if (this.newPackage.type === 'Membership') {
-        this.newPackage.visitNumber = '' // Reset visit number when type changes to Membership
+        this.newPackage.visitNumber = ''
       }
     },
-    // Sort packages
     sort(key) {
       this.sortKey = key
     },
@@ -298,53 +272,79 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
-  padding: 20px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ff4500;
 }
 
 .card {
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary,
-.btn-success {
+.card-header {
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-h1 {
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-/* Custom Modal Styling */
-.custom-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.custom-modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
-  position: relative;
-}
-
-.btn-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
+.add-package-button {
+  background-color: #ff4500;
+  color: #ffffff;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+  border-radius: 8px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.add-package-button:hover {
+  background-color: #e03b00;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f9f0;
+}
+
+/* Modal Styling */
+.modal-title {
+  color: #ff4500;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ff4500;
+  box-shadow: 0px 0px 5px rgba(255, 69, 0, 0.5);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .card-header {
+    font-size: 1.1rem;
+  }
 }
 </style>

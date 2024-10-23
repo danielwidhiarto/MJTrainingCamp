@@ -4,9 +4,10 @@
     <div class="container mt-4">
       <h1 class="text-center mb-4">Manage Member Transactions</h1>
 
+      <!-- Submitted Transactions List -->
       <div class="card shadow-sm mb-4">
         <div
-          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+          class="card-header bg-dark text-white d-flex justify-content-between align-items-center"
         >
           <span>Submitted Transactions</span>
           <button class="btn btn-secondary btn-sm" @click="toggleSort">
@@ -15,7 +16,7 @@
         </div>
         <div class="card-body">
           <table
-            class="table table-striped"
+            class="table table-hover"
             v-if="filteredTransactions.length > 0"
           >
             <thead>
@@ -206,19 +207,34 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .container {
+  padding: 40px 20px;
   max-width: 1200px;
   margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ff4500;
 }
 
 .card {
   border-radius: 8px;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.table {
-  margin-top: 10px;
+.card-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f9f0;
 }
 
 .table-success {
@@ -233,6 +249,7 @@ export default {
   background-color: #fff3cd !important;
 }
 
+/* Modal Styling */
 .custom-modal {
   position: fixed;
   top: 0;
@@ -254,7 +271,6 @@ export default {
   max-width: 600px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
 }
 
 .btn-close {
@@ -265,5 +281,20 @@ export default {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+.btn-success,
+.btn-danger {
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+.btn-success:hover {
+  background-color: #28a745;
+}
+
+.btn-danger:hover {
+  background-color: #dc3545;
 }
 </style>
