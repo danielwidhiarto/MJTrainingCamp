@@ -2,41 +2,43 @@
   <div>
     <Navbar />
     <div class="container">
-      <h1>Buy Membership</h1>
-      <p>Welcome to your Buy Membership page!</p>
+      <h1>Choose Your Plan</h1>
+      <p class="welcome-text">
+        Get the best membership package tailored for you!
+      </p>
 
       <!-- Membership Plans Section -->
       <div class="card-container">
         <div class="card" v-for="(plan, index) in membershipPlans" :key="index">
-          <h2>{{ plan.price }}</h2>
+          <h2>Rp. {{ plan.price }}</h2>
           <h3>{{ plan.packageName }}</h3>
           <p>{{ plan.description }}</p>
           <button
             class="select-plan-button"
             @click="goToPayment(plan.idPackage)"
           >
-            Pilih Plan
+            Select Plan
           </button>
         </div>
       </div>
 
       <!-- Visit Package Section -->
       <div class="visit-package">
-        <h2>Beli Paket Visit</h2>
+        <h2>Buy a Visit Package</h2>
         <div class="card-container">
           <div
             class="visit-card"
             v-for="(visit, index) in visitPackages"
             :key="index"
           >
-            <h2>{{ visit.price }}</h2>
+            <h2>Rp. {{ visit.price }}</h2>
             <h3>{{ visit.packageName }}</h3>
             <p>{{ visit.description }}</p>
             <button
               class="select-visit-button"
               @click="goToPayment(visit.idPackage)"
             >
-              Beli Paket Visit
+              Buy Visit Package
             </button>
           </div>
         </div>
@@ -46,11 +48,11 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue' // Import the Navbar component
-import axios from 'axios' // Import axios for HTTP requests
-import Swal from 'sweetalert2' // Import SweetAlert
-import { useRouter } from 'vue-router' // Import useRouter for navigation
-import { onMounted, ref } from 'vue' // Import onMounted and ref
+import Navbar from './Navbar.vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
 
 export default {
   name: 'BuyMembership',
@@ -58,8 +60,8 @@ export default {
     Navbar,
   },
   setup() {
-    const router = useRouter() // Access the router instance
-    const membershipPlans = ref([]) // Use ref for reactivity
+    const router = useRouter()
+    const membershipPlans = ref([])
     const visitPackages = ref([])
 
     const fetchPackages = async () => {
@@ -91,7 +93,7 @@ export default {
       router.push({ name: 'Payment', params: { idPackage } })
     }
 
-    onMounted(fetchPackages) // Fetch packages when the component is mounted
+    onMounted(fetchPackages)
 
     return {
       membershipPlans,
@@ -102,114 +104,119 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+/* General Layout */
 .container {
-  padding: 20px;
-  max-width: 1200px; /* Max width for larger screens */
-  margin: auto; /* Center the container */
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  text-align: center;
 }
 
 h1 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #000; /* Black text to match the logo's accent */
+}
+
+.welcome-text {
+  font-size: 1.25rem;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+/* Card Containers */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Card Styling */
+.card,
+.visit-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1 1 calc(25% - 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  transition:
+    transform 0.4s,
+    box-shadow 0.4s;
+  border: 2px solid #ff4500; /* Orange-red border to match the logo color */
+}
+
+.card:hover,
+.visit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
 }
 
 h2 {
-  font-size: 1.5em;
-  margin: 10px 0;
+  font-size: 2rem;
+  color: #000; /* Black to match the logo */
 }
 
 h3 {
-  font-size: 1.2em;
-  margin: 5px 0;
+  font-size: 1.5rem;
+  color: #ff4500; /* Orange-red to match the logo */
+  margin-bottom: 15px;
 }
 
-.card-container {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; /* Allow cards to wrap in case of small screens */
-  gap: 20px; /* Add space between cards */
+p {
+  font-size: 1rem;
+  color: #555;
 }
 
-.card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  flex: 1 1 calc(25% - 20px); /* 4 cards in a row with space */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  height: 300px; /* Fixed height for all cards */
-  display: flex;
-  flex-direction: column; /* Align content vertically */
-  justify-content: space-between; /* Space out items */
-  text-align: center; /* Center text */
-  transition: transform 0.3s; /* Smooth hover effect */
-}
-
-.card:hover {
-  transform: translateY(-5px); /* Lift effect on hover */
-}
-
-.visit-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  height: 300px; /* Fixed height for visit cards */
-  display: flex;
-  flex-direction: column; /* Align content vertically */
-  justify-content: space-between; /* Space out items */
-  flex: 1 1 calc(33% - 20px); /* 3 cards in a row with space */
-  transition: transform 0.3s; /* Smooth hover effect */
-}
-
-.visit-card:hover {
-  transform: translateY(-5px); /* Lift effect on hover */
-}
-
+/* Buttons */
 .select-plan-button,
 .select-visit-button {
-  background-color: #557c56; /* Your button color */
-  color: #ffe5cf; /* Your text color */
+  background-color: #ff4500; /* Matching the logo’s red-orange */
+  color: #fff;
   border: none;
-  border-radius: 5px;
-  padding: 12px 20px;
+  border-radius: 8px;
+  padding: 12px 16px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s; /* Smooth color change */
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .select-plan-button:hover,
 .select-visit-button:hover {
-  background-color: #4a6b4b; /* Darker shade on hover */
+  background-color: #e03b00; /* Slightly darker shade on hover */
 }
 
+/* Visit Package Section */
 .visit-package {
-  margin-top: 40px;
+  margin-top: 50px;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-  .card {
-    flex: 1 1 calc(50% - 20px); /* 2 cards in a row on small screens */
+  .card,
+  .visit-card {
+    flex: 1 1 calc(50% - 20px);
   }
 
-  .visit-card {
-    flex: 1 1 calc(50% - 20px); /* 2 visit cards in a row */
+  h1 {
+    font-size: 2.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .card {
-    flex: 1 1 100%; /* 1 card in a row on extra small screens */
-  }
-
+  .card,
   .visit-card {
-    flex: 1 1 100%; /* 1 visit card in a row */
+    flex: 1 1 100%;
   }
 
   h1 {
-    font-size: 2em; /* Adjust h1 size for smaller screens */
+    font-size: 2rem;
   }
 }
 </style>

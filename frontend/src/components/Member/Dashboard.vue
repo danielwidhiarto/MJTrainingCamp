@@ -141,9 +141,7 @@
               <p><strong>Membership Type:</strong> Gold</p>
               <p><strong>Status:</strong> Active until Jan 31, 2024</p>
               <p><strong>Classes Attended This Month:</strong> 8</p>
-              <button class="btn btn-outline-primary mt-3">
-                View Membership
-              </button>
+              <button class="btn btn-primary mt-3">View Membership</button>
             </div>
           </div>
         </div>
@@ -231,8 +229,20 @@ export default {
 }
 
 .card-title {
-  color: #557c56;
+  color: #ff4500; /* Orange-red color for consistency */
   font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #ff4500; /* Orange-red for buttons */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e03b00; /* Darker shade on hover */
 }
 
 .list-group-item {
@@ -245,8 +255,8 @@ export default {
 }
 
 .list-group-item:hover {
-  border-left-color: #557c56;
-  background-color: #f0f9f0;
+  border-left-color: #ff4500; /* Orange-red for hover effect */
+  background-color: #fce9e6; /* Light orange-red background on hover */
 }
 
 .list-group-item i {
@@ -255,9 +265,9 @@ export default {
 }
 
 .blockquote {
-  border-left: 5px solid #557c56;
+  border-left: 5px solid #ff4500; /* Orange-red for blockquote border */
   padding: 15px 20px;
-  background-color: #e9f5eb;
+  background-color: #ffe5cf; /* Light orange-red background for blockquote */
   border-radius: 5px;
 }
 
@@ -266,13 +276,19 @@ export default {
   color: #555;
 }
 
+/* Carousel Image Styling */
 .carousel-inner img {
   height: 400px;
   object-fit: cover;
 }
 
 .carousel-caption {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Transparent black background for text visibility */
   padding: 10px;
   border-radius: 5px;
 }
@@ -280,12 +296,46 @@ export default {
 .testimonial {
   background-color: #f9f9f9;
   padding: 15px;
-  border-left: 5px solid #557c56;
+  border-left: 5px solid #ff4500; /* Orange-red border for testimonials */
   border-radius: 5px;
   transition: background-color 0.3s;
 }
 
 .testimonial:hover {
-  background-color: #eef6ee;
+  background-color: #ffe5cf; /* Light orange-red background on hover */
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .carousel-inner img {
+    height: 300px;
+  }
+
+  .testimonial {
+    margin-bottom: 20px;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-inner img {
+    height: 250px;
+  }
+
+  .blockquote {
+    padding: 10px 15px;
+  }
+
+  .btn-primary {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+  }
 }
 </style>

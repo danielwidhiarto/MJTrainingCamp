@@ -1,14 +1,14 @@
 <template>
   <div>
     <Navbar />
-    <div class="container-fluid py-5 bg-light">
+    <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
-          <div class="card shadow-lg p-5">
-            <h1 class="text-center mb-4">Complete Your Payment</h1>
+          <div class="card shadow-lg p-5 payment-card">
+            <h1 class="text-center mb-4 page-title">Complete Your Payment</h1>
 
             <div v-if="packageDetails">
-              <h2 class="text-center text-primary mb-3">Package Overview</h2>
+              <h2 class="text-center text-accent mb-3">Package Overview</h2>
               <div class="row mb-4">
                 <div class="col-md-6">
                   <p>
@@ -48,7 +48,7 @@
               <hr class="my-4" />
 
               <h4 class="text-center mt-4">Select Payment Method</h4>
-              <div class="d-flex justify-content-around my-3">
+              <div class="d-flex justify-content-around my-3 payment-methods">
                 <div class="form-check">
                   <input
                     class="form-check-input"
@@ -83,8 +83,7 @@
                 <img
                   src="../../assets/qris.png"
                   alt="QR Code"
-                  class="img-fluid"
-                  style="max-width: 300px"
+                  class="img-fluid qris-img"
                 />
               </div>
 
@@ -114,7 +113,7 @@
               >
                 <h4>Total Payment: Rp {{ packageDetails.price }}</h4>
                 <button
-                  class="btn btn-success"
+                  class="btn btn-success proceed-button"
                   :disabled="!paymentProof"
                   @click="processPayment"
                 >
@@ -247,10 +246,6 @@ export default {
     }
 
     onMounted(() => {
-      if (!localStorage.getItem('refreshed')) {
-        localStorage.setItem('refreshed', 'true')
-        window.location.reload()
-      }
       fetchPackageDetails()
     })
 
@@ -267,12 +262,130 @@ export default {
 }
 </script>
 
-<style>
-.container-fluid {
+<style scoped>
+/* General container styling */
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
   background-color: #f8f9fa;
-  min-height: 100vh;
+  text-align: center;
 }
-.card {
-  border-radius: 15px;
+
+/* Card styling */
+.payment-card {
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Page title */
+.page-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 20px;
+}
+
+/* Payment method styling */
+.payment-methods .form-check-input {
+  width: 20px;
+  height: 20px;
+}
+
+.payment-methods label {
+  font-size: 1.2rem;
+  margin-left: 5px;
+}
+
+/* QRIS Image */
+.qris-img {
+  max-width: 300px;
+  margin-top: 10px;
+}
+
+/* Proceed button styling */
+.proceed-button {
+  background-color: #ff4500; /* Orange-red button color */
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.proceed-button:hover {
+  background-color: #e03b00; /* Darker shade on hover */
+}
+
+.proceed-button:disabled {
+  background-color: #ccc; /* Disabled button color */
+  cursor: not-allowed;
+}
+
+/* Input file styling */
+.form-control[type='file'] {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  color: #555;
+  margin-top: 10px;
+  transition: border-color 0.3s;
+}
+
+.form-control[type='file']:hover {
+  border-color: #ff4500; /* Highlight border on hover */
+}
+
+/* Total Payment */
+h4 {
+  font-size: 1.5rem;
+  color: #000;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .payment-card {
+    padding: 20px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .proceed-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+  .payment-methods label {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .qris-img {
+    max-width: 250px;
+  }
+
+  .payment-card {
+    padding: 15px;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .proceed-button {
+    padding: 8px 18px;
+    font-size: 1rem;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+  }
 }
 </style>
