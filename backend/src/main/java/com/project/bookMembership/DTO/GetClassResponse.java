@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
+import com.project.bookMembership.trainer.Trainer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,9 @@ public class GetClassResponse {
     private Long classCapasity;
     private String classRequirement;
     private String className;
-    private Long idTrainer;
+
+    private TrainerDetailResponse trainerDetail;
+
 
      private List<ClassDetailResponse> classMembers;
 }

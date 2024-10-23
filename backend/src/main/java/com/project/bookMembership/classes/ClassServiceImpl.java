@@ -3,14 +3,11 @@ package com.project.bookMembership.classes;
 import java.util.List;
 
 
-import com.project.bookMembership.DTO.ClassDetailResponse;
-import com.project.bookMembership.DTO.GetClassResponse;
+import com.project.bookMembership.DTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-import com.project.bookMembership.DTO.ClassHistoryRequest;
-import com.project.bookMembership.DTO.ClassRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.trainer.Trainer;
 import com.project.bookMembership.trainer.TrainerRepo;
@@ -95,10 +92,18 @@ public class ClassServiceImpl implements ClassService {
 
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
 
-
+            // Map trainer details to TrainerDetailResponse
             Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
+            TrainerDetailResponse trainerDetail = null;
+            if (trainer != null) {
+                trainerDetail = new TrainerDetailResponse(
+                        trainer.getIdTrainer(),
+                        trainer.getTrainerName(),
+                        trainer.getTrainerDescription()
+                );
+            }
 
-
+            // Build the response for this class
             GetClassResponse classResponse = GetClassResponse.builder()
                     .idClass(trainingClass.getIdClass())
                     .className(trainingClass.getClassName())
@@ -106,8 +111,8 @@ public class ClassServiceImpl implements ClassService {
                     .classDate(trainingClass.getClassDate())
                     .classTime(trainingClass.getClassTime())
                     .classCapasity(trainingClass.getClassCapasity())
-                    .idTrainer(trainer != null ? trainer.getIdTrainer() : null)
-                    .classMembers(classMembers) // Set class members here
+                    .trainerDetail(trainerDetail)
+                    .classMembers(classMembers)
                     .build();
 
             responseList.add(classResponse);
@@ -135,29 +140,32 @@ public class ClassServiceImpl implements ClassService {
         List<GetClassResponse> responseList = new ArrayList<>();
 
         if (classes.isEmpty()) {
-            System.out.println(date);
-            System.out.println(date);
-            System.out.println(date);
-            System.out.println(date);
-            System.out.println(date);
-
             return responseList;
         }
 
         for (TrainingClass trainingClass : classes) {
-            // Fetch all class details for each class
+
             List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
 
-            // Map class details to ClassDetailResponse
+
             List<ClassDetailResponse> classMembers = classDetails.stream()
                     .map(classDetail -> new ClassDetailResponse(
                             classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
                     .collect(Collectors.toList());
 
+
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
 
 
             Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
+            TrainerDetailResponse trainerDetail = null;
+            if (trainer != null) {
+                trainerDetail = new TrainerDetailResponse(
+                        trainer.getIdTrainer(),
+                        trainer.getTrainerName(),
+                        trainer.getTrainerDescription()
+                );
+            }
 
 
             GetClassResponse classResponse = GetClassResponse.builder()
@@ -167,7 +175,7 @@ public class ClassServiceImpl implements ClassService {
                     .classDate(trainingClass.getClassDate())
                     .classTime(trainingClass.getClassTime())
                     .classCapasity(trainingClass.getClassCapasity())
-                    .idTrainer(trainer != null ? trainer.getIdTrainer() : null)
+                    .trainerDetail(trainerDetail)
                     .classMembers(classMembers)
                     .build();
 
@@ -176,6 +184,7 @@ public class ClassServiceImpl implements ClassService {
 
         return responseList;
     }
+
 
     @Override
     public List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest) {
