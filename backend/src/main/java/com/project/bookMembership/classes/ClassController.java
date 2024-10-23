@@ -56,6 +56,52 @@ public class ClassController {
         }
     }
 
+
+    @GetMapping("/getClasses")
+    public ResponseEntity<List<GetClassResponse>> getClasses(
+            @RequestParam(required = false) Long id,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
+
+        List<GetClassResponse> classResponses = new ArrayList<>();
+
+        if (id != null) {
+//            classResponses = classService.getTrainingClassById(id); // Ensure this returns List<GetClassResponse>
+        } else if (date != null) {
+            classResponses = classService.getTrainingClassByDate(date);
+
+        } else {
+            classResponses = classService.getTrainingClass(); //
+        }
+
+        return ResponseEntity.ok(classResponses);
+    }
+
+    
+    @GetMapping("/getHistory")
+    public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
+    
+        List<TrainingClass> trainingClasses = new ArrayList<>();
+     
+        trainingClasses = classService.getClassHistory(classHistoryRequest);
+     
+        List<GetClassResponse> responseList = trainingClasses.stream()
+            .map(trainingClass -> GetClassResponse.builder()
+                .idClass(trainingClass.getIdClass())
+                .className((trainingClass.getClassName()))
+                .classRequirement(trainingClass.getClassRequirement())
+                .classDate(trainingClass.getClassDate())
+                .classTime(trainingClass.getClassTime())
+                .classCapasity(trainingClass.getClassCapasity())
+                
+                .build())
+            .collect(Collectors.toList());
+    
+       
+        return ResponseEntity.ok(responseList);
+    }
+    
+}
+
 //    @GetMapping("/getClasses")
 //    public ResponseEntity<List<GetClassResponse>> getClasses(@RequestParam(required = false) Long id,
 //                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
@@ -87,48 +133,3 @@ public class ClassController {
 //
 //        return ResponseEntity.ok(responseList);
 //    }
-
-    @GetMapping("/getClasses")
-    public ResponseEntity<List<GetClassResponse>> getClasses(
-            @RequestParam(required = false) Long id,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date date) {
-
-        List<GetClassResponse> classResponses = new ArrayList<>();
-
-        if (id != null) {
-//            classResponses = classService.getTrainingClassById(id); // Ensure this returns List<GetClassResponse>
-        } else if (date != null) {
-            classResponses = classService.getTrainingClassByDate(date); // Ensure this returns List<GetClassResponse>
-
-        } else {
-            classResponses = classService.getTrainingClass(); // This returns List<GetClassResponse>
-        }
-
-        return ResponseEntity.ok(classResponses);
-    }
-
-    
-    @GetMapping("/getHistory")
-    public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
-    
-        List<TrainingClass> trainingClasses = new ArrayList<>();
-     
-        trainingClasses = classService.getClassHistory(classHistoryRequest);
-     
-        List<GetClassResponse> responseList = trainingClasses.stream()
-            .map(trainingClass -> GetClassResponse.builder()
-                .idClass(trainingClass.getIdClass())
-                .className((trainingClass.getClassName()))
-                .classRequirement(trainingClass.getClassRequirement())
-                .classDate(trainingClass.getClassDate())
-                .classTime(trainingClass.getClassTime())
-                .classCapasity(trainingClass.getClassCapasity())
-                
-                .build())
-            .collect(Collectors.toList());
-    
-       
-        return ResponseEntity.ok(responseList);
-    }
-    
-}

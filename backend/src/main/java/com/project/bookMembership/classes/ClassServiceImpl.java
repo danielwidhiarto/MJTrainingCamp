@@ -68,7 +68,6 @@ public class ClassServiceImpl implements ClassService {
             .idTrainer(trainer)  
             .idClass(savedClass)  
             .build();
-    
      
             classTrainerRepo.save(classTrainerDetail);  
     
@@ -169,7 +168,7 @@ public class ClassServiceImpl implements ClassService {
                     .classTime(trainingClass.getClassTime())
                     .classCapasity(trainingClass.getClassCapasity())
                     .idTrainer(trainer != null ? trainer.getIdTrainer() : null)
-                    .classMembers(classMembers) // Set class members here
+                    .classMembers(classMembers)
                     .build();
 
             responseList.add(classResponse);
