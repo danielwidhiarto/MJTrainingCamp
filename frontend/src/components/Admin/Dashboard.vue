@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="container mt-5">
+    <Navbar />
+    <div class="container">
       <h1 class="dashboard-title">Admin Dashboard</h1>
       <p class="dashboard-welcome">Welcome back, {{ adminName }}!</p>
 
@@ -35,88 +36,30 @@
       <!-- Divider -->
       <hr class="section-divider" />
 
-      <!-- Quick Links Section -->
-      <div class="row mt-5">
+      <!-- Analytics Overview Section -->
+      <div class="row mt-4">
         <div class="col-md-6 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">User Management</h5>
-              <p>Manage members and trainers in the system.</p>
-              <button class="btn btn-primary" @click="navigateToUserManagement">
-                Go to User Management
-              </button>
+          <div class="card card-analytics">
+            <div class="card-body">
+              <h5 class="card-title text-center">User Growth Over Time</h5>
+              <apexchart
+                type="line"
+                :options="userGrowthOptions"
+                :series="userGrowthSeries"
+              />
             </div>
           </div>
         </div>
+
         <div class="col-md-6 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">Transaction Overview</h5>
-              <p>View and verify member transactions.</p>
-              <button class="btn btn-primary" @click="navigateToTransactions">
-                Go to Transaction Overview
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Divider -->
-      <hr class="section-divider" />
-
-      <!-- System Controls Section -->
-      <div class="row mt-5">
-        <div class="col-md-4 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">Package Management</h5>
-              <p>Create and edit membership or visit packages.</p>
-              <button class="btn btn-primary" @click="navigateToPackages">
-                Go to Package Management
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">Class Management</h5>
-              <p>Create and edit class schedules.</p>
-              <button class="btn btn-primary" @click="navigateToClasses">
-                Go to Class Management
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">Trainer Management</h5>
-              <p>Manage trainers and assign classes.</p>
-              <button class="btn btn-primary" @click="navigateToTrainers">
-                Go to Trainer Management
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Divider -->
-      <hr class="section-divider" />
-
-      <!-- Profile Settings Section -->
-      <div class="row mt-5">
-        <div class="col-md-12 mb-4">
-          <div class="card card-action">
-            <div class="card-body text-center">
-              <h5 class="card-title">Profile Settings</h5>
-              <p>Update your admin profile and system preferences.</p>
-              <button
-                class="btn btn-primary"
-                @click="navigateToProfileSettings"
-              >
-                Go to Profile Settings
-              </button>
+          <div class="card card-analytics">
+            <div class="card-body">
+              <h5 class="card-title text-center">Class Attendance Trends</h5>
+              <apexchart
+                type="bar"
+                :options="classAttendanceOptions"
+                :series="classAttendanceSeries"
+              />
             </div>
           </div>
         </div>
@@ -126,12 +69,14 @@
 </template>
 
 <script>
+import ApexCharts from 'vue3-apexcharts'
 import Navbar from '../Admin/Navbar.vue'
 
 export default {
   name: 'AdminDashboard',
   components: {
     Navbar,
+    apexchart: ApexCharts, // Import ApexCharts
   },
   data() {
     return {
@@ -139,37 +84,59 @@ export default {
       totalUsers: 120, // Placeholder for total user count
       pendingTransactions: 15, // Placeholder for pending transactions count
       activeMemberships: 45, // Placeholder for active membership count
+
+      // User Growth Chart Data
+      userGrowthSeries: [
+        {
+          name: 'New Users',
+          data: [10, 30, 20, 40, 60, 80, 100], // Example data
+        },
+      ],
+      userGrowthOptions: {
+        chart: {
+          height: 350,
+          type: 'line',
+          zoom: { enabled: false },
+        },
+        stroke: { curve: 'smooth' },
+        xaxis: {
+          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], // Example labels
+        },
+        colors: ['#ff4500'],
+      },
+
+      // Class Attendance Chart Data
+      classAttendanceSeries: [
+        {
+          name: 'Attendance',
+          data: [30, 45, 25, 50, 40], // Example data
+        },
+      ],
+      classAttendanceOptions: {
+        chart: { height: 350, type: 'bar' },
+        xaxis: {
+          categories: ['Yoga', 'Pilates', 'CrossFit', 'Dance', 'Boxing'], // Example labels
+        },
+        colors: ['#ff4500'],
+      },
     }
-  },
-  methods: {
-    navigateToUserManagement() {
-      this.$router.push('/admin/manage-member') // Updated route for user management
-    },
-    navigateToTransactions() {
-      this.$router.push('/admin/verify-payment') // Route for transaction overview
-    },
-    navigateToPackages() {
-      this.$router.push('/admin/manage-package') // Updated route for package management
-    },
-    navigateToClasses() {
-      this.$router.push('/admin/manage-class') // Updated route for class management
-    },
-    navigateToTrainers() {
-      this.$router.push('/admin/manage-trainer') // Updated route for trainer management
-    },
-    navigateToProfileSettings() {
-      this.$router.push('/admin/profile-page') // Route for admin profile settings
-    },
   },
 }
 </script>
 
 <style scoped>
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  border-radius: 16px;
+}
+
 .dashboard-title {
   font-size: 2.5rem;
   font-weight: bold;
   text-align: center;
-  color: #ff4500; /* Orange-red color */
+  color: #ff4500;
   margin-bottom: 20px;
 }
 
@@ -205,30 +172,17 @@ export default {
   color: #ff4500;
 }
 
-.card-action {
+.card-analytics {
   border: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 30px;
   background-color: #fff;
+  height: 400px;
 }
 
-.card-action .card-title {
+.card-analytics .card-title {
   font-size: 1.5rem;
   color: #ff4500;
-}
-
-.btn-primary {
-  background-color: #ff4500;
-  border: none;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #e03b00;
 }
 </style>
