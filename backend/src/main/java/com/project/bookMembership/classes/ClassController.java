@@ -98,7 +98,8 @@ public class ClassController {
         if (id != null) {
 //            classResponses = classService.getTrainingClassById(id); // Ensure this returns List<GetClassResponse>
         } else if (date != null) {
-//            classResponses = classService.getTrainingClassByDate(date); // Ensure this returns List<GetClassResponse>
+            classResponses = classService.getTrainingClassByDate(date); // Ensure this returns List<GetClassResponse>
+
         } else {
             classResponses = classService.getTrainingClass(); // This returns List<GetClassResponse>
         }

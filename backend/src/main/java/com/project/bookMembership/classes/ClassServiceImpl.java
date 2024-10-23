@@ -131,15 +131,51 @@ public class ClassServiceImpl implements ClassService {
 
 
     @Override
-    public List<TrainingClass> getTrainingClassByDate(Date date) {
-        
-        List<TrainingClass> trainingClass = trainingClassRepo.findByClassDate(date);
-    
-        if (trainingClass.isEmpty()) {
-           return new ArrayList<>();
+    public List<GetClassResponse> getTrainingClassByDate(Date date) {
+        List<TrainingClass> classes = trainingClassRepo.findByClassDate(date);
+        List<GetClassResponse> responseList = new ArrayList<>();
+
+        if (classes.isEmpty()) {
+            System.out.println(date);
+            System.out.println(date);
+            System.out.println(date);
+            System.out.println(date);
+            System.out.println(date);
+
+            return responseList;
         }
-    
-        return trainingClass;
+
+        for (TrainingClass trainingClass : classes) {
+            // Fetch all class details for each class
+            List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
+
+            // Map class details to ClassDetailResponse
+            List<ClassDetailResponse> classMembers = classDetails.stream()
+                    .map(classDetail -> new ClassDetailResponse(
+                            classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                    .collect(Collectors.toList());
+
+            ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
+
+
+            Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
+
+
+            GetClassResponse classResponse = GetClassResponse.builder()
+                    .idClass(trainingClass.getIdClass())
+                    .className(trainingClass.getClassName())
+                    .classRequirement(trainingClass.getClassRequirement())
+                    .classDate(trainingClass.getClassDate())
+                    .classTime(trainingClass.getClassTime())
+                    .classCapasity(trainingClass.getClassCapasity())
+                    .idTrainer(trainer != null ? trainer.getIdTrainer() : null)
+                    .classMembers(classMembers) // Set class members here
+                    .build();
+
+            responseList.add(classResponse);
+        }
+
+        return responseList;
     }
 
     @Override

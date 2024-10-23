@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
-import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
 
-            // Check if buktiTransfer is null before decompressing
+
             if (tx.getBuktiTransfer() != null) {
                 try {
                     byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
@@ -74,7 +74,7 @@ public class TransactionServiceImpl implements TransactionService {
                     throw new RuntimeException("Error decompressing image for Transaction ID: " + tx.getIdTransaction(), exception);
                 }
             } else {
-                response.setBuktiTransfer(null); // or set to a default value if needed
+                response.setBuktiTransfer(null);
             }
 
             return response;

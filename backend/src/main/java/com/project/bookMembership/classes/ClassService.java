@@ -13,7 +13,7 @@ public interface ClassService {
     TrainingClass save(ClassRequest request);
     List<GetClassResponse> getTrainingClass();
     List<TrainingClass> getTrainingClassById(Long id);
-    List<TrainingClass> getTrainingClassByDate(Date date);
+    List<GetClassResponse> getTrainingClassByDate(Date date);
     List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest);
     
     
