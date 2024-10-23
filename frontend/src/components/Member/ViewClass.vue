@@ -4,45 +4,47 @@
     <div class="container">
       <h1 class="page-title">View Class</h1>
       <p class="welcome-text">
-        Welcome to your View Class page! Choose a date to view available
-        classes.
+        Welcome to your View Class page! Use the date selector to view the
+        schedule for a selected day.
       </p>
 
-      <!-- Calendar Section -->
-      <vue-cal
-        :events="calendarEvents"
-        @cell-click="handleDateClick"
-        class="calendar-view"
-        :hide-weekdays="false"
-        active-view="month"
-        :disable-views="['years', 'year', 'week', 'day']"
-        :time="false"
-        default-view="month"
-        events-count-on-year-view
-      />
+      <!-- Custom Date Picker -->
+      <div class="custom-date-picker-container">
+        <div class="custom-date-picker">
+          <span>{{ formatDate(selectedDate) }}</span>
+          <div class="date-buttons">
+            <button @click="changeDate(-1)">&#9664;</button>
+            <!-- Previous day -->
+            <button @click="changeDate(1)">&#9654;</button>
+            <!-- Next day -->
+          </div>
+        </div>
+      </div>
 
       <!-- If no date is selected -->
       <div v-if="!selectedDate" class="info-text">
-        <p>Select a date to see available classes.</p>
+        <p>Please select a date to view available classes.</p>
       </div>
 
       <!-- Class Listing Section (filtered by selectedDate) -->
       <div
         v-if="selectedDate && filteredClasses.length > 0"
-        class="card-container"
+        class="schedule-container"
       >
-        <div
-          class="class-card"
-          v-for="classItem in filteredClasses"
-          :key="classItem.id"
-        >
-          <h2>{{ classItem.className }}</h2>
-          <p><strong>Date:</strong> {{ formatDate(classItem.classDate) }}</p>
-          <p><strong>Time:</strong> {{ classItem.classTime }}</p>
-          <p>
-            <strong>Capacity:</strong> {{ classItem.classCapasity }} students
-          </p>
-          <button class="details-button">Join Class</button>
+        <h2>Schedule for {{ formatDate(selectedDate) }}:</h2>
+        <div class="schedule-list">
+          <div
+            class="class-item"
+            v-for="classItem in filteredClasses"
+            :key="classItem.id"
+          >
+            <p><strong>Class:</strong> {{ classItem.className }}</p>
+            <p><strong>Time:</strong> {{ classItem.classTime }}</p>
+            <p>
+              <strong>Capacity:</strong> {{ classItem.classCapasity }} students
+            </p>
+            <button class="details-button">Join Class</button>
+          </div>
         </div>
       </div>
 
@@ -60,23 +62,19 @@
 <script>
 import axios from 'axios'
 import Navbar from './Navbar.vue'
-import vueCal from 'vue-cal' // Calendar component import
-import dayjs from 'dayjs' // Import Day.js for date formatting
-import 'vue-cal/dist/vuecal.css' // Import vue-cal CSS
+import dayjs from 'dayjs'
 
 export default {
   name: 'ViewClass',
   components: {
     Navbar,
-    vueCal, // Register vue-cal component
   },
   data() {
     return {
       classes: [], // All classes from the API
       loading: false,
       error: null,
-      selectedDate: null, // Date selected in the calendar
-      calendarEvents: [], // Events to show in the calendar
+      selectedDate: dayjs().format('YYYY-MM-DD'), // Set default to today
     }
   },
   computed: {
@@ -111,14 +109,6 @@ export default {
           },
         )
         this.classes = response.data
-
-        // Populate calendar events with dots to indicate available classes
-        this.calendarEvents = this.classes.map(classItem => ({
-          start: classItem.classDate,
-          end: classItem.classDate,
-          title: classItem.className,
-          class: 'class-available-count', // Add a class for the count indicator
-        }))
       } catch (err) {
         this.error = 'Failed to fetch classes. Please try again later.'
       } finally {
@@ -131,9 +121,11 @@ export default {
       const [hoursB, minutesB] = timeB.split(':').map(Number)
       return hoursA === hoursB ? minutesA - minutesB : hoursA - hoursB
     },
-    // Handle date click on calendar
-    handleDateClick(day) {
-      this.selectedDate = day
+    // Change date by adding or subtracting days
+    changeDate(days) {
+      this.selectedDate = dayjs(this.selectedDate)
+        .add(days, 'day')
+        .format('YYYY-MM-DD')
     },
     // Format date using Day.js
     formatDate(dateString) {
@@ -149,7 +141,7 @@ export default {
 <style scoped>
 .container {
   padding: 40px 20px;
-  max-width: 1200px;
+  max-width: 800px;
   margin: auto;
   text-align: center;
   background-color: #fff;
@@ -171,47 +163,63 @@ export default {
   margin-bottom: 40px;
 }
 
-.loading-text,
-.error-text,
-.info-text {
-  font-size: 1.2rem;
+.custom-date-picker-container {
+  margin-bottom: 20px;
+}
+
+.custom-date-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f8ff;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.custom-date-picker span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 15px;
+}
+
+.date-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.date-buttons button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: color 0.3s ease;
+}
+
+.date-buttons button:hover {
   color: #ff4500;
 }
 
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-.class-card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  width: calc(33% - 20px);
+.schedule-container {
   text-align: left;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
 }
 
-.class-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+.schedule-list {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
 }
 
-.class-card h2 {
-  font-size: 1.5rem;
-  color: #000;
-  margin-bottom: 10px;
+.class-item {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
-.class-card p {
+.class-item p {
   font-size: 1rem;
-  color: #555;
   margin: 5px 0;
 }
 
@@ -229,52 +237,5 @@ export default {
 
 .details-button:hover {
   background-color: #e03b00;
-}
-
-/* Calendar styling */
-.calendar-view {
-  margin-bottom: 40px;
-}
-
-/* Style for the event count indicator */
-.vuecal__cell-events-count {
-  background-color: #ff4500;
-  color: white;
-  border-radius: 50%;
-  padding: 5px 10px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  min-width: 25px;
-  text-align: center;
-  margin-top: 5px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .class-card {
-    width: calc(50% - 20px);
-  }
-
-  .page-title {
-    font-size: 2rem;
-  }
-
-  .welcome-text {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .class-card {
-    width: 100%;
-  }
-
-  .page-title {
-    font-size: 1.8rem;
-  }
-
-  .welcome-text {
-    font-size: 0.9rem;
-  }
 }
 </style>
