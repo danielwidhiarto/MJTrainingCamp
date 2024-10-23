@@ -14,6 +14,7 @@ public class TrainerResponse {
     private Long idTrainer;
     private String trainerName;
     private String trainerDescription;
-    private String email; 
-    private String pNumber; 
+    private String email;
+    private String PNumber;
+
 }
