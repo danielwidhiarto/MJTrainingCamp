@@ -31,7 +31,7 @@
                 <td>{{ trainer.idTrainer }}</td>
                 <td>{{ trainer.trainerName }}</td>
                 <td>{{ trainer.email }}</td>
-                <td>{{ trainer.pNumber }}</td>
+                <td>{{ trainer.pnumber }}</td>
                 <td>{{ trainer.trainerDescription }}</td>
               </tr>
             </tbody>

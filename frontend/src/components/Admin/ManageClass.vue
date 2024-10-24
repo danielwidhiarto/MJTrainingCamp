@@ -29,10 +29,17 @@
             <tbody>
               <tr v-for="classItem in classes" :key="classItem.idClass">
                 <td>{{ classItem.className }}</td>
-                <td>{{ classItem.classDate }}</td>
+                <td>{{ formatDate(classItem.classDate) }}</td>
+                <!-- Using the formatDate method -->
                 <td>{{ classItem.classTime }}</td>
                 <td>{{ classItem.classCapasity }}</td>
-                <td>{{ classItem.trainerName }}</td>
+                <td>
+                  {{
+                    classItem.trainerDetail
+                      ? classItem.trainerDetail.trainerName
+                      : 'No Trainer Assigned'
+                  }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -125,6 +132,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import Navbar from './Navbar.vue'
 import CustomModal from '../CustomModal.vue'
 import axios from 'axios'
@@ -227,6 +235,9 @@ export default {
         console.error(error)
         Swal.fire('Error!', 'Failed to add the class.', 'error')
       }
+    },
+    formatDate(date) {
+      return dayjs(date).format('dddd, DD MMM YYYY') // Format as Friday, 31 Oct 2024
     },
   },
 }
