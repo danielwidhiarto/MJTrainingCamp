@@ -72,7 +72,6 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         }
     }
 
-      
         else if (classDetailRequest.getType().equals("visit")) {
             List<VisitPackage> visitPackages =  visitRepo.findByUserId(user.getIdUser());
            
@@ -89,14 +88,12 @@ public class ClassDetailServiceImpl implements ClassDetailService {
             if (!hasAvailableVisit) {
                 throw new RuntimeException("No visits available");
             }
-        } 
-    
-       
+        }
         var classDetail = ClassDetail.builder()
                 .idUser(user)
                 .idClass(trainingClass)
                 .build();
-    
+
         return classDetailRepository.save(classDetail);
     }
 

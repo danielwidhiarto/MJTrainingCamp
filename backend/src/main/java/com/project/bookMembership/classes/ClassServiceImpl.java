@@ -53,11 +53,9 @@ public class ClassServiceImpl implements ClassService {
             .className(request.getClassName())
             .classRequirement(request.getClassRequirement())
             .build();
-    
-        
+
         TrainingClass savedClass = trainingClassRepo.save(trainingClass);
-        
-      
+
         Trainer trainer = trainerRepo.findById(request.getIdTrainer())
         .orElseThrow(() -> new RuntimeException("Trainer not found"));
 
@@ -67,8 +65,7 @@ public class ClassServiceImpl implements ClassService {
             .build();
      
             classTrainerRepo.save(classTrainerDetail);  
-    
-       
+
         return savedClass;
     }
 
@@ -77,7 +74,7 @@ public class ClassServiceImpl implements ClassService {
         List<GetClassResponse> responseList = new ArrayList<>();
 
         if (classes.isEmpty()) {
-            return responseList; // Return empty list if no classes found
+            return responseList;
         }
 
         for (TrainingClass trainingClass : classes) {
@@ -102,7 +99,6 @@ public class ClassServiceImpl implements ClassService {
                         trainer.getTrainerDescription()
                 );
             }
-
             // Build the response for this class
             GetClassResponse classResponse = GetClassResponse.builder()
                     .idClass(trainingClass.getIdClass())
@@ -133,7 +129,6 @@ public class ClassServiceImpl implements ClassService {
         return List.of(trainingClass.get());
     }
 
-
     @Override
     public List<GetClassResponse> getTrainingClassByDate(Date date) {
         List<TrainingClass> classes = trainingClassRepo.findByClassDate(date);
@@ -147,15 +142,12 @@ public class ClassServiceImpl implements ClassService {
 
             List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
 
-
             List<ClassDetailResponse> classMembers = classDetails.stream()
                     .map(classDetail -> new ClassDetailResponse(
                             classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
                     .collect(Collectors.toList());
 
-
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
-
 
             Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
             TrainerDetailResponse trainerDetail = null;
@@ -166,7 +158,6 @@ public class ClassServiceImpl implements ClassService {
                         trainer.getTrainerDescription()
                 );
             }
-
 
             GetClassResponse classResponse = GetClassResponse.builder()
                     .idClass(trainingClass.getIdClass())
@@ -185,13 +176,11 @@ public class ClassServiceImpl implements ClassService {
         return responseList;
     }
 
-
     @Override
     public List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest) {
         String email = jwtService.extractUsername(classHistoryRequest.getToken());
 
         Optional<User> optionalUser = userRepo.findByEmail(email);
-        
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get(); 
@@ -203,7 +192,4 @@ public class ClassServiceImpl implements ClassService {
             return new ArrayList<>(); 
         }
     }
-   
-
-    
 }

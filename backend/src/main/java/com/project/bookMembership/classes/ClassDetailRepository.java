@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 
 public interface ClassDetailRepository extends JpaRepository<ClassDetail,Long>{
+
     Optional<TrainingClass> findTrainingClassById(Long id);
     boolean existsByIdUserAndIdClass(User user, TrainingClass trainingClass);
     int countByIdClass(TrainingClass trainingClass);

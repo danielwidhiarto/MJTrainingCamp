@@ -15,10 +15,9 @@ public class ClassTrainerDetailServiceImpl implements ClassTrainerDetailService 
 
     @Override
     public ClassTrainerDetail getbyClassiD(Long idClass) {
-        // Fetch ClassTrainerDetail by idClass from the repository
+
         Optional<ClassTrainerDetail> optionalClassTrainerDetail = classTrainerDetailRepo.findByIdClass(idClass);
 
-        // Return the ClassTrainerDetail if present, or null if not found
-        return optionalClassTrainerDetail.orElse(null); // This will return ClassTrainerDetail or null
+        return optionalClassTrainerDetail.orElse(null);
     }
 }

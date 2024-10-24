@@ -38,8 +38,6 @@ public Membership save(MembershipRequest membershipRequest) {
     User user = userRepo.findByEmail(emailz)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-    // Create Transaction entityy
     Transaction transaction = Transaction.builder()
         //     .visitStartDate(membershipRequest.getVisitStartDate())
         //     .visitEndDate(membershipRequest.getVisitEndDate())
@@ -50,7 +48,6 @@ public Membership save(MembershipRequest membershipRequest) {
             .buktiTransfer(ImageUtils.compressImage(membershipRequest.getBuktiTransfer().getBytes()))
             .build();
 
-    // Save Transaction entity
     transactionService.save(transaction);
 
     Membership membership = Membership.builder()
@@ -62,18 +59,17 @@ public Membership save(MembershipRequest membershipRequest) {
             .duration(membershipRequest.getDuration())
             .build();
 
-    // Save Membership entity to obtain the generated membershipId
+
     Membership savedMembership = membershipRepo.save(membership);
 
-    // Update Transaction entity with the membershipId
     transaction.setMembership(membership);
 
-    // Save the updated Transaction entity
     transactionService.save(transaction);
 
-    // Return the saved Membership
+
     return savedMembership;
+
 } catch (IOException e) {
-        throw new RuntimeException("Error processing image", e);  // Handle IOException by wrapping it
+        throw new RuntimeException("Error processing image", e);
     }
 }}

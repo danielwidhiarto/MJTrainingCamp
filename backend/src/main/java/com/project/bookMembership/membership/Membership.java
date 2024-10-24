@@ -38,8 +38,6 @@ public class Membership {
     @JoinColumn(name = "transaction_id", nullable = true)
     private Transaction transaction;
 
-
-
     private Date startDate;
     private Date endDate;
     private Long price;

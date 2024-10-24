@@ -29,8 +29,6 @@ public class TrainingClass {
     private String className;
     private String classRequirement;
     private String classNote;
-
-
     private Date classDate;
     private LocalTime classTime;
     private Long classCapasity;

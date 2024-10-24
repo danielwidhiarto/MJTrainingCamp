@@ -19,6 +19,7 @@ import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class AuthenticationService {
         if (repo.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email is already in use.");
         }
+
         Date currentdate = new Date();
         var user = User.builder()
             .name(request.getName())
@@ -96,4 +98,5 @@ public AuthenticationResponse authenticate(AuthenticationRequest request) {
     } catch (RuntimeException ex) {
         throw new RuntimeException("Authentication failed: " + ex.getMessage());
     }
-}}
+}
+}
