@@ -6,13 +6,7 @@ import java.util.Date;
 import com.project.bookMembership.transaction.Transaction;
 import com.project.bookMembership.user.User;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,14 +21,14 @@ import lombok.NoArgsConstructor;
 public class Membership {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idMember;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_id", nullable = true)
     private Transaction transaction;
 

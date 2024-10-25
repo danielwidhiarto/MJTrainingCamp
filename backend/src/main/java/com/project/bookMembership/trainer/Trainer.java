@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class Trainer {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idTrainer;
 
     private String trainerName;

@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 public class Transaction {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idTransaction;
 
     @ManyToOne(cascade = CascadeType.PERSIST, optional = true)

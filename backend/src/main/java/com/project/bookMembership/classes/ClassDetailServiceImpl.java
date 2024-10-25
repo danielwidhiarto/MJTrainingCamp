@@ -56,13 +56,11 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         if (bookedCount >= trainingClass.getClassCapasity()) {
             throw new RuntimeException("Class is full");
         }
-    
-
       
     if (classDetailRequest.getType().equals("member")) {
         List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
         boolean hasActiveMembership = memberships.stream()
-            .anyMatch(membership -> 
+            .anyMatch(membership ->
                 !membership.getStartDate().after(trainingClass.getClassDate()) &&
                 !membership.getEndDate().before(trainingClass.getClassDate())
             );
@@ -71,7 +69,6 @@ public class ClassDetailServiceImpl implements ClassDetailService {
             throw new RuntimeException("User does not have an active membership for this class date.");
         }
     }
-
         else if (classDetailRequest.getType().equals("visit")) {
             List<VisitPackage> visitPackages =  visitRepo.findByUserId(user.getIdUser());
            
@@ -84,7 +81,6 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                     break; 
                 }
             }
-        
             if (!hasAvailableVisit) {
                 throw new RuntimeException("No visits available");
             }

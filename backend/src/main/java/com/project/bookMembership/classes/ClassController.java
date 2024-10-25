@@ -81,22 +81,39 @@ public class ClassController {
     public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
     
         List<TrainingClass> trainingClasses = new ArrayList<>();
-     
         trainingClasses = classService.getClassHistory(classHistoryRequest);
-     
-        List<GetClassResponse> responseList = trainingClasses.stream()
-            .map(trainingClass -> GetClassResponse.builder()
-                .idClass(trainingClass.getIdClass())
-                .className((trainingClass.getClassName()))
-                .classRequirement(trainingClass.getClassRequirement())
-                .classDate(trainingClass.getClassDate())
-                .classTime(trainingClass.getClassTime())
-                .classCapasity(trainingClass.getClassCapasity())
-                
-                .build())
-            .collect(Collectors.toList());
-    
-       
+
+        List<GetClassResponse> responseList = new ArrayList<>();
+
+        for (TrainingClass trainingClass : trainingClasses){
+            GetClassResponse getClassResponse = new GetClassResponse();
+
+            getClassResponse.setIdClass(trainingClass.getIdClass());
+            getClassResponse.setClassName(trainingClass.getClassName());
+            getClassResponse.setClassRequirement(trainingClass.getClassRequirement());
+            getClassResponse.setClassDate(trainingClass.getClassDate());
+            getClassResponse.setClassTime(trainingClass.getClassTime());
+            getClassResponse.setClassCapasity(trainingClass.getClassCapasity());
+
+            responseList.add(getClassResponse);
+
+        }
+
+
+//        List<GetClassResponse> responseList = trainingClasses.stream()
+//
+//            .map(trainingClass -> GetClassResponse.builder()
+//                .idClass(trainingClass.getIdClass())
+//                .className((trainingClass.getClassName()))
+//                .classRequirement(trainingClass.getClassRequirement())
+//                .classDate(trainingClass.getClassDate())
+//                .classTime(trainingClass.getClassTime())
+//                .classCapasity(trainingClass.getClassCapasity())
+//
+//                .build())
+//            .collect(Collectors.toList());
+//
+//
         return ResponseEntity.ok(responseList);
     }
     

@@ -24,7 +24,7 @@ public class TrainingClass {
     
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idClass;
     private String className;
     private String classRequirement;

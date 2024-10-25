@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "VisitPackage")
 public class VisitPackage {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idVisit;
 
     @ManyToOne
