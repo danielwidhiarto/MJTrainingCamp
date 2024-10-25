@@ -177,16 +177,56 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest) {
+    public List<GetClassResponse> getClassHistory(ClassHistoryRequest classHistoryRequest) {
         String email = jwtService.extractUsername(classHistoryRequest.getToken());
 
         Optional<User> optionalUser = userRepo.findByEmail(email);
-
+        List<GetClassResponse> responseList = new ArrayList<>();
         if (optionalUser.isPresent()) {
             User user = optionalUser.get(); 
             
             List<TrainingClass> trainingClasses = trainingClassRepo.findByUserId(user.getIdUser());
-            return trainingClasses;
+
+            if (trainingClasses.isEmpty()) {
+                return responseList;
+            }
+
+            for (TrainingClass trainingClass : trainingClasses) {
+
+                List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
+
+                List<ClassDetailResponse> classMembers = classDetails.stream()
+                        .map(classDetail -> new ClassDetailResponse(
+                                classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                        .collect(Collectors.toList());
+
+                ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
+
+                Trainer trainer = classTrainerDetail != null ? classTrainerDetail.getIdTrainer() : null;
+                TrainerDetailResponse trainerDetail = null;
+                if (trainer != null) {
+                    trainerDetail = new TrainerDetailResponse(
+                            trainer.getIdTrainer(),
+                            trainer.getTrainerName(),
+                            trainer.getTrainerDescription()
+                    );
+                }
+
+                GetClassResponse classResponse = GetClassResponse.builder()
+                        .idClass(trainingClass.getIdClass())
+                        .className(trainingClass.getClassName())
+                        .classRequirement(trainingClass.getClassRequirement())
+                        .classDate(trainingClass.getClassDate())
+                        .classTime(trainingClass.getClassTime())
+                        .classCapasity(trainingClass.getClassCapasity())
+                        .trainerDetail(trainerDetail)
+                        .classMembers(classMembers)
+                        .build();
+
+                responseList.add(classResponse);
+            }
+
+            return responseList;
         } else {
 
             return new ArrayList<>(); 

@@ -14,7 +14,7 @@ public interface ClassService {
     List<GetClassResponse> getTrainingClass();
     List<TrainingClass> getTrainingClassById(Long id);
     List<GetClassResponse> getTrainingClassByDate(Date date);
-    List<TrainingClass> getClassHistory(ClassHistoryRequest classHistoryRequest);
+    List<GetClassResponse> getClassHistory(ClassHistoryRequest classHistoryRequest);
     
     
 } 
