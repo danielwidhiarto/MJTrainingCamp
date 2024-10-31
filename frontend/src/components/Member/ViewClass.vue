@@ -2,33 +2,41 @@
   <div>
     <Navbar />
     <div class="container">
-      <h1 class="page-title">View Class</h1>
+      <h1>View Class</h1>
       <p class="welcome-text">
         Welcome to your View Class page! Use the date selector to view the
         schedule for a selected day.
       </p>
 
-      <!-- Custom Date Picker -->
-      <div class="custom-date-picker-container">
-        <div class="custom-date-picker">
-          <span>{{ formatDate(selectedDate) }}</span>
-          <div class="date-buttons">
-            <button @click="changeDate(-1)">&#9664;</button>
-            <!-- Previous day -->
-            <button @click="changeDate(1)">&#9654;</button>
-            <!-- Next day -->
-          </div>
+      <!-- Horizontal Date Scroll -->
+      <div class="horizontal-date-scroll" ref="dateScrollContainer">
+        <div
+          v-for="date in availableDates"
+          :key="date.date"
+          :class="[
+            'date-item',
+            {
+              selected: date.date === selectedDate,
+              today: date.date === todayDate,
+              disabled: date.disabled,
+            },
+          ]"
+          @click="!date.disabled && selectDate(date.date)"
+        >
+          <div class="day-name">{{ date.dayName }}</div>
+          <div class="day-number">{{ date.dayNumber }}</div>
+          <div class="month-name">{{ date.monthName }}</div>
+          <!-- Orange Dot Indicator -->
+          <div v-if="date.hasClass" class="class-dot"></div>
         </div>
       </div>
 
-      <!-- If no date is selected -->
-      <div v-if="!selectedDate" class="info-text">
-        <p>Please select a date to view available classes.</p>
-      </div>
+      <!-- Loading Indicator -->
+      <div v-if="loading" class="loading-indicator">Loading classes...</div>
 
-      <!-- Class Listing Section (filtered by selectedDate) -->
+      <!-- Display Class Schedule -->
       <div
-        v-if="selectedDate && filteredClasses.length > 0"
+        v-if="!loading && selectedDate && filteredClasses.length > 0"
         class="schedule-container"
       >
         <h2>Schedule for {{ formatDate(selectedDate) }}:</h2>
@@ -41,24 +49,29 @@
             <p><strong>Class:</strong> {{ classItem.className }}</p>
             <p><strong>Time:</strong> {{ classItem.classTime }}</p>
             <p>
-              <strong>Capacity:</strong> {{ classItem.classCapasity }} students
+              <strong>Capacity:</strong> {{ classItem.classCapacity }} students
             </p>
+
             <button class="details-button">Join Class</button>
           </div>
         </div>
       </div>
 
-      <!-- No classes available message -->
+      <!-- No Classes Available Message -->
       <div
-        v-else-if="selectedDate && filteredClasses.length === 0"
+        v-else-if="!loading && selectedDate && filteredClasses.length === 0"
         class="info-text"
       >
         <p>No classes available on {{ formatDate(selectedDate) }}.</p>
       </div>
+
+      <!-- Error Message -->
+      <div v-if="error" class="error-text">
+        <p>{{ error }}</p>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios'
 import Navbar from './Navbar.vue'
@@ -66,26 +79,26 @@ import dayjs from 'dayjs'
 
 export default {
   name: 'ViewClass',
-  components: {
-    Navbar,
-  },
+  components: { Navbar },
   data() {
+    const today = dayjs()
     return {
-      classes: [], // All classes from the API
+      classes: [],
       loading: false,
       error: null,
-      selectedDate: dayjs().format('YYYY-MM-DD'), // Set default to today
+      selectedDate: today.format('YYYY-MM-DD'),
+      todayDate: today.format('YYYY-MM-DD'),
+      availableDates: [],
     }
   },
   computed: {
     filteredClasses() {
-      // Filter classes by selectedDate and sort by time
       if (!this.selectedDate) return []
       return this.classes
         .filter(classItem =>
           dayjs(classItem.classDate).isSame(this.selectedDate, 'day'),
         )
-        .sort((a, b) => this.compareTime(a.classTime, b.classTime)) // Sort using compareTime method
+        .sort((a, b) => this.compareTime(a.classTime, b.classTime))
     },
   },
   methods: {
@@ -103,58 +116,111 @@ export default {
         const response = await axios.get(
           'http://localhost:8081/api/v1/class/getClasses',
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         )
         this.classes = response.data
+        this.markDatesWithClasses()
       } catch (err) {
         this.error = 'Failed to fetch classes. Please try again later.'
       } finally {
         this.loading = false
       }
     },
-    // Compare time strings like '12:00' and '13:30'
+    selectDate(date) {
+      this.selectedDate = date
+      this.scrollToSelectedDate()
+    },
+    formatDate(date) {
+      return dayjs(date).format('dddd, D MMMM YYYY')
+    },
     compareTime(timeA, timeB) {
       const [hoursA, minutesA] = timeA.split(':').map(Number)
       const [hoursB, minutesB] = timeB.split(':').map(Number)
       return hoursA === hoursB ? minutesA - minutesB : hoursA - hoursB
     },
-    // Change date by adding or subtracting days
-    changeDate(days) {
-      this.selectedDate = dayjs(this.selectedDate)
-        .add(days, 'day')
-        .format('YYYY-MM-DD')
+    goToToday() {
+      const today = dayjs()
+      this.selectedDate = today.format('YYYY-MM-DD')
+      this.$nextTick(() => {
+        this.scrollToSelectedDate()
+      })
     },
-    // Format date using Day.js
-    formatDate(dateString) {
-      return dayjs(dateString).format('dddd, D MMMM YYYY')
+    scrollToSelectedDate() {
+      // Find the date item element
+      const dateElements =
+        this.$refs.dateScrollContainer.querySelectorAll('.date-item')
+      for (let el of dateElements) {
+        if (el.classList.contains('selected')) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          })
+          break
+        }
+      }
+    },
+    generateAvailableDates() {
+      const today = dayjs()
+      const endDate = today.add(1, 'month')
+      let currentDate = today.startOf('day')
+      this.availableDates = []
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, 'day')
+      ) {
+        this.availableDates.push({
+          date: currentDate.format('YYYY-MM-DD'),
+          dayName: currentDate.format('ddd'),
+          dayNumber: currentDate.format('D'),
+          monthName: currentDate.format('MMM'),
+          disabled:
+            currentDate.isBefore(today, 'day') &&
+            !currentDate.isSame(today, 'day'),
+          hasClass: false, // Initialize hasClass as false
+        })
+        currentDate = currentDate.add(1, 'day')
+      }
+    },
+    markDatesWithClasses() {
+      this.availableDates.forEach(dateItem => {
+        const hasClass = this.classes.some(classItem =>
+          dayjs(classItem.classDate).isSame(dateItem.date, 'day'),
+        )
+        dateItem.hasClass = hasClass
+      })
     },
   },
-  created() {
+  mounted() {
+    this.generateAvailableDates()
     this.fetchClasses()
+    // Scroll to the selected date after initial render
+    this.$nextTick(() => {
+      this.scrollToSelectedDate()
+    })
   },
 }
 </script>
-
 <style scoped>
+/* General Layout */
 .container {
   padding: 40px 20px;
-  max-width: 800px;
-  margin: auto;
+  max-width: 1200px; /* Increased to match Choose Your Plan */
+  margin: 40px auto 0 auto; /* Added top margin */
   text-align: center;
-  background-color: #fff;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  margin-top: 40px;
+  background-color: #fff; /* White background */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Similar shadow */
+  border-radius: 16px; /* Rounded corners */
+  font-family: 'Arial, sans-serif'; /* Consistent font family */
 }
 
-.page-title {
-  font-size: 2.5rem;
+h1 {
+  font-size: 3rem;
   font-weight: 600;
-  color: #000;
   margin-bottom: 20px;
+  color: #000; /* Black text */
 }
 
 .welcome-text {
@@ -163,79 +229,275 @@ export default {
   margin-bottom: 40px;
 }
 
-.custom-date-picker-container {
-  margin-bottom: 20px;
-}
-
-.custom-date-picker {
+/* Horizontal Date Scroll */
+.horizontal-date-scroll {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f0f8ff;
-  padding: 10px;
-  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 30px;
+  padding: 10px 0;
+  border-radius: 16px; /* Rounded corners */
+  background-color: #ffffff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Similar shadow */
+  scroll-behavior: smooth;
 }
 
-.custom-date-picker span {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0 15px;
+.horizontal-date-scroll::-webkit-scrollbar {
+  height: 8px;
 }
 
-.date-buttons {
-  display: flex;
-  align-items: center;
+.horizontal-date-scroll::-webkit-scrollbar-thumb {
+  background-color: #ff4500;
+  border-radius: 4px;
 }
 
-.date-buttons button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+.date-item {
+  flex: 0 0 auto;
+  width: 100px; /* Reduced width for smaller date picker */
+  text-align: center;
+  padding: 15px 8px; /* Reduced padding */
+  margin: 0 8px; /* Adjusted margin for spacing */
   cursor: pointer;
-  padding: 0 10px;
-  transition: color 0.3s ease;
+  border-radius: 16px; /* Rounded corners */
+  background-color: #fff; /* White background */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition:
+    background-color 0.3s,
+    transform 0.3s,
+    box-shadow 0.3s;
+  border: 2px solid transparent; /* Default border */
 }
 
-.date-buttons button:hover {
+.date-item:hover {
+  background-color: #ffe5d9;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.date-item.selected {
+  background-color: #ff4500;
+  color: #fff;
+  font-weight: bold;
+  border-color: #ff4500; /* Matching border */
+}
+
+.date-item.today {
+  border: 2px solid #007bff;
+}
+
+.date-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.date-item.disabled:hover {
+  background-color: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
+.day-name {
+  font-size: 1rem; /* Increased font size */
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.day-number {
+  font-size: 1.5rem; /* Increased font size */
+  font-weight: 600;
+}
+
+.month-name {
+  font-size: 0.9rem; /* Adjusted font size */
+  color: #777;
+  margin-top: 5px;
+}
+
+/* Orange Dot Indicator */
+.class-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff4500; /* Orange color */
+  border-radius: 50%;
+  margin: 5px auto 0 auto; /* Center the dot */
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  text-align: center;
+  padding: 30px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Error Message */
+.error-text {
+  text-align: center;
+  padding: 30px;
+  font-size: 1.3rem;
+  font-weight: 600;
   color: #ff4500;
 }
 
+/* No Classes Available Message */
+.info-text {
+  text-align: center;
+  padding: 30px;
+  font-size: 1.25rem; /* Increased font size */
+  color: #555;
+}
+
+/* Schedule Container */
 .schedule-container {
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+  border-radius: 16px; /* Rounded corners */
+  background-color: #fefefe;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Similar shadow */
+  margin-top: 30px; /* Added margin */
+}
+
+.schedule-container h2 {
+  font-size: 2rem; /* Increased font size */
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .schedule-list {
-  margin-top: 20px;
-  border-top: 1px solid #ddd;
-  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .class-item {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  margin: 15px;
+  padding: 25px; /* Increased padding */
+  width: 320px; /* Increased width for better visibility */
+  border-radius: 16px; /* Rounded corners */
+  background-color: #fff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Similar shadow */
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.class-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
 }
 
 .class-item p {
-  font-size: 1rem;
-  margin: 5px 0;
+  margin: 10px 0;
+  font-size: 1.2rem; /* Increased font size */
+  color: #444;
+}
+
+.class-item p strong {
+  font-size: 1.2rem; /* Ensure bold text is also larger */
 }
 
 .details-button {
-  padding: 10px 20px;
-  background-color: #ff4500;
-  color: white;
+  background-color: #ff4500; /* Matching the BuyMembership button color */
+  color: #fff;
   border: none;
   border-radius: 8px;
+  padding: 14px 20px; /* Increased padding for a larger button */
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Increased font size */
+  font-weight: 600;
   transition: background-color 0.3s ease;
-  margin-top: 10px;
 }
 
 .details-button:hover {
-  background-color: #e03b00;
+  background-color: #e03b00; /* Darker shade on hover */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .date-item {
+    width: 90px; /* Adjusted width for medium screens */
+    padding: 12px 6px;
+    margin: 0 6px;
+  }
+
+  .day-name {
+    font-size: 0.95rem;
+  }
+
+  .day-number {
+    font-size: 1.4rem;
+  }
+
+  .month-name {
+    font-size: 0.85rem;
+  }
+
+  .schedule-container {
+    padding: 20px;
+  }
+
+  .class-item {
+    width: 280px; /* Adjusted width */
+    padding: 20px; /* Adjusted padding */
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .welcome-text {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+
+  .details-button {
+    padding: 12px 18px; /* Adjusted padding for medium screens */
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .date-item {
+    width: 80px; /* Further adjusted width for small screens */
+    padding: 10px 5px;
+    margin: 0 5px;
+  }
+
+  .day-name {
+    font-size: 0.9rem;
+  }
+
+  .day-number {
+    font-size: 1.2rem;
+  }
+
+  .month-name {
+    font-size: 0.75rem;
+  }
+
+  .schedule-container {
+    padding: 15px;
+  }
+
+  .class-item {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .welcome-text {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .details-button {
+    padding: 10px 14px; /* Adjusted padding for small screens */
+    font-size: 0.95rem;
+  }
 }
 </style>
