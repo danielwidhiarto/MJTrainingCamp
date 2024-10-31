@@ -36,11 +36,35 @@
             User ID: {{ member.idUser }}
           </li>
         </ul>
+
+        <!-- Book Class Button -->
+        <button
+          class="book-button"
+          @click="bookClass"
+          :disabled="bookingLoading || bookingSuccess"
+        >
+          {{
+            bookingLoading
+              ? 'Booking...'
+              : bookingSuccess
+                ? 'Booked'
+                : 'Book Class'
+          }}
+        </button>
+
+        <!-- Booking Success Message -->
+        <div v-if="bookingSuccess" class="success-message">
+          Successfully booked the class!
+        </div>
+
+        <!-- Booking Error Message -->
+        <div v-if="bookingError" class="booking-error-text">
+          {{ bookingError }}
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios'
 import Navbar from './Navbar.vue'
@@ -54,6 +78,10 @@ export default {
       classDetail: null,
       loading: false,
       error: null,
+      // Booking States
+      bookingLoading: false,
+      bookingError: null,
+      bookingSuccess: false,
     }
   },
   methods: {
@@ -92,13 +120,62 @@ export default {
     goBack() {
       this.$router.back()
     },
+    async bookClass() {
+      // Reset previous booking states
+      this.bookingError = null
+      this.bookingSuccess = false
+      this.bookingLoading = true
+
+      const token = localStorage.getItem('token')
+      const classId = this.classDetail.idClass
+
+      if (!token) {
+        this.bookingError = 'Authentication token is missing. Please log in.'
+        this.bookingLoading = false
+        return
+      }
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8081/api/v1/class/book',
+          {
+            idClass: classId,
+            type: 'member',
+            token: token, // Including token as per provided CURL command
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+
+        // Assuming a successful booking returns a status or message
+        if (response.status === 200) {
+          this.bookingSuccess = true
+          // Optionally, update the class members list
+          // this.classDetail.classMembers.push({ idUser: /* User ID */ }) // Replace with actual user ID if available
+        } else {
+          this.bookingError = 'Failed to book the class. Please try again.'
+        }
+      } catch (err) {
+        // Handle specific error messages if available
+        if (err.response && err.response.data && err.response.data.message) {
+          this.bookingError = err.response.data.message
+        } else {
+          this.bookingError = 'An unexpected error occurred. Please try again.'
+        }
+      } finally {
+        this.bookingLoading = false
+      }
+    },
   },
   mounted() {
     this.fetchClassDetail()
   },
 }
 </script>
-
 <style scoped>
 /* General Layout */
 .container {
@@ -177,6 +254,47 @@ export default {
   color: #444;
 }
 
+/* Book Button Styles */
+.book-button {
+  background-color: #28a745; /* Green color for booking */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.book-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.book-button:disabled {
+  background-color: #6c757d; /* Gray color when disabled */
+  cursor: not-allowed;
+}
+
+.success-message {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #d4edda; /* Light green background */
+  color: #155724; /* Dark green text */
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+}
+
+.booking-error-text {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8d7da; /* Light red background */
+  color: #721c24; /* Dark red text */
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .container {
@@ -197,6 +315,11 @@ export default {
 
   .class-detail-container ul li {
     font-size: 1rem;
+  }
+
+  .book-button {
+    padding: 10px 18px;
+    font-size: 0.95rem;
   }
 }
 
@@ -219,6 +342,11 @@ export default {
 
   .class-detail-container ul li {
     font-size: 0.95rem;
+  }
+
+  .book-button {
+    padding: 8px 14px;
+    font-size: 0.9rem;
   }
 }
 </style>
