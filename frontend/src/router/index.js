@@ -56,6 +56,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
+    path: '/member/class-detail/:id',
+    name: 'ClassDetail',
+    component: () => import('../components/Member/ClassDetail.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
+  },
+  {
     path: '/member/class-history',
     name: 'ClassHistory',
     component: () => import('../components/Member/ClassHistory.vue'),

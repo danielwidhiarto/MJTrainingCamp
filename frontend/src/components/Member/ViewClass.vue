@@ -44,7 +44,7 @@
           <div
             class="class-item"
             v-for="classItem in filteredClasses"
-            :key="classItem.id"
+            :key="classItem.idClass"
           >
             <p><strong>Class:</strong> {{ classItem.className }}</p>
             <p><strong>Time:</strong> {{ classItem.classTime }}</p>
@@ -52,7 +52,13 @@
               <strong>Capacity:</strong> {{ classItem.classCapacity }} students
             </p>
 
-            <button class="details-button">Join Class</button>
+            <!-- Navigate to Class Detail -->
+            <button
+              class="details-button"
+              @click="goToClassDetail(classItem.idClass)"
+            >
+              Join Class
+            </button>
           </div>
         </div>
       </div>
@@ -72,6 +78,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios'
 import Navbar from './Navbar.vue'
@@ -192,6 +199,9 @@ export default {
         dateItem.hasClass = hasClass
       })
     },
+    goToClassDetail(idClass) {
+      this.$router.push({ name: 'ClassDetail', params: { id: idClass } })
+    },
   },
   mounted() {
     this.generateAvailableDates()
@@ -203,6 +213,7 @@ export default {
   },
 }
 </script>
+
 <style scoped>
 /* General Layout */
 .container {
