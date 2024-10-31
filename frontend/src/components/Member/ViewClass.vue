@@ -49,7 +49,7 @@
             <p><strong>Class:</strong> {{ classItem.className }}</p>
             <p><strong>Time:</strong> {{ classItem.classTime }}</p>
             <p>
-              <strong>Capacity:</strong> {{ classItem.classCapacity }} students
+              <strong>Capacity:</strong> {{ classItem.classCapasity }} members
             </p>
 
             <!-- Navigate to Class Detail -->

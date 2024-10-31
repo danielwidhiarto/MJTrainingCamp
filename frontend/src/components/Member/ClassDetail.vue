@@ -20,7 +20,7 @@
         <p><strong>Date:</strong> {{ formatDate(classDetail.classDate) }}</p>
         <p><strong>Time:</strong> {{ classDetail.classTime }}</p>
         <p>
-          <strong>Capacity:</strong> {{ classDetail.classCapacity }} students
+          <strong>Capacity:</strong> {{ classDetail.classCapasity }} members
         </p>
         <p v-if="classDetail.classRequirement">
           <strong>Requirements:</strong> {{ classDetail.classRequirement }}
