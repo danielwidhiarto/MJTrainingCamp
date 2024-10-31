@@ -42,7 +42,6 @@ public class ClassController {
             } catch (RuntimeException ex) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage()); 
             }
-      
     }
 
     @PostMapping("/book")
@@ -65,7 +64,8 @@ public class ClassController {
         List<GetClassResponse> classResponses = new ArrayList<>();
 
         if (id != null) {
-//            classResponses = classService.getTrainingClassById(id); // Ensure this returns List<GetClassResponse>
+            classResponses = classService.getTrainingClassById(id);
+
         } else if (date != null) {
             classResponses = classService.getTrainingClassByDate(date);
 

@@ -12,7 +12,7 @@ import java.util.Date;
 public interface ClassService {
     TrainingClass save(ClassRequest request);
     List<GetClassResponse> getTrainingClass();
-    List<TrainingClass> getTrainingClassById(Long id);
+    List<GetClassResponse> getTrainingClassById(Long id);
     List<GetClassResponse> getTrainingClassByDate(Date date);
     List<GetClassResponse> getClassHistory(ClassHistoryRequest classHistoryRequest);
     
