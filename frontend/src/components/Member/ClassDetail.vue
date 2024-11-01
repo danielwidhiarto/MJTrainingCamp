@@ -304,7 +304,6 @@ export default {
   text-decoration: underline;
 }
 
-
 /* Heading Styles */
 h1 {
   font-size: 2.5rem;
