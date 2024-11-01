@@ -2,7 +2,9 @@
   <div>
     <Navbar />
     <div class="container">
-      <button class="back-button" @click="goBack">← Back to Classes</button>
+      <button class="back-button" @click="$router.back()">
+        ← Back to Classes
+      </button>
 
       <!-- Loading Indicator -->
       <div v-if="loading" class="loading-indicator">
@@ -15,56 +17,57 @@
       </div>
 
       <!-- Class Details -->
-      <div v-if="!loading && classDetail" class="class-detail-container">
-        <h1>{{ classDetail.className || 'No Name Provided' }}</h1>
-        <p><strong>Date:</strong> {{ formatDate(classDetail.classDate) }}</p>
-        <p><strong>Time:</strong> {{ classDetail.classTime }}</p>
-        <p>
-          <strong>Capacity:</strong> {{ classDetail.classCapasity }} members
-        </p>
-        <p v-if="classDetail.classRequirement">
-          <strong>Requirements:</strong> {{ classDetail.classRequirement }}
-        </p>
-        <p v-if="classDetail.trainerDetail">
-          <strong>Trainer:</strong>
-          {{ classDetail.trainerDetail.name || 'N/A' }}
-        </p>
+      <div v-if="!loading && classDetails" class="class-detail-container">
+        <h1>{{ classDetails.className || 'Unnamed Class' }}</h1>
 
-        <h2>Members Enrolled:</h2>
-        <ul>
-          <li v-for="member in classDetail.classMembers" :key="member.idUser">
-            User ID: {{ member.idUser }}
-          </li>
-        </ul>
-
-        <!-- Book Class Button -->
-        <button
-          class="book-button"
-          @click="bookClass"
-          :disabled="bookingLoading || bookingSuccess"
-        >
-          {{
-            bookingLoading
-              ? 'Booking...'
-              : bookingSuccess
-                ? 'Booked'
-                : 'Book Class'
-          }}
-        </button>
-
-        <!-- Booking Success Message -->
-        <div v-if="bookingSuccess" class="success-message">
-          Successfully booked the class!
+        <div class="class-info">
+          <p><strong>Date:</strong> {{ formatDate(classDetails.classDate) }}</p>
+          <p><strong>Time:</strong> {{ formatTime(classDetails.classTime) }}</p>
+          <p>
+            <strong>Capacity:</strong> {{ classDetails.classCapasity }} members
+          </p>
+          <p v-if="classDetails.classRequirement">
+            <strong>Requirements:</strong> {{ classDetails.classRequirement }}
+          </p>
+          <p v-else><strong>Requirements:</strong> None</p>
         </div>
 
-        <!-- Booking Error Message -->
-        <div v-if="bookingError" class="booking-error-text">
-          {{ bookingError }}
+        <!-- Trainer Details -->
+        <div v-if="classDetails.trainerDetail" class="trainer-info">
+          <h2>Trainer Information</h2>
+          <p>
+            <strong>Name:</strong>
+            {{ classDetails.trainerDetail.name || 'N/A' }}
+          </p>
+          <p>
+            <strong>Email:</strong>
+            {{ classDetails.trainerDetail.email || 'N/A' }}
+          </p>
+          <!-- Add more trainer details as needed -->
+        </div>
+        <div v-else class="trainer-info">
+          <h2>Trainer Information</h2>
+          <p>No trainer assigned to this class.</p>
+        </div>
+
+        <!-- Class Members -->
+        <div class="members-section">
+          <h2>Registered Members ({{ classDetails.classMembers.length }})</h2>
+          <ul>
+            <li
+              v-for="member in classDetails.classMembers"
+              :key="member.idUser"
+            >
+              User ID: {{ member.idUser }}
+              <!-- If you have more member details, display them here -->
+            </li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios'
 import Navbar from './Navbar.vue'
@@ -75,41 +78,49 @@ export default {
   components: { Navbar },
   data() {
     return {
-      classDetail: null,
+      classDetails: null,
       loading: false,
       error: null,
-      // Booking States
-      bookingLoading: false,
-      bookingError: null,
-      bookingSuccess: false,
     }
   },
   methods: {
-    async fetchClassDetail() {
+    async fetchClassDetails() {
       this.loading = true
-      const token = localStorage.getItem('token')
-      const classId = this.$route.params.id
+      this.error = null
+      this.classDetails = null // Reset previous class details
 
+      const token = localStorage.getItem('token')
       if (!token) {
         this.error = 'Authentication token is missing. Please log in.'
         this.loading = false
         return
       }
 
+      const idClass = this.$route.params.id
+      if (!idClass) {
+        this.error = 'Class ID is missing from the route.'
+        this.loading = false
+        return
+      }
+
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/v1/class/getClasses?idClass=${classId}`,
+          `http://localhost:8081/api/v1/class/getClasses?id=${idClass}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         )
+
         if (response.data && response.data.length > 0) {
-          this.classDetail = response.data[0]
+          this.classDetails = response.data[0]
         } else {
-          this.error = 'Class details not found.'
+          this.error = 'No class details found for the provided ID.'
         }
       } catch (err) {
-        this.error = 'Failed to fetch class details. Please try again later.'
+        console.error(err)
+        this.error =
+          err.response?.data?.message ||
+          'Failed to fetch class details. Please try again later.'
       } finally {
         this.loading = false
       }
@@ -117,91 +128,62 @@ export default {
     formatDate(date) {
       return dayjs(date).format('dddd, D MMMM YYYY')
     },
-    goBack() {
-      this.$router.back()
-    },
-    async bookClass() {
-      // Reset previous booking states
-      this.bookingError = null
-      this.bookingSuccess = false
-      this.bookingLoading = true
-
-      const token = localStorage.getItem('token')
-      const classId = this.classDetail.idClass
-
-      if (!token) {
-        this.bookingError = 'Authentication token is missing. Please log in.'
-        this.bookingLoading = false
-        return
-      }
-
-      try {
-        const response = await axios.post(
-          'http://localhost:8081/api/v1/class/book',
-          {
-            idClass: classId,
-            type: 'member',
-            token: token, // Including token as per provided CURL command
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-
-        // Assuming a successful booking returns a status or message
-        if (response.status === 200) {
-          this.bookingSuccess = true
-          // Optionally, update the class members list
-          // this.classDetail.classMembers.push({ idUser: /* User ID */ }) // Replace with actual user ID if available
-        } else {
-          this.bookingError = 'Failed to book the class. Please try again.'
-        }
-      } catch (err) {
-        // Handle specific error messages if available
-        if (err.response && err.response.data && err.response.data.message) {
-          this.bookingError = err.response.data.message
-        } else {
-          this.bookingError = 'An unexpected error occurred. Please try again.'
-        }
-      } finally {
-        this.bookingLoading = false
-      }
+    formatTime(time) {
+      return dayjs(time, 'HH:mm:ss').format('hh:mm A')
     },
   },
   mounted() {
-    this.fetchClassDetail()
+    this.fetchClassDetails()
+  },
+  watch: {
+    '$route.params.id': {
+      immediate: false,
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.fetchClassDetails()
+        }
+      },
+    },
+  },
+  beforeRouteUpdate(to, from, next) {
+    if (to.params.id !== from.params.id) {
+      this.fetchClassDetails()
+    }
+    next()
   },
 }
 </script>
+
 <style scoped>
 /* General Layout */
 .container {
   padding: 40px 20px;
-  max-width: 800px; /* Adjusted for detailed view */
-  margin: 40px auto 0 auto; /* Centered */
-  text-align: left; /* Left-aligned text for readability */
-  background-color: #fff; /* White background */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  border-radius: 16px; /* Rounded corners */
-  font-family: 'Arial, sans-serif'; /* Consistent font family */
+  max-width: 800px;
+  margin: 40px auto 0 auto;
+  text-align: left;
+  background-color: #fff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  font-family: 'Arial, sans-serif';
 }
 
+/* Back Button */
 .back-button {
   background-color: transparent;
   border: none;
-  color: #ff4500; /* Matching color scheme */
+  color: #ff4500;
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .back-button:hover {
   text-decoration: underline;
 }
 
+/* Loading Indicator */
 .loading-indicator {
   text-align: center;
   padding: 30px;
@@ -210,6 +192,7 @@ export default {
   color: #666;
 }
 
+/* Error Message */
 .error-text {
   text-align: center;
   padding: 30px;
@@ -218,81 +201,63 @@ export default {
   color: #ff4500;
 }
 
+/* Class Detail Container */
 .class-detail-container {
   padding: 20px;
-  border-radius: 16px; /* Rounded corners */
-  background-color: #fefefe;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Light shadow */
+  border-radius: 16px;
+  background-color: #f9f9f9;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
 .class-detail-container h1 {
   font-size: 2.5rem;
-  color: #000;
+  color: #333;
   margin-bottom: 20px;
 }
 
-.class-detail-container p {
+.class-info p {
   font-size: 1.2rem;
-  color: #333;
-  margin: 10px 0;
+  color: #555;
+  margin: 8px 0;
 }
 
-.class-detail-container h2 {
-  font-size: 2rem;
-  color: #333;
+.trainer-info {
   margin-top: 30px;
+  padding: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.trainer-info h2 {
+  font-size: 1.8rem;
+  color: #333;
   margin-bottom: 10px;
 }
 
-.class-detail-container ul {
+.trainer-info p {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 5px 0;
+}
+
+.members-section {
+  margin-top: 30px;
+}
+
+.members-section h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.members-section ul {
   list-style-type: disc;
   padding-left: 20px;
 }
 
-.class-detail-container ul li {
+.members-section li {
   font-size: 1.1rem;
-  color: #444;
-}
-
-/* Book Button Styles */
-.book-button {
-  background-color: #28a745; /* Green color for booking */
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-.book-button:hover {
-  background-color: #218838; /* Darker green on hover */
-}
-
-.book-button:disabled {
-  background-color: #6c757d; /* Gray color when disabled */
-  cursor: not-allowed;
-}
-
-.success-message {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #d4edda; /* Light green background */
-  color: #155724; /* Dark green text */
-  border: 1px solid #c3e6cb;
-  border-radius: 4px;
-}
-
-.booking-error-text {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #f8d7da; /* Light red background */
-  color: #721c24; /* Dark red text */
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  color: #555;
+  margin: 5px 0;
 }
 
 /* Responsive Styles */
@@ -305,21 +270,15 @@ export default {
     font-size: 2rem;
   }
 
-  .class-detail-container p {
-    font-size: 1.1rem;
-  }
-
-  .class-detail-container h2 {
-    font-size: 1.8rem;
-  }
-
-  .class-detail-container ul li {
+  .class-info p,
+  .trainer-info p,
+  .members-section li {
     font-size: 1rem;
   }
 
-  .book-button {
-    padding: 10px 18px;
-    font-size: 0.95rem;
+  .trainer-info h2,
+  .members-section h2 {
+    font-size: 1.5rem;
   }
 }
 
@@ -332,21 +291,15 @@ export default {
     font-size: 1.8rem;
   }
 
-  .class-detail-container p {
-    font-size: 1rem;
-  }
-
-  .class-detail-container h2 {
-    font-size: 1.6rem;
-  }
-
-  .class-detail-container ul li {
+  .class-info p,
+  .trainer-info p,
+  .members-section li {
     font-size: 0.95rem;
   }
 
-  .book-button {
-    padding: 8px 14px;
-    font-size: 0.9rem;
+  .trainer-info h2,
+  .members-section h2 {
+    font-size: 1.3rem;
   }
 }
 </style>
