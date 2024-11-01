@@ -83,8 +83,16 @@ public class ClassServiceImpl implements ClassService {
 
             // Map class details to ClassDetailResponse
             List<ClassDetailResponse> classMembers = classDetails.stream()
-                    .map(classDetail -> new ClassDetailResponse(
-                            classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                    .map(classDetail -> {
+                        // Ensure that classDetail and idUser are not null before accessing fields
+                        Long idUser = classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null;
+                        String pNumber = classDetail.getIdUser() != null ? classDetail.getIdUser().getPNumber() : null;
+                        String name = classDetail.getIdUser() != null ? classDetail.getIdUser().getName() : null;
+                        String email = classDetail.getIdUser() != null ? classDetail.getIdUser().getEmail() : null;
+
+                        // Return a new ClassDetailResponse with mapped values
+                        return new ClassDetailResponse(idUser, pNumber, name, email);
+                    })
                     .collect(Collectors.toList());
 
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
@@ -132,8 +140,16 @@ public class ClassServiceImpl implements ClassService {
             List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
 
             List<ClassDetailResponse> classMembers = classDetails.stream()
-                    .map(classDetail -> new ClassDetailResponse(
-                            classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                    .map(classDetail -> {
+                        // Ensure that classDetail and idUser are not null before accessing fields
+                        Long idUser = classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null;
+                        String pNumber = classDetail.getIdUser() != null ? classDetail.getIdUser().getPNumber() : null;
+                        String name = classDetail.getIdUser() != null ? classDetail.getIdUser().getName() : null;
+                        String email = classDetail.getIdUser() != null ? classDetail.getIdUser().getEmail() : null;
+
+                        // Return a new ClassDetailResponse with mapped values
+                        return new ClassDetailResponse(idUser, pNumber, name, email);
+                    })
                     .collect(Collectors.toList());
 
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
@@ -179,9 +195,18 @@ public class ClassServiceImpl implements ClassService {
 
             List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
 
+
             List<ClassDetailResponse> classMembers = classDetails.stream()
-                    .map(classDetail -> new ClassDetailResponse(
-                            classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                    .map(classDetail -> {
+                        // Ensure that classDetail and idUser are not null before accessing fields
+                        Long idUser = classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null;
+                        String pNumber = classDetail.getIdUser() != null ? classDetail.getIdUser().getPNumber() : null;
+                        String name = classDetail.getIdUser() != null ? classDetail.getIdUser().getName() : null;
+                        String email = classDetail.getIdUser() != null ? classDetail.getIdUser().getEmail() : null;
+
+                        // Return a new ClassDetailResponse with mapped values
+                        return new ClassDetailResponse(idUser, pNumber, name, email);
+                    })
                     .collect(Collectors.toList());
 
             ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);
@@ -231,10 +256,17 @@ public class ClassServiceImpl implements ClassService {
             for (TrainingClass trainingClass : trainingClasses) {
 
                 List<ClassDetail> classDetails = classDetailRepository.findByIdClass(trainingClass.getIdClass());
-
                 List<ClassDetailResponse> classMembers = classDetails.stream()
-                        .map(classDetail -> new ClassDetailResponse(
-                                classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null))
+                        .map(classDetail -> {
+                            // Ensure that classDetail and idUser are not null before accessing fields
+                            Long idUser = classDetail.getIdUser() != null ? classDetail.getIdUser().getIdUser() : null;
+                            String pNumber = classDetail.getIdUser() != null ? classDetail.getIdUser().getPNumber() : null;
+                            String name = classDetail.getIdUser() != null ? classDetail.getIdUser().getName() : null;
+                            String emaill = classDetail.getIdUser() != null ? classDetail.getIdUser().getEmail() : null;
+
+                            // Return a new ClassDetailResponse with mapped values
+                            return new ClassDetailResponse(idUser, pNumber, name, emaill);
+                        })
                         .collect(Collectors.toList());
 
                 ClassTrainerDetail classTrainerDetail = classTrainerDetailRepo.findByIdClass(trainingClass.getIdClass()).orElse(null);

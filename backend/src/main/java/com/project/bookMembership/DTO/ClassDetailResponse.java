@@ -14,6 +14,9 @@ public class ClassDetailResponse {
 
 
     private Long idUser;
+    private String PNumber;
+    private String name;
+    private String email;
 //    private Long idClass;
     
 }
