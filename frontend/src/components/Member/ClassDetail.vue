@@ -3,7 +3,9 @@
     <Navbar />
     <div class="container mt-4">
       <!-- Back Button -->
-      <button class="back-button" @click="goBack">← Back to Classes</button>
+      <button class="btn btn-link back-button" @click="goBack">
+        <i class="bi bi-arrow-left-circle-fill"></i> Back to Classes
+      </button>
 
       <!-- Loading Indicator -->
       <div v-if="loading" class="text-center my-5">
@@ -178,33 +180,129 @@ export default {
     },
 
     /**
-     * Handles the join class action with a confirmation dialog.
+     * Handles the join class action with eligibility validation and confirmation dialog.
      */
-    handleJoinClass() {
+    async handleJoinClass() {
+      const token = localStorage.getItem('token')
+      const idClass = this.classDetails.idClass
+
+      if (!token) {
+        Swal.fire('Error', 'You need to log in to join a class.', 'error')
+        return
+      }
+
+      try {
+        // Show loading indicator
+        Swal.fire({
+          title: 'Checking Eligibility...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading()
+          },
+        })
+
+        // Call eligibility API
+        const eligibilityResponse = await axios.post(
+          'http://localhost:8081/api/v1/class/check-eligibility',
+          {
+            idClass: idClass,
+            token: token,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+
+        Swal.close() // Close the loading indicator
+
+        const { validMember, validVisit, alreadyBooked } =
+          eligibilityResponse.data
+
+        // Check if already booked
+        if (alreadyBooked) {
+          Swal.fire(
+            'Already Booked',
+            'You have already booked this class.',
+            'info',
+          )
+          return
+        }
+
+        // Check membership/visit validity
+        if (!validMember && !validVisit) {
+          Swal.fire({
+            title: 'Membership Required',
+            text: 'You need to purchase a membership or visit package to join this class.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Buy Membership',
+            cancelButtonText: 'Cancel',
+          }).then(result => {
+            if (result.isConfirmed) {
+              // Navigate to the membership purchase page
+              this.$router.push({ name: 'BuyMembership' })
+            }
+          })
+          return
+        }
+
+        // Proceed to select type
+        this.promptJoinType(validMember, validVisit)
+      } catch (err) {
+        Swal.close() // Ensure the loading indicator is closed in case of error
+        // Handle specific error messages if available
+        if (err.response && err.response.data && err.response.data.message) {
+          Swal.fire('Error', err.response.data.message, 'error')
+        } else {
+          Swal.fire(
+            'Error',
+            'Failed to check eligibility. Please try again later.',
+            'error',
+          )
+        }
+      }
+    },
+
+    /**
+     * Prompts the user to select the type of participation based on eligibility.
+     * @param {Boolean} validMember - Indicates if the user has a valid member package.
+     * @param {Boolean} validVisit - Indicates if the user has a valid visit package.
+     */
+    promptJoinType(validMember, validVisit) {
+      // Determine available types
+      const availableTypes = []
+      if (validMember) availableTypes.push('member')
+      if (validVisit) availableTypes.push('visit')
+
+      // Create HTML for type selection
+      let htmlContent = '<p>Select the type of participation:</p>'
+      htmlContent += '<div class="d-flex justify-content-center">'
+      availableTypes.forEach(type => {
+        const btnClass =
+          type === 'member'
+            ? 'btn-outline-primary me-2'
+            : 'btn-outline-secondary'
+        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1)
+        htmlContent += `<button id="${type}-btn" class="btn ${btnClass}">${capitalizedType}</button>`
+      })
+      htmlContent += '</div>'
+
       Swal.fire({
         title: 'Join Class',
-        html: `
-          <p>Select the type of participation:</p>
-          <div class="d-flex justify-content-center">
-            <button id="member-btn" class="btn btn-outline-primary me-2">Member</button>
-            <button id="visit-btn" class="btn btn-outline-primary me-2">Visit</button>
-          </div>
-        `,
+        html: htmlContent,
         showConfirmButton: false,
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         didOpen: () => {
-          const memberBtn = Swal.getPopup().querySelector('#member-btn')
-          const visitBtn = Swal.getPopup().querySelector('#visit-btn')
-
-          memberBtn.addEventListener('click', () => {
-            Swal.close()
-            this.confirmJoinClass('member')
-          })
-
-          visitBtn.addEventListener('click', () => {
-            Swal.close()
-            this.confirmJoinClass('visit')
+          availableTypes.forEach(type => {
+            const btn = Swal.getPopup().querySelector(`#${type}-btn`)
+            btn.addEventListener('click', () => {
+              Swal.close()
+              this.confirmJoinClass(type)
+            })
           })
         },
       })
@@ -214,7 +312,7 @@ export default {
      * Confirms the join class action with the selected type.
      * @param {String} type - The type of participation ('member' or 'visit').
      */
-    confirmJoinClass(type) {
+    async confirmJoinClass(type) {
       Swal.fire({
         title: 'Confirm Join',
         text: `Do you want to join this class as a ${type}?`,
@@ -230,6 +328,15 @@ export default {
               Swal.fire('Error', 'You need to log in to join a class.', 'error')
               return
             }
+
+            // Show loading indicator
+            Swal.fire({
+              title: 'Joining Class...',
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading()
+              },
+            })
 
             // API call to book the class
             await axios.post(
@@ -256,6 +363,7 @@ export default {
               this.fetchClassDetail()
             })
           } catch (err) {
+            Swal.close() // Ensure the loading indicator is closed in case of error
             // Handle specific error messages if available
             if (
               err.response &&
@@ -292,16 +400,16 @@ export default {
 
 /* Back Button Styling */
 .back-button {
-  background-color: transparent;
-  border: none;
-  color: #ff4500; /* Matching color scheme */
-  font-size: 1rem;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  color: #ff4500;
   margin-bottom: 20px;
 }
 
-.back-button:hover {
-  text-decoration: underline;
+.back-button i {
+  font-size: 1.5rem;
+  margin-right: 8px;
 }
 
 /* Heading Styles */
