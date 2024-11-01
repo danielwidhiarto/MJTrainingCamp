@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.project.bookMembership.DTO.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.project.bookMembership.DTO.ClassDetailRequest;
-import com.project.bookMembership.DTO.ClassHistoryRequest;
-import com.project.bookMembership.DTO.ClassRequest;
-import com.project.bookMembership.DTO.GetClassResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +28,11 @@ public class ClassController {
     private final ClassDetailService classDetailService;
 
 
+    @PostMapping("/check-eligibility")
+    public ResponseEntity<ClassBookingStatusResponse> checkBookingEligibility(@RequestBody ClassDetailRequest classDetailRequest) {
+        ClassBookingStatusResponse response = classDetailService.checkBookingEligibility(classDetailRequest);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/add")
     public ResponseEntity<?> addClass(@RequestBody ClassRequest classRequest) {

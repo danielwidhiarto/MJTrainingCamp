@@ -1,7 +1,9 @@
 package com.project.bookMembership.classes;
 
+import java.util.Date;
 import java.util.List;
 
+import com.project.bookMembership.DTO.ClassBookingStatusResponse;
 import org.springframework.stereotype.Service;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
@@ -42,7 +44,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         String emailz = jwtService.extractUsername(classDetailRequest.getToken());
         User user = userRepo.findByEmail(emailz)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-    
+
         Long idTrainingClass = classDetailRequest.getIdClass();
         TrainingClass trainingClass = trainingClassRepo.findById(idTrainingClass)
                 .orElseThrow(() -> new RuntimeException("Training class not found"));
@@ -51,34 +53,33 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         if (isAlreadyBooked) {
             throw new RuntimeException("User has already booked this class");
         }
-    
+
         int bookedCount = classDetailRepository.countByIdClass(trainingClass);
         if (bookedCount >= trainingClass.getClassCapasity()) {
             throw new RuntimeException("Class is full");
         }
-      
-    if (classDetailRequest.getType().equals("member")) {
-        List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
-        boolean hasActiveMembership = memberships.stream()
-            .anyMatch(membership ->
-                !membership.getStartDate().after(trainingClass.getClassDate()) &&
-                !membership.getEndDate().before(trainingClass.getClassDate())
-            );
 
-        if (!hasActiveMembership) {
-            throw new RuntimeException("User does not have an active membership for this class date.");
-        }
-    }
-        else if (classDetailRequest.getType().equals("visit")) {
-            List<VisitPackage> visitPackages =  visitRepo.findByUserId(user.getIdUser());
-           
+        if (classDetailRequest.getType().equals("member")) {
+            List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+            boolean hasActiveMembership = memberships.stream()
+                    .anyMatch(membership ->
+                            !membership.getStartDate().after(trainingClass.getClassDate()) &&
+                                    !membership.getEndDate().before(trainingClass.getClassDate())
+                    );
+
+            if (!hasActiveMembership) {
+                throw new RuntimeException("User does not have an active membership for this class date.");
+            }
+        } else if (classDetailRequest.getType().equals("visit")) {
+            List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
+
             boolean hasAvailableVisit = false;
             for (VisitPackage visitPackage : visitPackages) {
                 if (visitPackage.getVisitNumber() > visitPackage.getVisitUsed()) {
                     hasAvailableVisit = true;
-                    visitPackage.incrementUsedVisits(); 
-                    visitRepo.save(visitPackage); 
-                    break; 
+                    visitPackage.incrementUsedVisits();
+                    visitRepo.save(visitPackage);
+                    break;
                 }
             }
             if (!hasAvailableVisit) {
@@ -92,6 +93,45 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
         return classDetailRepository.save(classDetail);
     }
+    public ClassBookingStatusResponse checkBookingEligibility(ClassDetailRequest classDetailRequest) {
+        // Extract user information from the token
+        String email = jwtService.extractUsername(classDetailRequest.getToken());
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Get the training class information
+        Long idTrainingClass = classDetailRequest.getIdClass();
+        TrainingClass trainingClass = trainingClassRepo.findById(idTrainingClass)
+                .orElseThrow(() -> new RuntimeException("Training class not found"));
+
+        // Check if the user has already booked the class
+        boolean alreadyBooked = classDetailRepository.existsByIdUserAndIdClass(user, trainingClass);
+
+        // Check if the class is full
+        int bookedCount = classDetailRepository.countByIdClass(trainingClass);
+        boolean isClassFull = bookedCount >= trainingClass.getClassCapasity();
+
+        // Check if the user has an active membership for the class date
+        List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+        boolean validMember = memberships.stream()
+                .anyMatch(membership ->
+                        !membership.getStartDate().after(trainingClass.getClassDate()) && // Membership is active on class date
+                                !membership.getEndDate().before(trainingClass.getClassDate())     // Membership is active on class date
+                );
+
+        // Check if the user has available visits
+        List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
+        boolean validVisit = visitPackages.stream()
+                .anyMatch(visitPackage -> visitPackage.getVisitNumber() > visitPackage.getVisitUsed());
+
+        // Create and populate response
+        ClassBookingStatusResponse response = new ClassBookingStatusResponse();
+        response.setValidMember(validMember);
+        response.setValidVisit(validVisit);
+        response.setAlreadyBooked(alreadyBooked);
+
+
+        return response;
+    }
 
 }
