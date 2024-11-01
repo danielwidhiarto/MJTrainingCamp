@@ -1,6 +1,5 @@
 package com.project.bookMembership.DTO;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClassDetailRequest {
-    
-    
-    private Long idClass;
-    private String token;
-    private String type;
+public class ClassBookingStatusResponse {
+    private boolean validMember;
+    private boolean validVisit;
+    private boolean alreadyBooked;
 
-    
+
 }
