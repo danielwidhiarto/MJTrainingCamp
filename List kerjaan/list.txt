@@ -5,8 +5,6 @@ eman
 bikin validasi pnumber harus angka di register
 bikin menu History
 
-
-
 both
 bikin menu liat membership
 bikin profile
