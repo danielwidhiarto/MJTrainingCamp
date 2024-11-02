@@ -4,7 +4,8 @@
       <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
       <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
     </div>
-    <form @submit.prevent="loginUser">
+    <form @submit.prevent="loginUser" ref="form" novalidate>
+      <!-- Email Address Field -->
       <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
         <input
@@ -14,9 +15,18 @@
           id="email"
           placeholder="Enter your email"
           required
+          @input="sanitizeEmailDebounced"
+          aria-required="true"
+          aria-describedby="emailHelp"
         />
+        <small id="emailHelp" class="form-text text-muted">
+          We'll never share your email with anyone else.
+        </small>
+        <span v-if="errors.email" class="text-danger">{{ errors.email }}</span>
       </div>
-      <div class="mb-3">
+
+      <!-- Password Field -->
+      <div class="mb-3 position-relative">
         <label for="password" class="form-label">Password</label>
         <input
           type="password"
@@ -25,12 +35,37 @@
           id="password"
           placeholder="Enter your password"
           required
+          @input="handlePasswordInputDebounced"
+          aria-required="true"
+          aria-describedby="passwordHelp"
         />
+        <small id="passwordHelp" class="form-text text-muted">
+          Enter your account password.
+        </small>
+        <span v-if="errors.password" class="text-danger">{{
+          errors.password
+        }}</span>
       </div>
+
+      <!-- Forgot Password Link -->
       <div class="mb-3 text-end">
         <a href="#" class="forgot-password">Forgot Password?</a>
       </div>
-      <button type="submit" class="btn login-button">Sign In</button>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn login-button"
+        :disabled="isLoading || hasErrors"
+      >
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        {{ isLoading ? 'Signing In...' : 'Sign In' }}
+      </button>
     </form>
     <div class="text-center mt-3">
       <p class="signup-text">
@@ -42,10 +77,11 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import DOMPurify from 'dompurify'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'Login',
@@ -53,10 +89,72 @@ export default {
     return {
       email: '',
       password: '',
+      isLoading: false,
+      errors: {}, // Object to hold validation error messages
     }
   },
+  computed: {
+    hasErrors() {
+      return Object.keys(this.errors).length > 0
+    },
+  },
   methods: {
+    // Sanitize inputs using DOMPurify
+    sanitizeInput(input) {
+      return DOMPurify.sanitize(input)
+    },
+    sanitizeEmail() {
+      this.email = this.sanitizeInput(this.email)
+      if (!this.email.trim()) {
+        this.errors.email = 'Email is required.'
+      } else if (!this.validateEmailFormat(this.email)) {
+        this.errors.email = 'Please enter a valid email address.'
+      } else {
+        delete this.errors.email
+      }
+    },
+    // Debounced version to optimize performance
+    sanitizeEmailDebounced: debounce(function () {
+      this.sanitizeEmail()
+    }, 300),
+
+    // Validate email format
+    validateEmailFormat(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(email)
+    },
+
+    // Handle password input (validation)
+    handlePasswordInput() {
+      if (!this.password.trim()) {
+        this.errors.password = 'Password is required.'
+      } else {
+        delete this.errors.password
+      }
+    },
+    // Debounced version
+    handlePasswordInputDebounced: debounce(function () {
+      this.handlePasswordInput()
+    }, 300),
+
+    // Register user
     async loginUser() {
+      // Final validation before submission
+      this.sanitizeEmail()
+      this.handlePasswordInput()
+
+      // Check for validation errors
+      if (this.hasErrors) {
+        Swal.fire({
+          title: 'Invalid Input',
+          text: 'Please correct the errors in the form before submitting.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        })
+        return
+      }
+
+      this.isLoading = true
       try {
         const response = await axios.post(
           'http://localhost:8081/api/v1/auth/authenticate',
@@ -97,12 +195,13 @@ export default {
           icon: 'error',
           confirmButtonText: 'OK',
         })
+      } finally {
+        this.isLoading = false
       }
     },
   },
 }
 </script>
-
 <style scoped>
 .container {
   max-width: 600px;
@@ -167,6 +266,11 @@ export default {
 
 .signup-link:hover {
   text-decoration: underline;
+}
+
+/* Spinner customization */
+.spinner-border {
+  margin-right: 5px;
 }
 
 /* Responsive adjustments */
