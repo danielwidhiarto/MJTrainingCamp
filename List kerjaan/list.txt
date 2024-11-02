@@ -3,8 +3,7 @@ bikin validasi transaction belum di verify
 
 eman
 bikin validasi pnumber harus angka di register
-bikin menu History
 
 both
-bikin menu liat membership
-bikin profile
+bikin profile, liat semua user data + liat status membershipnya
+buat verifikasi transaksinya view by id biar ga berat
