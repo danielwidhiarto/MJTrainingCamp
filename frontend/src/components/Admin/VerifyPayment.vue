@@ -1,52 +1,52 @@
 <template>
   <div>
     <Navbar />
-    <div class="container mt-4">
-      <h1 class="text-center mb-4">Manage Member Transactions</h1>
+    <div class="container mx-auto p-6 mt-6">
+      <h1 class="text-center mb-6">Manage Member Transactions</h1>
 
       <!-- Submitted Transactions List -->
-      <div class="card shadow-sm mb-4">
+      <div class="card shadow-sm mb-6">
         <div
           class="card-header bg-dark text-white d-flex justify-content-between align-items-center"
         >
           <span>Submitted Transactions</span>
-          <button class="btn btn-secondary btn-sm" @click="toggleSort">
+          <button class="btn btn-secondary btn-sm" @click="debouncedToggleSort">
             {{ showPendingOnly ? 'Show All' : 'Show Pending Only' }}
           </button>
         </div>
         <div class="card-body">
           <table
-            class="table table-hover"
+            class="table table-hover table-responsive"
             v-if="filteredTransactions.length > 0"
           >
-            <thead>
+            <thead class="thead-light">
               <tr>
-                <th>TransactionID</th>
+                <th>Transaction ID</th>
                 <th>Package Type</th>
                 <th>Payment Method</th>
                 <th>Price</th>
-                <th>Duration (months)</th>
+                <th>Duration (Months)</th>
                 <th>Payment Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="(transaction, index) in filteredTransactions"
-                :key="transaction.id"
+                v-for="transaction in filteredTransactions"
+                :key="transaction.idTransaction"
                 :class="statusClass(transaction.paymentStatus)"
               >
                 <td>{{ transaction.idTransaction }}</td>
                 <td>{{ transaction.paymentType }}</td>
                 <td>{{ transaction.paymentMethod }}</td>
-                <td>Rp. {{ transaction.transactionPrice }}</td>
+                <td>{{ formatPrice(transaction.transactionPrice) }}</td>
                 <td>{{ transaction.duration }}</td>
                 <td>{{ transaction.paymentStatus }}</td>
                 <td>
                   <button
                     v-if="!isVerifiedOrDeclined(transaction.paymentStatus)"
                     class="btn btn-info btn-sm"
-                    @click="showDetails(transaction)"
+                    @click="showDetails(transaction.idTransaction)"
                   >
                     View Proof
                   </button>
@@ -64,54 +64,68 @@
       <div v-if="isModalOpen" class="custom-modal">
         <div class="custom-modal-content">
           <button class="btn-close" @click="closeModal">&times;</button>
-          <h5 class="text-center mb-4">Transaction Details</h5>
-          <p>
-            <strong>Member Name:</strong> {{ selectedTransaction.memberName }}
-          </p>
-          <p>
-            <strong>Package Name:</strong> {{ selectedTransaction.packageName }}
-          </p>
-          <p>
-            <strong>Price:</strong> Rp
-            {{ selectedTransaction.transactionPrice }}
-          </p>
-          <p>
-            <strong>Duration:</strong> {{ selectedTransaction.duration }} months
-          </p>
-          <p>
-            <strong>Payment Method:</strong>
-            {{ selectedTransaction.paymentMethod }}
-          </p>
 
-          <div
-            v-if="selectedTransaction.buktiTransfer"
-            class="text-center mt-3"
-          >
-            <h5>Payment Proof</h5>
-            <img
-              :src="`data:image/jpeg;base64,${selectedTransaction.buktiTransfer}`"
-              alt="Proof of Payment"
-              class="img-fluid"
-              style="max-width: 400px"
-            />
+          <!-- Loading Indicator Inside Modal -->
+          <div v-if="isLoadingDetails" class="modal-loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Loading transaction details...</span>
           </div>
 
-          <div
-            v-if="!isVerifiedOrDeclined(selectedTransaction.paymentStatus)"
-            class="mt-4 d-flex justify-content-between"
-          >
-            <button
-              class="btn btn-success"
-              @click="updateTransactionStatus('VERIFIED')"
+          <!-- Transaction Details -->
+          <div v-else>
+            <h5 class="text-center mb-4">Transaction Details</h5>
+            <p>
+              <strong>Member Name:</strong> {{ selectedTransaction.memberName }}
+            </p>
+            <p>
+              <strong>Package Type:</strong>
+              {{ selectedTransaction.paymentType }}
+            </p>
+            <p>
+              <strong>Price:</strong>
+              {{ formatPrice(selectedTransaction.transactionPrice) }}
+            </p>
+            <p>
+              <strong>Duration:</strong>
+              {{ selectedTransaction.duration }} months
+            </p>
+            <p>
+              <strong>Payment Method:</strong>
+              {{ selectedTransaction.paymentMethod }}
+            </p>
+
+            <div
+              v-if="selectedTransaction.buktiTransfer"
+              class="text-center mt-3"
             >
-              Accept
-            </button>
-            <button
-              class="btn btn-danger"
-              @click="updateTransactionStatus('DECLINED')"
+              <h5>Payment Proof</h5>
+              <img
+                :src="`data:image/jpeg;base64,${selectedTransaction.buktiTransfer}`"
+                alt="Proof of Payment"
+                class="img-fluid"
+                style="max-width: 400px"
+              />
+            </div>
+
+            <div
+              v-if="!isVerifiedOrDeclined(selectedTransaction.paymentStatus)"
+              class="mt-4 d-flex justify-content-between"
             >
-              Decline
-            </button>
+              <button
+                class="btn btn-danger"
+                @click="updateTransactionStatus('DECLINED')"
+              >
+                Decline
+              </button>
+              <button
+                class="btn btn-success"
+                @click="updateTransactionStatus('VERIFIED')"
+              >
+                Accept
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -123,59 +137,136 @@
 import Navbar from './Navbar.vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { debounce } from 'lodash'
+import { ref, onMounted, computed } from 'vue'
 
 export default {
   name: 'VerifyPayment',
   components: { Navbar },
-  data() {
-    return {
-      transactions: [],
-      selectedTransaction: {},
-      isModalOpen: false,
-      showPendingOnly: true, // Control for showing only pending transactions
+  setup() {
+    const transactions = ref([])
+    const selectedTransaction = ref({})
+    const isModalOpen = ref(false)
+    const isLoadingDetails = ref(false)
+    const showPendingOnly = ref(true)
+
+    /**
+     * Debounced toggleSort to prevent rapid toggling
+     */
+    const toggleSort = () => {
+      showPendingOnly.value = !showPendingOnly.value
     }
-  },
-  mounted() {
-    this.fetchTransactions() // Load transactions when the component mounts
-  },
-  computed: {
-    filteredTransactions() {
-      return this.showPendingOnly
-        ? this.transactions.filter(
-            t =>
-              t.paymentStatus !== 'VERIFIED' && t.paymentStatus !== 'DECLINED',
-          )
-        : this.transactions
-    },
-  },
-  methods: {
-    async fetchTransactions() {
+
+    const debouncedToggleSort = debounce(toggleSort, 300)
+
+    /**
+     * Computed property to filter transactions based on payment status
+     */
+    const filteredTransactions = computed(() => {
+      if (showPendingOnly.value) {
+        return transactions.value.filter(
+          t => t.paymentStatus !== 'VERIFIED' && t.paymentStatus !== 'DECLINED',
+        )
+      }
+      return transactions.value
+    })
+
+    /**
+     * Fetch transactions from the API (without images)
+     */
+    const fetchTransactions = async () => {
       try {
         const token = localStorage.getItem('token')
+        if (!token) {
+          Swal.fire(
+            'Error',
+            'Authentication token not found. Please log in.',
+            'error',
+          ).then(() => {
+            // Redirect to Login page
+            window.location.href = '/login' // Adjust the route as needed
+          })
+          return
+        }
+
         const response = await axios.get(
           'http://localhost:8081/api/v1/transaction/get',
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         )
-        this.transactions = response.data
+        // Assuming the initial API does not return 'buktiTransfer' to prevent loading all images
+        transactions.value = response.data.map(transaction => ({
+          ...transaction,
+          // Remove the buktiTransfer field if present
+          buktiTransfer: undefined,
+        }))
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to load transactions.', 'error')
       }
-    },
-    showDetails(transaction) {
-      this.selectedTransaction = transaction
-      this.isModalOpen = true
-    },
-    closeModal() {
-      this.isModalOpen = false
-    },
-    async updateTransactionStatus(status) {
+    }
+
+    /**
+     * Fetch transaction details by ID (including the image)
+     * @param {Number} id - Transaction ID
+     */
+    const fetchTransactionDetails = async id => {
+      isLoadingDetails.value = true
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          Swal.fire(
+            'Error',
+            'Authentication token not found. Please log in.',
+            'error',
+          ).then(() => {
+            window.location.href = '/login' // Adjust the route as needed
+          })
+          return
+        }
+
+        const response = await axios.get(
+          `http://localhost:8081/api/v1/transaction/get?id=${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        )
+        selectedTransaction.value = response.data
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'Failed to load transaction details.', 'error')
+      } finally {
+        isLoadingDetails.value = false
+      }
+    }
+
+    /**
+     * Show transaction details in modal by fetching data on-demand
+     * @param {Number} id - Transaction ID
+     */
+    const showDetails = async id => {
+      isModalOpen.value = true
+      await fetchTransactionDetails(id)
+    }
+
+    /**
+     * Close the modal
+     */
+    const closeModal = () => {
+      isModalOpen.value = false
+      selectedTransaction.value = {}
+    }
+
+    /**
+     * Update transaction status (VERIFIED or DECLINED)
+     * @param {String} status - New status
+     */
+    const updateTransactionStatus = async status => {
       try {
         const token = localStorage.getItem('token')
         await axios.patch(
-          `http://localhost:8081/api/v1/transaction/update/${this.selectedTransaction.idTransaction}`,
+          `http://localhost:8081/api/v1/transaction/update/${selectedTransaction.value.idTransaction}`,
           { transactionStatus: status },
           {
             headers: {
@@ -184,38 +275,88 @@ export default {
             },
           },
         )
-        Swal.fire('Success', `Transaction ${status} successfully.`, 'success')
-        this.closeModal()
-        await this.fetchTransactions() // Refresh the list after updating
+        Swal.fire(
+          'Success',
+          `Transaction ${status.toLowerCase()} successfully.`,
+          'success',
+        )
+        closeModal()
+        await fetchTransactions() // Refresh transactions list
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to update transaction status.', 'error')
       }
-    },
-    isVerifiedOrDeclined(status) {
+    }
+
+    /**
+     * Check if transaction is VERIFIED or DECLINED
+     * @param {String} status - Payment status
+     * @returns {Boolean}
+     */
+    const isVerifiedOrDeclined = status => {
       return status === 'VERIFIED' || status === 'DECLINED'
-    },
-    statusClass(status) {
+    }
+
+    /**
+     * Assign Bootstrap table classes based on payment status
+     * @param {String} status - Payment status
+     * @returns {String} - Bootstrap class
+     */
+    const statusClass = status => {
       if (status === 'VERIFIED') return 'table-success'
       if (status === 'DECLINED') return 'table-danger'
       return 'table-warning'
-    },
-    toggleSort() {
-      this.showPendingOnly = !this.showPendingOnly
-    },
+    }
+
+    /**
+     * Format price with thousand separators
+     * @param {Number} price - Transaction price
+     * @returns {String} - Formatted price
+     */
+    const formatPrice = price => {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+      }).format(price)
+    }
+
+    onMounted(() => {
+      fetchTransactions()
+    })
+
+    return {
+      transactions,
+      selectedTransaction,
+      isModalOpen,
+      isLoadingDetails,
+      showPendingOnly,
+      filteredTransactions,
+      showDetails,
+      closeModal,
+      updateTransactionStatus,
+      isVerifiedOrDeclined,
+      statusClass,
+      toggleSort,
+      debouncedToggleSort,
+      formatPrice,
+    }
   },
 }
 </script>
 
 <style scoped>
+/* Container Styling */
 .container {
   padding: 40px 20px;
   max-width: 1200px;
   margin: auto;
   background-color: #f8f9fa;
   border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Heading Styles */
 h1 {
   font-size: 2.5rem;
   font-weight: bold;
@@ -223,30 +364,17 @@ h1 {
   color: #ff4500;
 }
 
-.card {
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .card-header {
-  font-size: 1.2rem;
-  font-weight: bold;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
-.table-hover tbody tr:hover {
-  background-color: #f0f9f0;
+.table th {
+  vertical-align: middle;
 }
 
-.table-success {
-  background-color: #d4edda !important;
-}
-
-.table-danger {
-  background-color: #f8d7da !important;
-}
-
-.table-warning {
-  background-color: #fff3cd !important;
+.table td {
+  vertical-align: middle;
 }
 
 /* Modal Styling */
@@ -265,36 +393,129 @@ h1 {
 
 .custom-modal-content {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
   max-width: 600px;
   position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-close {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 20px;
   font-size: 1.5rem;
   border: none;
   background: none;
   cursor: pointer;
+  color: #333;
 }
 
-.btn-success,
-.btn-danger {
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 8px;
+.btn-close:hover {
+  color: #ff4500;
+}
+
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 15px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 30px 15px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .custom-modal-content {
+    padding: 20px;
+  }
+
+  .btn-success,
+  .btn-danger {
+    width: 48%;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .custom-modal-content {
+    padding: 15px;
+  }
+
+  .btn-success,
+  .btn-danger {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .btn-success:last-child,
+  .btn-danger:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Additional Enhancements */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #ffe5d9;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
 }
 
 .btn-success:hover {
-  background-color: #28a745;
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
 }
 
 .btn-danger:hover {
-  background-color: #dc3545;
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
 }
 </style>
