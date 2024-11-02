@@ -3,9 +3,7 @@
     <Navbar />
     <div class="container mt-4">
       <!-- Back Button -->
-      <button class="btn btn-link back-button" @click="goBack">
-        <i class="bi bi-arrow-left-circle-fill"></i> Back to Classes
-      </button>
+      <button class="back-button" @click="goBack">← Back to Classes</button>
 
       <!-- Loading Indicator -->
       <div v-if="loading" class="text-center my-5">
@@ -400,16 +398,16 @@ export default {
 
 /* Back Button Styling */
 .back-button {
-  display: flex;
-  align-items: center;
-  font-size: 1.1rem;
-  color: #ff4500;
+  background-color: transparent;
+  border: none;
+  color: #ff4500; /* Matching color scheme */
+  font-size: 1rem;
+  cursor: pointer;
   margin-bottom: 20px;
 }
 
-.back-button i {
-  font-size: 1.5rem;
-  margin-right: 8px;
+.back-button:hover {
+  text-decoration: underline;
 }
 
 /* Heading Styles */
