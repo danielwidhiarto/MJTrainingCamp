@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Navbar />
+    <LazyNavbar />
     <div class="container">
       <h1>View Class</h1>
       <p class="welcome-text">
@@ -9,7 +9,11 @@
       </p>
 
       <!-- Horizontal Date Scroll -->
-      <div class="horizontal-date-scroll" ref="dateScrollContainer">
+      <div
+        class="horizontal-date-scroll"
+        ref="dateScrollContainer"
+        aria-label="Available Dates"
+      >
         <div
           v-for="date in availableDates"
           :key="date.date"
@@ -21,18 +25,32 @@
               disabled: date.disabled,
             },
           ]"
-          @click="!date.disabled && selectDate(date.date)"
+          @click="!date.disabled && debouncedSelectDate(date.date)"
+          tabindex="0"
+          @keydown.enter.space.prevent="
+            !date.disabled && debouncedSelectDate(date.date)
+          "
+          role="button"
+          :aria-pressed="date.date === selectedDate"
+          :aria-disabled="date.disabled"
         >
           <div class="day-name">{{ date.dayName }}</div>
           <div class="day-number">{{ date.dayNumber }}</div>
           <div class="month-name">{{ date.monthName }}</div>
           <!-- Orange Dot Indicator -->
-          <div v-if="date.hasClass" class="class-dot"></div>
+          <div
+            v-if="date.hasClass"
+            class="class-dot"
+            aria-label="Class Available"
+          ></div>
         </div>
       </div>
 
       <!-- Loading Indicator -->
-      <div v-if="loading" class="loading-indicator">Loading classes...</div>
+      <div v-if="loading" class="loading-indicator" aria-live="polite">
+        <div class="spinner"></div>
+        <span>Loading classes...</span>
+      </div>
 
       <!-- Display Class Schedule -->
       <div
@@ -56,6 +74,7 @@
             <button
               class="details-button"
               @click="goToClassDetail(classItem.idClass)"
+              aria-label="Join {{ classItem.className }} Class"
             >
               Join Class
             </button>
@@ -72,7 +91,7 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="error" class="error-text">
+      <div v-if="error" class="error-text" role="alert">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -81,12 +100,15 @@
 
 <script>
 import axios from 'axios'
-import Navbar from './Navbar.vue'
+import { defineAsyncComponent } from 'vue'
 import dayjs from 'dayjs'
+
+// Lazy load Navbar component
+const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
 
 export default {
   name: 'ViewClass',
-  components: { Navbar },
+  components: { LazyNavbar },
   data() {
     const today = dayjs()
     return {
@@ -96,6 +118,7 @@ export default {
       selectedDate: today.format('YYYY-MM-DD'),
       todayDate: today.format('YYYY-MM-DD'),
       availableDates: [],
+      debouncedSelectDate: null, // Placeholder for the debounced method
     }
   },
   computed: {
@@ -129,6 +152,7 @@ export default {
         this.classes = response.data
         this.markDatesWithClasses()
       } catch (err) {
+        console.error(err)
         this.error = 'Failed to fetch classes. Please try again later.'
       } finally {
         this.loading = false
@@ -146,27 +170,8 @@ export default {
       const [hoursB, minutesB] = timeB.split(':').map(Number)
       return hoursA === hoursB ? minutesA - minutesB : hoursA - hoursB
     },
-    goToToday() {
-      const today = dayjs()
-      this.selectedDate = today.format('YYYY-MM-DD')
-      this.$nextTick(() => {
-        this.scrollToSelectedDate()
-      })
-    },
-    scrollToSelectedDate() {
-      // Find the date item element
-      const dateElements =
-        this.$refs.dateScrollContainer.querySelectorAll('.date-item')
-      for (let el of dateElements) {
-        if (el.classList.contains('selected')) {
-          el.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center',
-            block: 'nearest',
-          })
-          break
-        }
-      }
+    goToClassDetail(idClass) {
+      this.$router.push({ name: 'ClassDetail', params: { id: idClass } })
     },
     generateAvailableDates() {
       const today = dayjs()
@@ -199,8 +204,39 @@ export default {
         dateItem.hasClass = hasClass
       })
     },
-    goToClassDetail(idClass) {
-      this.$router.push({ name: 'ClassDetail', params: { id: idClass } })
+    scrollToSelectedDate() {
+      // Find the date item element
+      const dateElements =
+        this.$refs.dateScrollContainer.querySelectorAll('.date-item')
+      for (let el of dateElements) {
+        if (el.classList.contains('selected')) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          })
+          break
+        }
+      }
+    },
+    goToToday() {
+      const today = dayjs()
+      this.selectedDate = today.format('YYYY-MM-DD')
+      this.$nextTick(() => {
+        this.scrollToSelectedDate()
+      })
+    },
+    // Debounce function to limit the rate at which a function can fire.
+    debounce(func, wait) {
+      let timeout
+      return function (...args) {
+        const later = () => {
+          clearTimeout(timeout)
+          func.apply(this, args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+      }
     },
   },
   mounted() {
@@ -210,6 +246,8 @@ export default {
     this.$nextTick(() => {
       this.scrollToSelectedDate()
     })
+    // Initialize the debounced selectDate method
+    this.debouncedSelectDate = this.debounce(this.selectDate, 300)
   },
 }
 </script>
@@ -224,16 +262,24 @@ export default {
   background-color: #fff; /* White background */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Similar shadow */
   border-radius: 16px; /* Rounded corners */
-  font-family: 'Arial, sans-serif'; /* Consistent font family */
 }
 
+/* Headings */
 h1 {
   font-size: 3rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #000; /* Black text */
+  color: #000; /* Black text to match the logo's accent */
 }
 
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+/* Paragraphs */
 .welcome-text {
   font-size: 1.25rem;
   color: #555;
@@ -261,6 +307,7 @@ h1 {
   border-radius: 4px;
 }
 
+/* Date Item Styles */
 .date-item {
   flex: 0 0 auto;
   width: 100px; /* Reduced width for smaller date picker */
@@ -306,6 +353,7 @@ h1 {
   box-shadow: none;
 }
 
+/* Date Content */
 .day-name {
   font-size: 1rem; /* Increased font size */
   margin-bottom: 8px;
@@ -334,11 +382,29 @@ h1 {
 
 /* Loading Indicator */
 .loading-indicator {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 30px;
   font-size: 1.3rem;
   font-weight: 600;
   color: #666;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #ff4500;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error Message */
@@ -373,9 +439,10 @@ h1 {
 .schedule-container h2 {
   font-size: 2rem; /* Increased font size */
   margin-bottom: 20px;
-  color: #333;
+  color: #000; /* Ensuring consistent color */
 }
 
+/* Schedule List */
 .schedule-list {
   display: flex;
   flex-wrap: wrap;
@@ -409,6 +476,7 @@ h1 {
   font-size: 1.2rem; /* Ensure bold text is also larger */
 }
 
+/* Details Button */
 .details-button {
   background-color: #ff4500; /* Matching the BuyMembership button color */
   color: #fff;
@@ -458,6 +526,10 @@ h1 {
     font-size: 2.5rem;
   }
 
+  h2 {
+    font-size: 1.75rem;
+  }
+
   .welcome-text {
     font-size: 1.2rem;
     margin-bottom: 30px;
@@ -499,6 +571,10 @@ h1 {
 
   h1 {
     font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
   }
 
   .welcome-text {
