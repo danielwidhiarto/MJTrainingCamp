@@ -20,6 +20,8 @@
                   <p><strong>Price:</strong> Rp {{ packageDetails.price }}</p>
                 </div>
               </div>
+
+              <!-- Display additional details based on package type -->
               <div v-if="packageDetails.type === 'Membership'" class="row mb-4">
                 <div class="col-md-4">
                   <p>
@@ -34,6 +36,18 @@
                   <p><strong>End Date:</strong> {{ endDate }}</p>
                 </div>
               </div>
+
+              <!-- New Section: Visit Package Details -->
+              <div v-if="packageDetails.type === 'Visit'" class="row mb-4">
+                <div class="col-md-6">
+                  <p>
+                    <strong>Number of Visits:</strong>
+                    {{ packageDetails.visitNumber }}
+                  </p>
+                </div>
+                <!-- Add any other visit package-specific details here -->
+              </div>
+              <!-- End of Visit Package Details -->
 
               <hr class="my-4" />
 
@@ -164,6 +178,7 @@ export default {
     const paymentProofPreview = ref(null) // New Ref for Image Preview
     const startDate = ref('')
     const endDate = ref('')
+    const visitNumber = ref(0) // New Ref for Visit Number (if needed)
 
     let previousObjectURL = null // To keep track of the previous object URL
 
@@ -194,6 +209,12 @@ export default {
           )
           startDate.value = start
           endDate.value = end
+        }
+
+        // If the package is a VisitPackage, you might want to set visitNumber here
+        if (packageDetails.value.type === 'Visit') {
+          // Assuming the packageDetails contains 'visitNumber', otherwise adjust accordingly
+          visitNumber.value = packageDetails.value.visitNumber || 1
         }
       } catch (error) {
         console.error(error)
@@ -244,21 +265,42 @@ export default {
         formData.append('duration', packageDetails.value.duration)
       }
 
+      if (packageDetails.value.type === 'Visit') {
+        formData.append('visitNumber', visitNumber.value)
+      }
+
       formData.append('price', packageDetails.value.price)
       formData.append('transactionPrice', packageDetails.value.price)
       formData.append('token', token)
 
       try {
-        await axios.post(
-          'http://localhost:8081/api/v1/membership/buy',
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
+        let response
+        if (packageDetails.value.type === 'Membership') {
+          response = await axios.post(
+            'http://localhost:8081/api/v1/membership/buy',
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+              },
             },
-          },
-        )
+          )
+        } else if (packageDetails.value.type === 'Visit') {
+          response = await axios.post(
+            'http://localhost:8081/api/v1/visitpackage/buy',
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+              },
+            },
+          )
+        } else {
+          throw new Error('Unknown package type')
+        }
+
         Swal.fire('Payment', 'Payment completed.', 'success').then(() => {
           router.push({ name: 'MemberDashboard' })
         })
@@ -286,6 +328,7 @@ export default {
       paymentProofPreview, // Expose the preview ref
       startDate,
       endDate,
+      visitNumber, // Expose visitNumber
       handleFileUpload,
       processPayment,
     }
