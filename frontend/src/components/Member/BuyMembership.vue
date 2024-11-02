@@ -7,48 +7,43 @@
         Get the best membership package tailored for you!
       </p>
 
-      <!-- Membership Plans Section -->
-      <div class="card-container">
-        <div class="card" v-for="(plan, index) in membershipPlans" :key="index">
-          <h2>Rp. {{ plan.price }}</h2>
-          <h3>{{ plan.packageName }}</h3>
-          <p>{{ plan.description }}</p>
-          <button
-            class="select-plan-button"
-            @click="goToPayment(plan.idPackage)"
-          >
-            Select Plan
-          </button>
+      <!-- Loading Spinner -->
+      <div v-if="isLoading" class="loading-spinner">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
+      </div>
+
+      <!-- Membership Plans Section -->
+      <div v-else class="card-container">
+        <PackageCard
+          v-for="plan in membershipPlans"
+          :key="plan.idPackage"
+          :packageItem="plan"
+          buttonType="membership"
+          @select="goToPayment"
+        />
       </div>
 
       <!-- Visit Package Section -->
       <div class="visit-package">
         <h2>Buy a Visit Package</h2>
-        <div class="card-container">
-          <div
-            class="visit-card"
-            v-for="(visit, index) in visitPackages"
-            :key="index"
-          >
-            <h2>Rp. {{ visit.price }}</h2>
-            <h3>{{ visit.packageName }}</h3>
-            <p>{{ visit.description }}</p>
-            <button
-              class="select-visit-button"
-              @click="goToPayment(visit.idPackage)"
-            >
-              Buy Visit Package
-            </button>
-          </div>
+        <div v-if="!isLoading" class="card-container">
+          <PackageCard
+            v-for="visit in visitPackages"
+            :key="visit.idPackage"
+            :packageItem="visit"
+            buttonType="visit"
+            @select="goToPayment"
+          />
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import Navbar from './Navbar.vue'
+import PackageCard from '../PackageCard.vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
@@ -58,15 +53,30 @@ export default {
   name: 'BuyMembership',
   components: {
     Navbar,
+    PackageCard,
   },
   setup() {
     const router = useRouter()
     const membershipPlans = ref([])
     const visitPackages = ref([])
+    const isLoading = ref(false)
 
+    // Fetch packages from the API and categorize them
     const fetchPackages = async () => {
+      isLoading.value = true
       try {
         const token = localStorage.getItem('token')
+        if (!token) {
+          Swal.fire(
+            'Error',
+            'Authentication token not found. Please log in.',
+            'error',
+          ).then(() => {
+            router.push({ name: 'Login' })
+          })
+          return
+        }
+
         const response = await axios.get(
           'http://localhost:8081/api/v1/package/get',
           {
@@ -77,6 +87,7 @@ export default {
         )
         const packages = response.data
 
+        // Separate membership and visit packages based on their type
         membershipPlans.value = packages.filter(
           packageItem => packageItem.type === 'Membership',
         )
@@ -86,11 +97,25 @@ export default {
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to fetch packages.', 'error')
+      } finally {
+        isLoading.value = false
       }
     }
 
+    // Navigate to Payment page with selected package ID
     const goToPayment = idPackage => {
-      router.push({ name: 'Payment', params: { idPackage } })
+      Swal.fire({
+        title: 'Confirm Selection',
+        text: 'Do you want to proceed to payment for this package?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, proceed',
+        cancelButtonText: 'Cancel',
+      }).then(result => {
+        if (result.isConfirmed) {
+          router.push({ name: 'Payment', params: { idPackage } })
+        }
+      })
     }
 
     onMounted(fetchPackages)
@@ -99,11 +124,11 @@ export default {
       membershipPlans,
       visitPackages,
       goToPayment,
+      isLoading,
     }
   },
 }
 </script>
-
 <style scoped>
 /* General Layout */
 .container {
@@ -134,66 +159,8 @@ h1 {
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center; /* Center the cards */
   gap: 20px;
-}
-
-/* Card Styling */
-.card,
-.visit-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  flex: 1 1 calc(25% - 20px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  text-align: center;
-  transition:
-    transform 0.4s,
-    box-shadow 0.4s;
-  border: 2px solid #ff4500; /* Orange-red border to match the logo color */
-}
-
-.card:hover,
-.visit-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
-}
-
-h2 {
-  font-size: 2rem;
-  color: #000; /* Black to match the logo */
-}
-
-h3 {
-  font-size: 1.5rem;
-  color: #ff4500; /* Orange-red to match the logo */
-  margin-bottom: 15px;
-}
-
-p {
-  font-size: 1rem;
-  color: #555;
-}
-
-/* Buttons */
-.select-plan-button,
-.select-visit-button {
-  background-color: #ff4500; /* Matching the logo’s red-orange */
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.select-plan-button:hover,
-.select-visit-button:hover {
-  background-color: #e03b00; /* Slightly darker shade on hover */
 }
 
 /* Visit Package Section */
@@ -201,26 +168,58 @@ p {
   margin-top: 50px;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .card,
-  .visit-card {
-    flex: 1 1 calc(50% - 20px);
-  }
+.visit-package h2 {
+  font-size: 2rem;
+  color: #000;
+  margin-bottom: 20px;
+}
 
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Adjust as needed */
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #ff4500;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .package-card {
+    flex: 1 1 calc(33.333% - 20px);
+  }
+}
+
+@media (max-width: 768px) {
   h1 {
     font-size: 2.5rem;
+  }
+
+  .visit-package h2 {
+    font-size: 1.75rem;
+  }
+
+  .package-card {
+    flex: 1 1 calc(50% - 20px);
   }
 }
 
 @media (max-width: 480px) {
-  .card,
-  .visit-card {
-    flex: 1 1 100%;
-  }
-
   h1 {
     font-size: 2rem;
+  }
+
+  .visit-package h2 {
+    font-size: 1.5rem;
+  }
+
+  .package-card {
+    flex: 1 1 100%;
   }
 }
 </style>
