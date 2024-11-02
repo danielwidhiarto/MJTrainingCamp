@@ -1,16 +1,16 @@
 <template>
   <div>
-    <Navbar />
+    <LazyNavbar />
     <div class="container mt-4">
       <!-- Back Button -->
-      <button class="back-button" @click="goBack">← Back to Classes</button>
+      <button class="back-button" @click="debouncedGoBack">
+        ← Back to Classes
+      </button>
 
       <!-- Loading Indicator -->
-      <div v-if="loading" class="text-center my-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-3">Loading class details...</p>
+      <div v-if="loading" class="loading-indicator" aria-live="polite">
+        <div class="spinner"></div>
+        <span>Loading class details...</span>
       </div>
 
       <!-- Error Message -->
@@ -34,7 +34,12 @@
                 <strong>Date:</strong> {{ formatDate(classDetails.classDate) }}
               </li>
               <li class="list-group-item">
-                <strong>Time:</strong> {{ formatTime(classDetails.classTime) }}
+                <strong>Time:</strong>
+                {{
+                  classDetails.classTime
+                    ? formatTime(classDetails.classTime)
+                    : 'N/A'
+                }}
               </li>
               <li class="list-group-item">
                 <strong>Capacity:</strong>
@@ -89,7 +94,11 @@
 
         <!-- Join Class Button -->
         <div class="text-center">
-          <button class="btn btn-primary btn-lg" @click="handleJoinClass">
+          <button
+            class="btn btn-primary btn-lg"
+            @click="debouncedHandleJoinClass"
+            :disabled="joinButtonDisabled"
+          >
             Join Class
           </button>
         </div>
@@ -100,23 +109,30 @@
 
 <script>
 import axios from 'axios'
-import Navbar from './Navbar.vue'
+import { defineAsyncComponent } from 'vue'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat' // Import plugin
 import Swal from 'sweetalert2'
+
+dayjs.extend(customParseFormat) // Extend dayjs with the plugin
+
+// Lazy load Navbar component
+const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
 
 export default {
   name: 'ClassDetail',
-  components: { Navbar },
+  components: { LazyNavbar },
   data() {
     return {
       classDetails: null,
       loading: false,
       error: null,
+      joinButtonDisabled: false, // To disable button during join process
     }
   },
   methods: {
     /**
-     * Navigates back to the previous page or to the ViewClass page.
+     * Navigates back to the ViewClass page.
      */
     goBack() {
       this.$router.push({ name: 'ViewClass' })
@@ -149,6 +165,7 @@ export default {
 
         if (response.data && response.data.length > 0) {
           this.classDetails = response.data[0]
+          console.log('Class Details:', this.classDetails) // For debugging
         } else {
           this.error = 'Class not found.'
         }
@@ -171,10 +188,23 @@ export default {
     /**
      * Formats the time to a more readable format.
      * @param {String} time - The time string.
-     * @returns {String} - Formatted time.
+     * @returns {String} - Formatted time or original string if invalid.
      */
     formatTime(time) {
-      return dayjs(time, 'HH:mm:ss').format('h:mm A')
+      // Attempt parsing with 'HH:mm:ss' first
+      let parsedTime = dayjs(time, 'HH:mm:ss', true)
+
+      if (!parsedTime.isValid()) {
+        // Attempt parsing with 'HH:mm'
+        parsedTime = dayjs(time, 'HH:mm', true)
+      }
+
+      if (parsedTime.isValid()) {
+        return parsedTime.format('h:mm A') // e.g., "2:30 PM"
+      } else {
+        console.warn('Invalid time format:', time)
+        return time // Return original string if parsing fails
+      }
     },
 
     /**
@@ -188,6 +218,8 @@ export default {
         Swal.fire('Error', 'You need to log in to join a class.', 'error')
         return
       }
+
+      this.joinButtonDisabled = true // Disable button to prevent multiple clicks
 
       try {
         // Show loading indicator
@@ -226,6 +258,7 @@ export default {
             'You have already booked this class.',
             'info',
           )
+          this.joinButtonDisabled = false
           return
         }
 
@@ -243,6 +276,7 @@ export default {
               // Navigate to the membership purchase page
               this.$router.push({ name: 'BuyMembership' })
             }
+            this.joinButtonDisabled = false
           })
           return
         }
@@ -261,6 +295,7 @@ export default {
             'error',
           )
         }
+        this.joinButtonDisabled = false
       }
     },
 
@@ -376,13 +411,36 @@ export default {
                 'error',
               )
             }
+          } finally {
+            this.joinButtonDisabled = false
           }
         }
       })
     },
+
+    /**
+     * Debounce function to limit the rate at which a function can fire.
+     * @param {Function} func - The function to debounce.
+     * @param {Number} wait - The delay in milliseconds.
+     * @returns {Function} - The debounced function.
+     */
+    debounce(func, wait) {
+      let timeout
+      return function (...args) {
+        const later = () => {
+          clearTimeout(timeout)
+          func.apply(this, args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+      }
+    },
   },
   mounted() {
     this.fetchClassDetail()
+    // Initialize the debounced methods
+    this.debouncedHandleJoinClass = this.debounce(this.handleJoinClass, 300)
+    this.debouncedGoBack = this.debounce(this.goBack, 300)
   },
 }
 </script>
@@ -412,13 +470,15 @@ export default {
 
 /* Heading Styles */
 h1 {
-  font-size: 2.5rem;
-  color: #ff4500;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #000; /* Black text to match the logo's accent */
 }
 
 h4 {
   margin-bottom: 20px;
-  color: #333;
+  color: #000;
 }
 
 /* Card Styling */
@@ -442,6 +502,40 @@ h4 {
 .btn-primary:hover {
   background-color: #e03b00;
   border-color: #e03b00;
+}
+
+/* Loading Indicator Styling */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #ff4500;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Message Styling */
+.alert-danger {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ff4500;
 }
 
 /* SweetAlert Custom Styles */
@@ -469,16 +563,69 @@ h4 {
   border-color: #545b62 !important;
 }
 
+/* Typography Consistency */
+h1,
+h4 {
+  color: #000;
+  font-weight: 600;
+}
+
+p {
+  color: #555;
+  font-size: 1.25rem;
+}
+
+/* Join Button Disabled State */
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
+  }
+
+  h4 {
+    font-size: 1.75rem;
+  }
+
+  .back-button {
+    font-size: 0.95rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+
+  .btn-primary {
+    padding: 12px 18px; /* Adjusted padding for medium screens */
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 1.8rem;
+    font-size: 2rem;
+  }
+
+  h4 {
+    font-size: 1.5rem;
+  }
+
+  .back-button {
+    font-size: 0.9rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    padding: 10px 14px; /* Adjusted padding for small screens */
+    font-size: 0.95rem;
   }
 
   .card-title {
