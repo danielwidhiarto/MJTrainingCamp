@@ -31,5 +31,4 @@ kalo di curl --location 'http://localhost:8081/api/v1/transaction/get?id=202' \
 
 
 eman
-bikin profile page + semua user data + liat status membershipnya
-verify transaction pas view detail pake by id
+1. bikin profile page + semua user data + liat status membershipnya
