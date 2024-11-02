@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Navbar />
+    <LazyNavbar />
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
@@ -20,16 +20,6 @@
                   <p><strong>Price:</strong> Rp {{ packageDetails.price }}</p>
                 </div>
               </div>
-
-              <div class="row mb-4">
-                <div class="col-md-12">
-                  <p>
-                    <strong>Description:</strong>
-                    {{ packageDetails.description }}
-                  </p>
-                </div>
-              </div>
-
               <div v-if="packageDetails.type === 'Membership'" class="row mb-4">
                 <div class="col-md-4">
                   <p>
@@ -57,8 +47,11 @@
                     id="qris"
                     value="QRIS"
                     v-model="selectedPaymentMethod"
+                    aria-labelledby="qris-label"
                   />
-                  <label class="form-check-label" for="qris">QRIS</label>
+                  <label class="form-check-label" for="qris" id="qris-label"
+                    >QRIS</label
+                  >
                 </div>
                 <div class="form-check">
                   <input
@@ -68,8 +61,9 @@
                     id="bank"
                     value="Bank Transfer"
                     v-model="selectedPaymentMethod"
+                    aria-labelledby="bank-label"
                   />
-                  <label class="form-check-label" for="bank"
+                  <label class="form-check-label" for="bank" id="bank-label"
                     >Bank Transfer</label
                   >
                 </div>
@@ -84,6 +78,7 @@
                   src="../../assets/qris.png"
                   alt="QR Code"
                   class="img-fluid qris-img"
+                  loading="lazy"
                 />
               </div>
 
@@ -105,8 +100,24 @@
                   type="file"
                   class="form-control"
                   @change="handleFileUpload"
+                  aria-label="Upload Payment Proof"
+                  accept="image/*"
                 />
               </div>
+
+              <!-- Image Preview Section -->
+              <div
+                v-if="paymentProofPreview"
+                class="image-preview mt-3 text-center"
+              >
+                <h5>Preview of Uploaded Payment Proof:</h5>
+                <img
+                  :src="paymentProofPreview"
+                  alt="Payment Proof Preview"
+                  class="img-fluid preview-img"
+                />
+              </div>
+              <!-- End of Image Preview Section -->
 
               <div
                 class="d-flex justify-content-between align-items-center mt-4"
@@ -133,24 +144,28 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, defineAsyncComponent, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
 
+const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
+
 export default {
   name: 'PaymentPage',
-  components: { Navbar },
+  components: { LazyNavbar },
   setup() {
     const route = useRoute()
     const router = useRouter()
     const packageDetails = ref(null)
     const selectedPaymentMethod = ref('')
     const paymentProof = ref(null)
+    const paymentProofPreview = ref(null) // New Ref for Image Preview
     const startDate = ref('')
     const endDate = ref('')
+
+    let previousObjectURL = null // To keep track of the previous object URL
 
     const fetchPackageDetails = async () => {
       const idPackage = route.params.idPackage
@@ -195,7 +210,15 @@ export default {
     const handleFileUpload = event => {
       const file = event.target.files[0]
       if (file) {
+        // Revoke the previous object URL if it exists
+        if (previousObjectURL) {
+          URL.revokeObjectURL(previousObjectURL)
+        }
+
         paymentProof.value = file
+        paymentProofPreview.value = URL.createObjectURL(file)
+        previousObjectURL = paymentProofPreview.value
+
         Swal.fire(
           'File Uploaded',
           'Payment proof uploaded successfully.',
@@ -249,10 +272,18 @@ export default {
       fetchPackageDetails()
     })
 
+    onBeforeUnmount(() => {
+      // Revoke the object URL to free up memory
+      if (previousObjectURL) {
+        URL.revokeObjectURL(previousObjectURL)
+      }
+    })
+
     return {
       packageDetails,
       selectedPaymentMethod,
       paymentProof,
+      paymentProofPreview, // Expose the preview ref
       startDate,
       endDate,
       handleFileUpload,
@@ -303,6 +334,15 @@ export default {
   margin-top: 10px;
 }
 
+/* Preview Image */
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+}
+
 /* Proceed button styling */
 .proceed-button {
   background-color: #ff4500; /* Orange-red button color */
@@ -344,6 +384,24 @@ h4 {
   font-size: 1.5rem;
   color: #000;
   font-weight: bold;
+}
+
+/* Image Preview Section */
+.image-preview {
+  margin-top: 20px;
+}
+
+.image-preview h5 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
 }
 
 /* Responsive Design */
