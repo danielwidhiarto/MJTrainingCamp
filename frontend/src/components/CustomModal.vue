@@ -1,31 +1,28 @@
+<!-- CustomModal.vue -->
 <template>
-  <div v-if="visible" class="custom-modal">
-    <div class="custom-modal-content">
-      <button class="btn-close" @click="closeModal">×</button>
-      <slot></slot>
+  <div v-if="visible" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-button" @click="$emit('close')">&times;</button>
+      <div class="modal-body">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CustomModal',
   props: {
     visible: {
       type: Boolean,
       required: true,
     },
   },
-  methods: {
-    closeModal() {
-      this.$emit('close')
-    },
-  },
 }
 </script>
 
 <style scoped>
-.custom-modal {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -35,23 +32,28 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
-.custom-modal-content {
+.modal-content {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
-  width: 50%;
+  width: 90%;
+  max-width: 700px; /* Increased width for better form layout */
+  max-height: 90vh; /* Limit height to viewport height */
+  overflow-y: auto; /* Enable internal scrolling */
   position: relative;
 }
 
-.btn-close {
+.close-button {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 15px;
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
 }
+
 </style>
