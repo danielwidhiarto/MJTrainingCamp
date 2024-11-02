@@ -1,7 +1,34 @@
 ozann
-bikin validasi transaction belum di verify
-bikin api profile + member status
-buat api visit package bisa upload bukti / gambar terakhir gabisa
+1. bikin validasi transaction belum di verify gabakal bisa belanja
+2. bikin api profile + member status
+
+3. di bagian curl --location 'http://localhost:8081/api/v1/transaction/get' \
+get nya ini aja
+[
+  {
+    "idTransaction": 201,
+    "paymentType": "Membership",
+    "paymentMethod": "Credit Card",
+    "transactionPrice": 500000,
+    "duration": 12,
+    "paymentStatus": "PENDING"
+  },
+  ...
+]
+
+kalo di curl --location 'http://localhost:8081/api/v1/transaction/get?id=202' \
+{
+  "idTransaction": 202,
+  "paymentType": "Visit",
+  "paymentMethod": "Bank Transfer",
+  "transactionPrice": 100000,
+  "duration": 1,
+  "paymentStatus": "PENDING",
+  "memberName": "John Doe",
+  //kalo perlu ada memberid biar tau ini sp yg beli
+  "buktiTransfer": "base64EncodedImageString"
+}
+
 
 eman
 bikin profile page + semua user data + liat status membershipnya
