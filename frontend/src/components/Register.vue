@@ -39,17 +39,44 @@
         />
       </div>
       <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <input
+          type="password"
+          class="form-control form-input"
+          v-model="confirmPassword"
+          id="confirmPassword"
+          placeholder="Confirm your password"
+          required
+          @input="checkPasswordMatch"
+        />
+        <small v-if="passwordMismatch" class="text-danger"
+          >Passwords do not match.</small
+        >
+      </div>
+      <div class="mb-3">
         <label for="phoneNumber" class="form-label">Phone Number</label>
         <input
-          type="text"
+          type="tel"
           class="form-control form-input"
           v-model="pNumber"
           id="phoneNumber"
           placeholder="Enter your phone number"
           required
+          pattern="\d+"
+          title="Please enter digits only"
+          @input="validatePhoneNumber"
         />
+        <small v-if="phoneError" class="text-danger">{{ phoneError }}</small>
       </div>
-      <button type="submit" class="btn register-button">Register</button>
+      <button type="submit" class="btn register-button" :disabled="isLoading">
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        {{ isLoading ? 'Registering...' : 'Register' }}
+      </button>
     </form>
     <div class="text-center mt-3">
       <p class="login-text">
@@ -71,14 +98,73 @@ export default {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       pNumber: '',
+      phoneError: '',
+      passwordMismatch: false,
+      isLoading: false,
     }
   },
   methods: {
+    validatePhoneNumber() {
+      const phoneRegex = /^\d+$/
+      if (!phoneRegex.test(this.pNumber)) {
+        this.phoneError = 'Phone number must contain digits only.'
+      } else {
+        this.phoneError = ''
+      }
+    },
+    checkPasswordMatch() {
+      this.passwordMismatch = this.password !== this.confirmPassword
+    },
+    validatePassword() {
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+      if (!passwordRegex.test(this.password)) {
+        return 'Password must be at least 8 characters long and include both letters and numbers.'
+      }
+      return ''
+    },
     async registerUser() {
+      // Validate phone number
+      this.validatePhoneNumber()
+      if (this.phoneError) {
+        Swal.fire({
+          title: 'Invalid Phone Number',
+          text: this.phoneError,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        })
+        return
+      }
+
+      // Validate password strength
+      const passwordError = this.validatePassword()
+      if (passwordError) {
+        Swal.fire({
+          title: 'Weak Password',
+          text: passwordError,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        })
+        return
+      }
+
+      // Validate password match
+      this.checkPasswordMatch()
+      if (this.passwordMismatch) {
+        Swal.fire({
+          title: 'Password Mismatch',
+          text: 'Passwords do not match.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        })
+        return
+      }
+
+      this.isLoading = true
       try {
         const response = await axios.post(
-          'http://localhost:8081/api/v1/auth/register',
+          `${process.env.VUE_APP_API_BASE_URL}/auth/register`,
           {
             name: this.name,
             email: this.email,
@@ -108,6 +194,8 @@ export default {
           icon: 'error',
           confirmButtonText: 'OK',
         })
+      } finally {
+        this.isLoading = false
       }
     },
   },
@@ -168,6 +256,11 @@ export default {
 
 .login-link:hover {
   text-decoration: underline;
+}
+
+/* Spinner customization */
+.spinner-border {
+  margin-right: 5px;
 }
 
 /* Responsive adjustments */
