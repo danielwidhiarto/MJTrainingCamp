@@ -4,9 +4,10 @@
       <img src="../assets/logo.jpg" alt="Logo" class="mb-4" />
       <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
     </div>
-    <form @submit.prevent="registerUser">
+    <form @submit.prevent="registerUser" ref="form" novalidate>
+      <!-- Full Name Field -->
       <div class="mb-3">
-        <label for="name" class="form-label">Full Name</label>
+        <label for="full_name" class="form-label">Full Name</label>
         <input
           type="text"
           class="form-control form-input"
@@ -14,8 +15,17 @@
           id="full_name"
           placeholder="Enter your full name"
           required
+          @input="sanitizeNameDebounced"
+          aria-required="true"
+          aria-describedby="nameHelp"
         />
+        <small id="nameHelp" class="form-text text-muted">
+          Please enter your legal full name.
+        </small>
+        <span v-if="errors.name" class="text-danger">{{ errors.name }}</span>
       </div>
+
+      <!-- Email Address Field -->
       <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
         <input
@@ -25,10 +35,19 @@
           id="email"
           placeholder="Enter your email"
           required
+          @input="sanitizeEmailDebounced"
+          aria-required="true"
+          aria-describedby="emailHelp"
         />
+        <small id="emailHelp" class="form-text text-muted">
+          We'll never share your email with anyone else.
+        </small>
+        <span v-if="errors.email" class="text-danger">{{ errors.email }}</span>
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
+
+      <!-- Password Field -->
+      <div class="mb-3 position-relative">
+        <label for="password" class="form-label"> Password </label>
         <input
           type="password"
           class="form-control form-input"
@@ -36,10 +55,23 @@
           id="password"
           placeholder="Enter your password"
           required
+          @input="handlePasswordInputDebounced"
+          aria-required="true"
+          aria-describedby="passwordHelp"
         />
+        <small id="passwordHelp" class="form-text text-muted">
+          Must be at least 8 characters and include letters and numbers.
+        </small>
+        <span v-if="errors.password" class="text-danger">{{
+          errors.password
+        }}</span>
       </div>
-      <div class="mb-3">
-        <label for="confirmPassword" class="form-label">Confirm Password</label>
+
+      <!-- Confirm Password Field -->
+      <div class="mb-3 position-relative">
+        <label for="confirmPassword" class="form-label">
+          Confirm Password
+        </label>
         <input
           type="password"
           class="form-control form-input"
@@ -47,12 +79,18 @@
           id="confirmPassword"
           placeholder="Confirm your password"
           required
-          @input="checkPasswordMatch"
+          @input="checkPasswordMatchDebounced"
+          aria-required="true"
         />
-        <small v-if="passwordMismatch" class="text-danger"
-          >Passwords do not match.</small
-        >
+        <span v-if="passwordMismatch" class="text-danger" aria-live="assertive">
+          Passwords do not match.
+        </span>
+        <span v-if="errors.confirmPassword" class="text-danger">{{
+          errors.confirmPassword
+        }}</span>
       </div>
+
+      <!-- Phone Number Field -->
       <div class="mb-3">
         <label for="phoneNumber" class="form-label">Phone Number</label>
         <input
@@ -64,10 +102,17 @@
           required
           pattern="\d+"
           title="Please enter digits only"
-          @input="validatePhoneNumber"
+          @input="validatePhoneNumberDebounced"
+          aria-required="true"
+          aria-describedby="phoneHelp"
         />
-        <small v-if="phoneError" class="text-danger">{{ phoneError }}</small>
+        <small id="phoneHelp" class="form-text text-muted">
+          Enter your phone number without any dashes or spaces.
+        </small>
+        <span v-if="phoneError" class="text-danger">{{ phoneError }}</span>
       </div>
+
+      <!-- Submit Button -->
       <button type="submit" class="btn register-button" :disabled="isLoading">
         <span
           v-if="isLoading"
@@ -86,10 +131,11 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import DOMPurify from 'dompurify'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'Register',
@@ -103,58 +149,116 @@ export default {
       phoneError: '',
       passwordMismatch: false,
       isLoading: false,
+      errors: {}, // Object to hold validation error messages
     }
   },
+  computed: {
+    hasErrors() {
+      return (
+        Object.keys(this.errors).length > 0 ||
+        this.passwordMismatch ||
+        this.phoneError
+      )
+    },
+  },
   methods: {
+    // Sanitize inputs using DOMPurify
+    sanitizeInput(input) {
+      return DOMPurify.sanitize(input)
+    },
+    sanitizeName() {
+      this.name = this.sanitizeInput(this.name)
+      if (!this.name.trim()) {
+        this.errors.name = 'Full Name is required.'
+      } else {
+        delete this.errors.name
+      }
+    },
+    sanitizeEmail() {
+      this.email = this.sanitizeInput(this.email)
+      if (!this.email.trim()) {
+        this.errors.email = 'Email is required.'
+      } else if (!this.validateEmailFormat(this.email)) {
+        this.errors.email = 'Please enter a valid email address.'
+      } else {
+        delete this.errors.email
+      }
+    },
+    sanitizePhoneNumber() {
+      this.pNumber = this.sanitizeInput(this.pNumber)
+      this.validatePhoneNumber()
+    },
+
+    // Validate email format
+    validateEmailFormat(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(email)
+    },
+
+    // Validate phone number
     validatePhoneNumber() {
       const phoneRegex = /^\d+$/
-      if (!phoneRegex.test(this.pNumber)) {
+      if (!this.pNumber.trim()) {
+        this.phoneError = 'Phone number is required.'
+      } else if (!phoneRegex.test(this.pNumber)) {
         this.phoneError = 'Phone number must contain digits only.'
       } else {
         this.phoneError = ''
       }
     },
+    // Debounced version to optimize performance
+    validatePhoneNumberDebounced: debounce(function () {
+      this.validatePhoneNumber()
+    }, 300),
+
+    // Check if passwords match
     checkPasswordMatch() {
       this.passwordMismatch = this.password !== this.confirmPassword
-    },
-    validatePassword() {
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
-      if (!passwordRegex.test(this.password)) {
-        return 'Password must be at least 8 characters long and include both letters and numbers.'
-      }
-      return ''
-    },
-    async registerUser() {
-      // Validate phone number
-      this.validatePhoneNumber()
-      if (this.phoneError) {
-        Swal.fire({
-          title: 'Invalid Phone Number',
-          text: this.phoneError,
-          icon: 'error',
-          confirmButtonText: 'OK',
-        })
-        return
-      }
-
-      // Validate password strength
-      const passwordError = this.validatePassword()
-      if (passwordError) {
-        Swal.fire({
-          title: 'Weak Password',
-          text: passwordError,
-          icon: 'error',
-          confirmButtonText: 'OK',
-        })
-        return
-      }
-
-      // Validate password match
-      this.checkPasswordMatch()
       if (this.passwordMismatch) {
+        this.errors.confirmPassword = 'Passwords do not match.'
+      } else {
+        delete this.errors.confirmPassword
+      }
+    },
+    // Debounced version
+    checkPasswordMatchDebounced: debounce(function () {
+      this.checkPasswordMatch()
+    }, 300),
+
+    // Handle password input (validation)
+    handlePasswordInput() {
+      if (!this.password.trim()) {
+        this.errors.password = 'Password is required.'
+      } else if (this.password.length < 8) {
+        this.errors.password = 'Password must be at least 8 characters long.'
+      } else if (!/[A-Za-z]/.test(this.password) || !/\d/.test(this.password)) {
+        this.errors.password = 'Password must include both letters and numbers.'
+      } else {
+        delete this.errors.password
+      }
+
+      // Re-check password match when password changes
+      this.checkPasswordMatch()
+    },
+    // Debounced version
+    handlePasswordInputDebounced: debounce(function () {
+      this.handlePasswordInput()
+    }, 300),
+
+    // Register user
+    async registerUser() {
+      // Final validation before submission
+      this.sanitizeName()
+      this.sanitizeEmail()
+      this.sanitizePhoneNumber()
+      this.handlePasswordInput()
+      this.checkPasswordMatch()
+
+      // Check for validation errors
+      if (this.hasErrors) {
         Swal.fire({
-          title: 'Password Mismatch',
-          text: 'Passwords do not match.',
+          title: 'Invalid Input',
+          text: 'Please correct the errors in the form before submitting.',
           icon: 'error',
           confirmButtonText: 'OK',
         })
@@ -164,11 +268,11 @@ export default {
       this.isLoading = true
       try {
         const response = await axios.post(
-          `${process.env.VUE_APP_API_BASE_URL}/auth/register`,
+          'http://localhost:8081/api/v1/auth/register',
           {
             name: this.name,
             email: this.email,
-            password: this.password,
+            password: this.password, // Passwords typically aren't sanitized to preserve characters
             pNumber: this.pNumber,
           },
         )
@@ -199,9 +303,16 @@ export default {
       }
     },
   },
+  mounted() {
+    // Initialize Bootstrap tooltips if any (though tooltips are removed)
+    // Since tooltips are removed, this section can be omitted or kept for future use
+    // const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    // tooltipTriggerList.map(function (tooltipTriggerEl) {
+    //   return new bootstrap.Tooltip(tooltipTriggerEl)
+    // })
+  },
 }
 </script>
-
 <style scoped>
 .container {
   max-width: 600px;
