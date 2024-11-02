@@ -2,7 +2,6 @@ ozann
 bikin validasi transaction belum di verify
 
 eman
-bikin validasi pnumber harus angka di register
 
 both
 bikin profile, liat semua user data + liat status membershipnya
