@@ -78,7 +78,7 @@ public class ClassController {
     }
 
     
-    @GetMapping("/getHistory")
+    @PostMapping("/getHistory")
     public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
 
 
