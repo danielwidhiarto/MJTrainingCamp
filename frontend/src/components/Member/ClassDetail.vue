@@ -317,7 +317,7 @@ export default {
         const btnClass =
           type === 'member'
             ? 'btn-outline-primary me-2'
-            : 'btn-outline-secondary'
+            : 'btn-outline-primary me-2'
         const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1)
         htmlContent += `<button id="${type}-btn" class="btn ${btnClass}">${capitalizedType}</button>`
       })
