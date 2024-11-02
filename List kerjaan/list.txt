@@ -1,8 +1,8 @@
 ozann
 bikin validasi transaction belum di verify
+bikin api profile + member status
+buat api visit package bisa upload bukti / gambar terakhir gabisa
 
 eman
-
-both
-bikin profile, liat semua user data + liat status membershipnya
-buat verifikasi transaksinya view by id biar ga berat
+bikin profile page + semua user data + liat status membershipnya
+verify transaction pas view detail pake by id
