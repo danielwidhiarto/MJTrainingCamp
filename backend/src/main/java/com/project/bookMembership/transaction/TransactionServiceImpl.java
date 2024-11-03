@@ -66,16 +66,16 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentStatus(tx.getPaymentStatus());
 
 
-            if (tx.getBuktiTransfer() != null) {
-                try {
-                    byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
-                    response.setBuktiTransfer(decompressedImage);
-                } catch (DataFormatException | IOException exception) {
-                    throw new RuntimeException("Error decompressing image for Transaction ID: " + tx.getIdTransaction(), exception);
-                }
-            } else {
+//            if (tx.getBuktiTransfer() != null) {
+//                try {
+//                    byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
+//                    response.setBuktiTransfer(decompressedImage);
+//                } catch (DataFormatException | IOException exception) {
+//                    throw new RuntimeException("Error decompressing image for Transaction ID: " + tx.getIdTransaction(), exception);
+//                }
+//            } else {
                 response.setBuktiTransfer(null);
-            }
+//            }
 
             return response;
         }).collect(Collectors.toList());
