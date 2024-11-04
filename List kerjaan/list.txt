@@ -1,5 +1,5 @@
 ozann
-1. bikin validasi transaction belum di verify gabakal bisa belanja
+1. bikin validasi transaction belum di verify gabakal bisa book
 2. bikin api profile + member status
 
 
