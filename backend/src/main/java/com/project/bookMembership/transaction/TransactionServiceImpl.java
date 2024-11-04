@@ -7,6 +7,11 @@ import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 
+import com.project.bookMembership.membership.Membership;
+import com.project.bookMembership.membership.MembershipRepo;
+import com.project.bookMembership.user.User;
+import com.project.bookMembership.visitPackage.VisitPackage;
+import com.project.bookMembership.visitPackage.VisitPackageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +23,21 @@ import utils.ImageUtils;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepo transactionRepository;
-
+    private final MembershipRepo membershipRepo;
+    private final VisitPackageRepo visitPackageRepo;
     @Autowired
-    public TransactionServiceImpl(TransactionRepo transactionRepository) {
+    public TransactionServiceImpl(TransactionRepo transactionRepository,VisitPackageRepo visitPackageRepo,MembershipRepo membershipRepo) {
         this.transactionRepository = transactionRepository;
+        this.visitPackageRepo = visitPackageRepo;
+        this.membershipRepo = membershipRepo;
     }
 
     @Override
     public Transaction save(Transaction transaction) {
         return transactionRepository.save(transaction);
     }
-    
+
+
     @Override
     public Optional<GetTransactionResponse> getById(Long id) {
         Optional<Transaction> transaction = transactionRepository.findById(id);
@@ -42,16 +51,38 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentStatus(tx.getPaymentStatus());
 
 
+            if (tx.getMembership() != null) {
+                Membership member = tx.getMembership();
+                User user = member.getUser();
+
+                    response.setMemberName(user.getName());
+                    response.setMembershipId(member.getIdMember());
+
+            }
+
+            // Handle VisitPackage if it is not null
+            if (tx.getVisitPackage() != null) {
+                VisitPackage visitPackage = tx.getVisitPackage();
+                User visitUser = visitPackage.getUser();
+                if (visitUser != null) {
+                    response.setMemberName(visitUser.getName());
+                }
+
+
+                response.setVisitId(visitPackage.getIdVisit());
+            }
+
             try {
                 byte[] decompressedImage = ImageUtils.decompressImage(tx.getBuktiTransfer());
                 response.setBuktiTransfer(decompressedImage);
-                return response; 
+                return response;
             } catch (DataFormatException | java.io.IOException exception) {
-                
                 throw new RuntimeException("Error decompressing image for Transaction ID: " + tx.getIdTransaction(), exception);
-            } 
+            }
         });
     }
+
+
 
     @Override
     public List<GetTransactionResponse> getAllTransactions() {
@@ -64,6 +95,27 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentType(tx.getPaymentType());
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
+
+            if (tx.getMembership() != null) {
+                Membership member = tx.getMembership();
+                User user = member.getUser();
+
+                response.setMemberName(user.getName());
+                response.setMembershipId(member.getIdMember());
+
+            }
+
+            // Handle VisitPackage if it is not null
+            if (tx.getVisitPackage() != null) {
+                VisitPackage visitPackage = tx.getVisitPackage();
+                User visitUser = visitPackage.getUser();
+                if (visitUser != null) {
+                    response.setMemberName(visitUser.getName());
+                }
+
+
+                response.setVisitId(visitPackage.getIdVisit());
+            }
 
 
 //            if (tx.getBuktiTransfer() != null) {
