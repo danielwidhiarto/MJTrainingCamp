@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.project.bookMembership.user.Role;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,5 +16,10 @@ public class AuthenticationResponse {
     private String token;
     private Role role;
     private Long idUser;
+    private String name;
+    private String email;
+    private String phone;
+    private Date registrationDate;
+
 
 }

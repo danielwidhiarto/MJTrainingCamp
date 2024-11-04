@@ -19,7 +19,7 @@ import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.StringUtils;
+
 
 @Service
 @RequiredArgsConstructor
@@ -92,6 +92,10 @@ public AuthenticationResponse authenticate(AuthenticationRequest request) {
             .token(jwtToken)
             .role(user.getRole())
             .idUser(user.getIdUser())
+                .phone(user.getPNumber())
+                .email(user.getEmail())
+                .registrationDate(user.getRegistrationDate())
+                .name(user.getName())
             .build();
     } catch (BadCredentialsException ex) {
         throw new RuntimeException("Wrong email or password"); // Customize this message as needed
