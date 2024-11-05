@@ -1,9 +1,13 @@
 package com.project.bookMembership.classes;
 
-import java.util.Date;
+import java.util.ArrayList;
+
 import java.util.List;
 
+
 import com.project.bookMembership.DTO.ClassBookingStatusResponse;
+import com.project.bookMembership.DTO.MembershipDetailResponse;
+import com.project.bookMembership.DTO.VisitDetailResponse;
 import org.springframework.stereotype.Service;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
@@ -113,10 +117,11 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
         // Check if the user has an active membership for the class date
         List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+
         boolean validMember = memberships.stream()
                 .anyMatch(membership ->
-                        !membership.getStartDate().after(trainingClass.getClassDate()) && // Membership is active on class date
-                                !membership.getEndDate().before(trainingClass.getClassDate())     // Membership is active on class date
+                        !membership.getStartDate().after(trainingClass.getClassDate()) &&
+                                !membership.getEndDate().before(trainingClass.getClassDate())
                 );
 
         // Check if the user has available visits
@@ -130,6 +135,36 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         response.setValidVisit(validVisit);
         response.setAlreadyBooked(alreadyBooked);
 
+        // Populate Membership Details
+        List<MembershipDetailResponse> membershipDetails = new ArrayList<>();
+        for (Membership membership : memberships) {
+            MembershipDetailResponse detail = MembershipDetailResponse.builder()
+                    .idMember(membership.getIdMember())
+                    .duration(membership.getDuration())
+                    .startDate(membership.getStartDate().toString())
+                    .endDate(membership.getEndDate().toString())
+                    .price(membership.getPrice())
+                    .transactionId(membership.getTransaction().getIdTransaction())
+                    .userId(membership.getUser().getIdUser())
+                    .build();
+            membershipDetails.add(detail);
+        }
+        response.setMemberships(membershipDetails);
+
+        // Populate Visit Details
+        List<VisitDetailResponse> visitDetails = new ArrayList<>();
+        for (VisitPackage visitPackage : visitPackages) {
+            VisitDetailResponse detail = VisitDetailResponse.builder()
+                    .idVisit(visitPackage.getIdVisit())
+                    .price(visitPackage.getPrice())
+                    .visitNumber(visitPackage.getVisitNumber())
+                    .visitUsed(visitPackage.getVisitUsed())
+                    .transactionId(visitPackage.getTransaction().getIdTransaction())
+                    .userId(visitPackage.getUser().getIdUser())
+                    .build();
+            visitDetails.add(detail);
+        }
+        response.setVisitDetails(visitDetails); // Use the updated field name here
 
         return response;
     }

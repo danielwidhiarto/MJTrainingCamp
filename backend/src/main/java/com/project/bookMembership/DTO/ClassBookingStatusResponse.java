@@ -1,9 +1,12 @@
 package com.project.bookMembership.DTO;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -14,5 +17,7 @@ public class ClassBookingStatusResponse {
     private boolean validVisit;
     private boolean alreadyBooked;
 
+    private List<MembershipDetailResponse> memberships;
+    private List<VisitDetailResponse> visitDetails;
 
 }
