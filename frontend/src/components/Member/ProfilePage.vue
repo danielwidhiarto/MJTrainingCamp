@@ -26,13 +26,75 @@
         </div>
       </div>
 
-      <!-- Membership Plan Section -->
+      <!-- Membership and Visits Section -->
+      <div class="membership-visits-section">
+        <!-- Current Memberships -->
+        <div class="card membership-card" v-if="currentMemberships.length > 0">
+          <div class="card-body">
+            <h3 class="card-title">Current Memberships</h3>
+            <ul class="membership-list">
+              <li
+                v-for="membership in currentMemberships"
+                :key="membership.idMember"
+              >
+                <p>
+                  <strong>Duration:</strong> {{ membership.duration }} Months
+                </p>
+                <p>
+                  <strong>Starts On:</strong>
+                  {{ formatDate(membership.startDate) }}
+                </p>
+                <p>
+                  <strong>Ends On:</strong> {{ formatDate(membership.endDate) }}
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card membership-card" v-else>
+          <div class="card-body">
+            <h3 class="card-title">Current Memberships</h3>
+            <p>You do not have any active memberships.</p>
+          </div>
+        </div>
+
+        <!-- Upcoming Memberships -->
+        <div class="card visits-card" v-if="upcomingMemberships.length > 0">
+          <div class="card-body">
+            <h3 class="card-title">Upcoming Memberships</h3>
+            <ul class="membership-list">
+              <li
+                v-for="membership in upcomingMemberships"
+                :key="membership.idMember"
+              >
+                <p>
+                  <strong>Duration:</strong> {{ membership.duration }} Months
+                </p>
+                <p>
+                  <strong>Starts On:</strong>
+                  {{ formatDate(membership.startDate) }}
+                </p>
+                <p>
+                  <strong>Ends On:</strong> {{ formatDate(membership.endDate) }}
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card visits-card" v-else>
+          <div class="card-body">
+            <h3 class="card-title">Upcoming Memberships</h3>
+            <p>You do not have any upcoming memberships.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visits Left Section -->
       <div class="card mt-5">
         <div class="card-body">
-          <h3 class="card-title">Your Membership Plan</h3>
-          <p><strong>Plan:</strong> Gold Member</p>
-          <p><strong>Status:</strong> Active until January 31, 2024</p>
-          <button class="btn btn-primary">Manage Membership</button>
+          <h3 class="card-title">Visits Left</h3>
+          <p><strong>Remaining Visits:</strong> {{ visitsLeft }}</p>
+          <button class="btn btn-secondary">View Visit History</button>
         </div>
       </div>
 
@@ -89,6 +151,7 @@
 import Swal from 'sweetalert2' // Import SweetAlert2
 import Navbar from './Navbar.vue' // Import the Navbar component
 import dayjs from 'dayjs' // Import Day.js for date formatting
+import axios from 'axios' // Import Axios for HTTP requests
 
 export default {
   name: 'ProfilePage',
@@ -108,10 +171,13 @@ export default {
         darkMode: false,
         emailUpdates: true,
       },
+      currentMemberships: [], // Array to store current memberships
+      upcomingMemberships: [], // Array to store upcoming memberships
+      visitsLeft: 0, // To store number of visits left
     }
   },
   created() {
-    // Fetch data from localStorage
+    // Fetch user data from localStorage
     this.user.name = localStorage.getItem('name') || 'User Name'
     this.user.email = localStorage.getItem('email') || 'user@example.com'
     this.user.phone = localStorage.getItem('phone') || 'Not provided'
@@ -120,6 +186,9 @@ export default {
     this.user.profilePicture =
       localStorage.getItem('profilePicture') ||
       'https://via.placeholder.com/150'
+
+    // Fetch membership data from API
+    this.checkMembership()
   },
   methods: {
     formatDate(dateString) {
@@ -145,6 +214,83 @@ export default {
         this.$router.push('/') // Redirect to the home page
       })
     },
+    async checkMembership() {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.warn(
+          'No token found. Membership information cannot be fetched.',
+        )
+        return
+      }
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8081/api/v1/class/checkMembership',
+          {
+            token: token,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+
+        const data = response.data
+
+        // Check if memberships exist
+        if (data.memberships && data.memberships.length > 0) {
+          const today = dayjs()
+
+          data.memberships.forEach(membership => {
+            const startDate = dayjs(membership.startDate)
+            const endDate = dayjs(membership.endDate)
+
+            if (endDate.isAfter(today) && startDate.isBefore(today)) {
+              // Current Membership
+              this.currentMemberships.push({
+                idMember: membership.idMember,
+                duration: membership.duration, // Duration in months
+                endDate: membership.endDate, // End date as string
+                packageName: `Package ${membership.idMember}`, // Replace with actual package name if available
+              })
+            } else if (startDate.isAfter(today)) {
+              // Upcoming Membership
+              this.upcomingMemberships.push({
+                idMember: membership.idMember,
+                duration: membership.duration,
+                startDate: membership.startDate,
+                endDate: membership.endDate,
+                packageName: `Package ${membership.idMember}`, // Replace with actual package name if available
+              })
+            }
+          })
+
+          // Calculate visits left
+          if (data.visitDetails && data.visitDetails.length > 0) {
+            // Sum up all visits left from visitDetails
+            this.visitsLeft = data.visitDetails.reduce((acc, visit) => {
+              return acc + (visit.visitNumber - visit.visitUsed)
+            }, 0)
+          } else {
+            this.visitsLeft = 0
+          }
+        } else {
+          this.currentMemberships = []
+          this.upcomingMemberships = []
+          this.visitsLeft = 0
+        }
+      } catch (error) {
+        console.error('Error fetching membership data:', error)
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to fetch membership information.',
+          icon: 'error',
+          confirmButtonColor: '#ff4500',
+        })
+      }
+    },
   },
 }
 </script>
@@ -152,7 +298,7 @@ export default {
 <style scoped>
 .container {
   padding: 40px 20px;
-  max-width: 900px;
+  max-width: 1200px;
   margin: auto;
 }
 
@@ -205,11 +351,6 @@ export default {
   color: #333;
 }
 
-.profile-membership {
-  font-size: 1.2rem;
-  color: #777;
-}
-
 .profile-details {
   margin-top: 20px;
 }
@@ -239,9 +380,33 @@ export default {
   transform: scale(1.05);
 }
 
+/* Membership and Visits Section */
+.membership-visits-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 50px;
+}
+
+.membership-card,
+.visits-card {
+  flex: 1;
+}
+
+/* Responsive Layout */
+@media (min-width: 768px) {
+  .membership-visits-section {
+    flex-direction: row;
+  }
+
+  .membership-card,
+  .visits-card {
+    width: 48%;
+  }
+}
+
 /* Card Styles */
 .card {
-  margin-top: 50px;
   border: none;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
@@ -253,6 +418,24 @@ export default {
   margin-bottom: 20px;
 }
 
+.membership-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.membership-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.membership-list li:last-child {
+  border-bottom: none;
+}
+
+.visits-card .card-title {
+  /* Specific styles for Visits Left card if needed */
+}
+
 .activity-list {
   list-style-type: none;
   padding-left: 0;
@@ -261,6 +444,10 @@ export default {
 .activity-list li {
   padding: 10px 0;
   border-bottom: 1px solid #eee;
+}
+
+.activity-list li:last-child {
+  border-bottom: none;
 }
 
 /* Settings and Preferences */
@@ -297,28 +484,32 @@ export default {
   margin-right: 10px;
 }
 
-@media (min-width: 768px) {
-  .profile-header {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-  }
+/* Additional Styling for Buttons */
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-  .user-info {
-    margin-left: 30px;
-  }
+.btn-primary:hover {
+  background-color: #0056b3;
+}
 
-  .settings-buttons,
-  .preferences {
-    flex-direction: row;
-    gap: 20px;
-  }
+.btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-  .settings-buttons .btn,
-  .preferences .preference-item {
-    width: auto;
-    flex: 1;
-    margin-bottom: 0;
-  }
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 </style>
