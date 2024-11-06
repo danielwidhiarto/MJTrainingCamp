@@ -4,6 +4,15 @@ ozann
 
 
 
+
+
+
 eman
 1. bikin profile page + semua user data + liat status membershipnya
 2.bikin upcoming class
+3. revisi buy membership bisa milih start date
+
+
+both
+
+99.bikin upload profile
