@@ -67,7 +67,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                     .anyMatch(membership ->
                             !membership.getStartDate().after(trainingClass.getClassDate()) &&
                                     !membership.getEndDate().before(trainingClass.getClassDate()) &&
-                                    "VERIFIED".equalsIgnoreCase(membership.getTransaction().getPaymentStatus()) // Check if payment status is PAID
+                                    "VERIFIED".equalsIgnoreCase(membership.getTransaction().getPaymentStatus())
                     );
 
             if (!hasActiveMembership) {
