@@ -62,14 +62,16 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
         if (classDetailRequest.getType().equals("member")) {
             List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+
             boolean hasActiveMembership = memberships.stream()
                     .anyMatch(membership ->
                             !membership.getStartDate().after(trainingClass.getClassDate()) &&
-                                    !membership.getEndDate().before(trainingClass.getClassDate())
+                                    !membership.getEndDate().before(trainingClass.getClassDate()) &&
+                                    "VERIFIED".equalsIgnoreCase(membership.getTransaction().getPaymentStatus()) // Check if payment status is PAID
                     );
 
             if (!hasActiveMembership) {
-                throw new RuntimeException("User does not have an active membership for this class date.");
+                throw new RuntimeException("User does not have an active membership or membership is not verified for this class date.");
             }
         } else if (classDetailRequest.getType().equals("visit")) {
             List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
@@ -99,6 +101,8 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         String email = jwtService.extractUsername(classDetailRequest.getToken());
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+
 
         // Get the training class information
         Long idTrainingClass = classDetailRequest.getIdClass();
