@@ -33,6 +33,11 @@ public class ClassController {
         ClassBookingStatusResponse response = classDetailService.checkBookingEligibility(classDetailRequest);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/checkMembership")
+    public ResponseEntity<MembershipStatusResponse> checkMembership(@RequestBody MembershipStatusRequest membershipStatusRequest) {
+        MembershipStatusResponse response = classDetailService.checkMembershipStatus(membershipStatusRequest);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/add")
     public ResponseEntity<?> addClass(@RequestBody ClassRequest classRequest) {

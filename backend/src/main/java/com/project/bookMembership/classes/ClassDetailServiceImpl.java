@@ -5,15 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import com.project.bookMembership.DTO.ClassBookingStatusResponse;
-import com.project.bookMembership.DTO.MembershipDetailResponse;
-import com.project.bookMembership.DTO.VisitDetailResponse;
+import com.project.bookMembership.DTO.*;
 import org.springframework.stereotype.Service;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
 import com.project.bookMembership.visitPackage.VisitPackage;
 import com.project.bookMembership.visitPackage.VisitPackageRepo;
-import com.project.bookMembership.DTO.ClassDetailRequest;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.membership.Membership;
 import com.project.bookMembership.membership.MembershipRepo;
@@ -134,6 +131,56 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         response.setValidMember(validMember);
         response.setValidVisit(validVisit);
         response.setAlreadyBooked(alreadyBooked);
+
+        // Populate Membership Details
+        List<MembershipDetailResponse> membershipDetails = new ArrayList<>();
+        for (Membership membership : memberships) {
+            MembershipDetailResponse detail = MembershipDetailResponse.builder()
+                    .idMember(membership.getIdMember())
+                    .duration(membership.getDuration())
+                    .startDate(membership.getStartDate().toString())
+                    .endDate(membership.getEndDate().toString())
+                    .price(membership.getPrice())
+                    .transactionId(membership.getTransaction().getIdTransaction())
+                    .userId(membership.getUser().getIdUser())
+                    .build();
+            membershipDetails.add(detail);
+        }
+        response.setMemberships(membershipDetails);
+
+        // Populate Visit Details
+        List<VisitDetailResponse> visitDetails = new ArrayList<>();
+        for (VisitPackage visitPackage : visitPackages) {
+            VisitDetailResponse detail = VisitDetailResponse.builder()
+                    .idVisit(visitPackage.getIdVisit())
+                    .price(visitPackage.getPrice())
+                    .visitNumber(visitPackage.getVisitNumber())
+                    .visitUsed(visitPackage.getVisitUsed())
+                    .transactionId(visitPackage.getTransaction().getIdTransaction())
+                    .userId(visitPackage.getUser().getIdUser())
+                    .build();
+            visitDetails.add(detail);
+        }
+        response.setVisitDetails(visitDetails); // Use the updated field name here
+
+        return response;
+    }
+
+    @Override
+    public MembershipStatusResponse checkMembershipStatus(MembershipStatusRequest membershipStatusRequest) {
+        // Extract user information from the token
+        String email = jwtService.extractUsername(membershipStatusRequest.getToken());
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the user has an active membership for the class date
+        List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+
+        // Check if the user has available visits
+        List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
+
+        // Create and populate response
+        MembershipStatusResponse response = new MembershipStatusResponse();
 
         // Populate Membership Details
         List<MembershipDetailResponse> membershipDetails = new ArrayList<>();
