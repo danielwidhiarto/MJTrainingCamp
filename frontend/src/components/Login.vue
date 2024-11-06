@@ -138,6 +138,7 @@ export default {
     }, 300),
 
     // Register user
+
     async loginUser() {
       // Final validation before submission
       this.sanitizeEmail()
@@ -164,11 +165,18 @@ export default {
           },
         )
 
-        const { token, role, idUser } = response.data
+        // Destructure the full response
+        const { token, role, idUser, name, email, phone, registrationDate } =
+          response.data
 
+        // Store each piece of information in localStorage
         localStorage.setItem('token', token)
         localStorage.setItem('role', role)
         localStorage.setItem('idUser', idUser)
+        localStorage.setItem('name', name)
+        localStorage.setItem('email', email)
+        localStorage.setItem('phone', phone)
+        localStorage.setItem('registrationDate', registrationDate)
 
         Swal.fire({
           title: 'Login Successful!',

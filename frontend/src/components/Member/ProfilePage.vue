@@ -4,22 +4,26 @@
     <div class="container">
       <h1 class="page-title">Profile Page</h1>
 
+      <!-- Profile Card -->
       <div class="profile-card">
-        <!-- Profile Section -->
-        <img
-          :src="user.profilePicture"
-          alt="User Profile Picture"
-          class="profile-picture"
-        />
-        <h2 class="user-name">{{ user.name }}</h2>
-        <p class="profile-info"><strong>Email:</strong> {{ user.email }}</p>
-        <p class="profile-info">
-          <strong>Membership:</strong> {{ user.membershipStatus }}
-        </p>
-        <p class="profile-info">
-          <strong>Joined:</strong> {{ formatDate(user.joinDate) }}
-        </p>
-        <button class="logout-button" @click="logout">Logout</button>
+        <div class="profile-header">
+          <img
+            :src="user.profilePicture"
+            alt="User Profile Picture"
+            class="profile-picture"
+          />
+          <div class="user-info">
+            <h2 class="user-name">{{ user.name }}</h2>
+          </div>
+        </div>
+        <div class="profile-details">
+          <p class="profile-info"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="profile-info"><strong>Phone:</strong> {{ user.phone }}</p>
+          <p class="profile-info">
+            <strong>Joined:</strong> {{ formatDate(user.joinDate) }}
+          </p>
+          <button class="logout-button" @click="logout">Logout</button>
+        </div>
       </div>
 
       <!-- Membership Plan Section -->
@@ -50,12 +54,14 @@
       <div class="card mt-5">
         <div class="card-body">
           <h3 class="card-title">Settings</h3>
-          <button class="btn btn-outline-secondary mt-2">
-            Change Password
-          </button>
-          <button class="btn btn-outline-secondary mt-2">
-            Manage Notifications
-          </button>
+          <div class="settings-buttons">
+            <button class="btn btn-outline-secondary mt-2">
+              Change Password
+            </button>
+            <button class="btn btn-outline-secondary mt-2">
+              Manage Notifications
+            </button>
+          </div>
         </div>
       </div>
 
@@ -63,14 +69,16 @@
       <div class="card mt-5">
         <div class="card-body">
           <h3 class="card-title">Preferences</h3>
-          <label>
-            <input type="checkbox" v-model="userPreferences.darkMode" />
-            Dark Mode
-          </label>
-          <label class="mt-3">
-            <input type="checkbox" v-model="userPreferences.emailUpdates" />
-            Receive Email Updates
-          </label>
+          <div class="preferences">
+            <label class="preference-item">
+              <input type="checkbox" v-model="userPreferences.darkMode" />
+              Dark Mode
+            </label>
+            <label class="preference-item">
+              <input type="checkbox" v-model="userPreferences.emailUpdates" />
+              Receive Email Updates
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -90,17 +98,28 @@ export default {
   data() {
     return {
       user: {
-        name: 'John Doe',
-        email: 'johndoe@example.com',
-        profilePicture: 'https://via.placeholder.com/150', // Placeholder image, replace with actual
-        membershipStatus: 'Active Member',
-        joinDate: '2023-01-15',
+        name: '',
+        email: '',
+        phone: '',
+        profilePicture: 'https://via.placeholder.com/150', // Placeholder image, replace with actual if needed
+        joinDate: '',
       },
       userPreferences: {
         darkMode: false,
         emailUpdates: true,
       },
     }
+  },
+  created() {
+    // Fetch data from localStorage
+    this.user.name = localStorage.getItem('name') || 'User Name'
+    this.user.email = localStorage.getItem('email') || 'user@example.com'
+    this.user.phone = localStorage.getItem('phone') || 'Not provided'
+    this.user.joinDate =
+      localStorage.getItem('registrationDate') || '2024-11-01'
+    this.user.profilePicture =
+      localStorage.getItem('profilePicture') ||
+      'https://via.placeholder.com/150'
   },
   methods: {
     formatDate(dateString) {
@@ -112,12 +131,17 @@ export default {
         title: 'Logged Out!',
         text: 'You have been logged out successfully.',
         icon: 'success',
-        confirmButtonColor: '#ff4500', // Update to orange-red
+        confirmButtonColor: '#ff4500', // Orange-red
       }).then(() => {
         // Clear localStorage and redirect
         localStorage.removeItem('token')
         localStorage.removeItem('role')
         localStorage.removeItem('idUser')
+        localStorage.removeItem('name')
+        localStorage.removeItem('email')
+        localStorage.removeItem('phone')
+        localStorage.removeItem('registrationDate')
+        localStorage.removeItem('profilePicture')
         this.$router.push('/') // Redirect to the home page
       })
     },
@@ -128,39 +152,66 @@ export default {
 <style scoped>
 .container {
   padding: 40px 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 900px;
+  margin: auto;
 }
 
 .page-title {
   font-size: 2.5rem;
   font-weight: bold;
+  color: #ff4500; /* Orange-red color */
   text-align: center;
-  color: #ff4500; /* Orange-red color for title */
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .profile-card {
   background-color: #fff;
   border-radius: 16px;
   padding: 30px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .profile-picture {
   border-radius: 50%;
-  width: 150px;
-  height: 150px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
   margin-bottom: 20px;
+  border: 4px solid #ff4500;
+}
+
+.user-info {
+  text-align: center;
 }
 
 .user-name {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 5px;
   color: #333;
+}
+
+.profile-membership {
+  font-size: 1.2rem;
+  color: #777;
+}
+
+.profile-details {
+  margin-top: 20px;
 }
 
 .profile-info {
@@ -174,28 +225,32 @@ export default {
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 25px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+  margin-top: 20px;
 }
 
 .logout-button:hover {
-  background-color: #e03b00; /* Darker shade on hover */
+  background-color: #e03b00;
+  transform: scale(1.05);
 }
 
 /* Card Styles */
 .card {
-  margin-top: 30px;
+  margin-top: 50px;
   border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
 }
 
 .card-title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #ff4500;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .activity-list {
@@ -209,19 +264,61 @@ export default {
 }
 
 /* Settings and Preferences */
-label {
-  display: block;
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 10px;
+.settings-buttons,
+.preferences {
+  display: flex;
+  flex-direction: column;
 }
 
-input[type='checkbox'] {
+.settings-buttons .btn,
+.preferences .preference-item {
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px 20px;
+  margin-bottom: 15px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.settings-buttons .btn:hover,
+.preferences .preference-item:hover {
+  background-color: #ff4500;
+  color: #fff;
+}
+
+.preferences .preference-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.preferences .preference-item input {
   margin-right: 10px;
 }
 
-button.btn {
-  font-size: 1rem;
-  padding: 10px 15px;
+@media (min-width: 768px) {
+  .profile-header {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+  }
+
+  .user-info {
+    margin-left: 30px;
+  }
+
+  .settings-buttons,
+  .preferences {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .settings-buttons .btn,
+  .preferences .preference-item {
+    width: auto;
+    flex: 1;
+    margin-bottom: 0;
+  }
 }
 </style>
