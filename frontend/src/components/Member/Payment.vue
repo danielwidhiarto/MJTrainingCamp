@@ -4,149 +4,200 @@
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
-          <div class="card shadow-lg p-5 payment-card">
+          <div class="card shadow-lg p-4 payment-card">
             <h1 class="text-center mb-4 page-title">Complete Your Payment</h1>
 
             <div v-if="packageDetails">
-              <h2 class="text-center text-accent mb-3">Package Overview</h2>
-              <div class="row mb-4">
-                <div class="col-md-6">
-                  <p>
-                    <strong>Package Name:</strong>
-                    {{ packageDetails.packageName }}
-                  </p>
+              <!-- Package Overview Section -->
+              <section class="package-overview mb-4">
+                <h2 class="section-title">Package Overview</h2>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div class="info-box">
+                      <strong>Package Name:</strong>
+                      <span>{{ packageDetails.packageName }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="info-box">
+                      <strong>Price:</strong>
+                      <span>Rp {{ packageDetails.price }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-6">
-                  <p><strong>Price:</strong> Rp {{ packageDetails.price }}</p>
-                </div>
-              </div>
 
-              <!-- Display additional details based on package type -->
-              <div v-if="packageDetails.type === 'Membership'" class="row mb-4">
-                <div class="col-md-4">
-                  <p>
-                    <strong>Duration:</strong>
-                    {{ packageDetails.duration }} month(s)
-                  </p>
+                <!-- Membership Specific Details -->
+                <div
+                  v-if="packageDetails.type === 'Membership'"
+                  class="membership-details"
+                >
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <div class="info-box">
+                        <strong>Duration:</strong>
+                        <span>{{ packageDetails.duration }} month(s)</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <div class="info-box">
+                        <strong>Start Date:</strong>
+                        <input
+                          type="date"
+                          id="startDate"
+                          class="form-control"
+                          v-model="startDate"
+                          :min="minStartDate"
+                          @change="updateEndDate"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <div class="info-box">
+                        <strong>End Date:</strong>
+                        <span>{{ endDate }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <p><strong>Start Date:</strong> {{ startDate }}</p>
-                </div>
-                <div class="col-md-4">
-                  <p><strong>End Date:</strong> {{ endDate }}</p>
-                </div>
-              </div>
 
-              <!-- New Section: Visit Package Details -->
-              <div v-if="packageDetails.type === 'Visit'" class="row mb-4">
-                <div class="col-md-6">
-                  <p>
-                    <strong>Number of Visits:</strong>
-                    {{ packageDetails.visitNumber }}
-                  </p>
+                <!-- Visit Package Specific Details -->
+                <div
+                  v-if="packageDetails.type === 'Visit'"
+                  class="visit-details"
+                >
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="info-box">
+                        <strong>Number of Visits:</strong>
+                        <span>{{ packageDetails.visitNumber }}</span>
+                      </div>
+                    </div>
+                    <!-- Add other visit package-specific details here if needed -->
+                  </div>
                 </div>
-                <!-- Add any other visit package-specific details here -->
-              </div>
-              <!-- End of Visit Package Details -->
+              </section>
+              <!-- End of Package Overview Section -->
 
-              <hr class="my-4" />
+              <hr />
 
-              <h4 class="text-center mt-4">Select Payment Method</h4>
-              <div class="d-flex justify-content-around my-3 payment-methods">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="paymentMethod"
-                    id="qris"
-                    value="QRIS"
-                    v-model="selectedPaymentMethod"
-                    aria-labelledby="qris-label"
+              <!-- Payment Method Selection Section -->
+              <section class="payment-method mb-4">
+                <h2 class="section-title">Select Payment Method</h2>
+                <div class="d-flex justify-content-around my-3">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="paymentMethod"
+                      id="qris"
+                      value="QRIS"
+                      v-model="selectedPaymentMethod"
+                      aria-labelledby="qris-label"
+                    />
+                    <label class="form-check-label" for="qris" id="qris-label">
+                      QRIS
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="paymentMethod"
+                      id="bank"
+                      value="Bank Transfer"
+                      v-model="selectedPaymentMethod"
+                      aria-labelledby="bank-label"
+                    />
+                    <label class="form-check-label" for="bank" id="bank-label">
+                      Bank Transfer
+                    </label>
+                  </div>
+                </div>
+
+                <!-- QRIS Payment Details -->
+                <div
+                  v-if="selectedPaymentMethod === 'QRIS'"
+                  class="payment-details"
+                >
+                  <h5>Scan QR Code to Pay</h5>
+                  <img
+                    src="../../assets/qris.png"
+                    alt="QR Code"
+                    class="img-fluid qris-img mt-3"
+                    loading="lazy"
                   />
-                  <label class="form-check-label" for="qris" id="qris-label"
-                    >QRIS</label
-                  >
                 </div>
-                <div class="form-check">
+
+                <!-- Bank Transfer Payment Details -->
+                <div
+                  v-if="selectedPaymentMethod === 'Bank Transfer'"
+                  class="payment-details"
+                >
+                  <h5>Bank Transfer Details</h5>
+                  <ul class="list-unstyled mt-3">
+                    <li><strong>Bank:</strong> BCA</li>
+                    <li><strong>Account Number:</strong> 0661749406</li>
+                    <li><strong>Account Name:</strong> Your Company Name</li>
+                  </ul>
+                </div>
+              </section>
+              <!-- End of Payment Method Selection Section -->
+
+              <hr />
+
+              <!-- Payment Proof Upload Section -->
+              <section class="payment-proof mb-4">
+                <h2 class="section-title">Upload Payment Proof</h2>
+                <div class="form-group">
+                  <label for="paymentProof" class="form-label visually-hidden"
+                    >Upload Payment Proof</label
+                  >
                   <input
-                    class="form-check-input"
-                    type="radio"
-                    name="paymentMethod"
-                    id="bank"
-                    value="Bank Transfer"
-                    v-model="selectedPaymentMethod"
-                    aria-labelledby="bank-label"
+                    type="file"
+                    id="paymentProof"
+                    class="form-control"
+                    @change="handleFileUpload"
+                    aria-label="Upload Payment Proof"
+                    accept="image/*"
                   />
-                  <label class="form-check-label" for="bank" id="bank-label"
-                    >Bank Transfer</label
-                  >
                 </div>
-              </div>
 
-              <div
-                v-if="selectedPaymentMethod === 'QRIS'"
-                class="text-center mt-3"
-              >
-                <h5>Scan QR Code to Pay</h5>
-                <img
-                  src="../../assets/qris.png"
-                  alt="QR Code"
-                  class="img-fluid qris-img"
-                  loading="lazy"
-                />
-              </div>
+                <!-- Image Preview -->
+                <div
+                  v-if="paymentProofPreview"
+                  class="image-preview mt-3 text-center"
+                >
+                  <h5>Preview of Uploaded Payment Proof:</h5>
+                  <img
+                    :src="paymentProofPreview"
+                    alt="Payment Proof Preview"
+                    class="img-fluid preview-img mt-2"
+                  />
+                </div>
+              </section>
+              <!-- End of Payment Proof Upload Section -->
 
-              <div
-                v-if="selectedPaymentMethod === 'Bank Transfer'"
-                class="mt-4"
-              >
-                <h5>Bank Transfer Details</h5>
-                <p><strong>Bank:</strong> BCA</p>
-                <p><strong>Account Number:</strong> 0661749406</p>
-                <p><strong>Account Name:</strong> Your Company Name</p>
-              </div>
-
-              <hr class="my-4" />
-
-              <h4 class="text-center mt-4">Upload Payment Proof</h4>
-              <div class="form-group">
-                <input
-                  type="file"
-                  class="form-control"
-                  @change="handleFileUpload"
-                  aria-label="Upload Payment Proof"
-                  accept="image/*"
-                />
-              </div>
-
-              <!-- Image Preview Section -->
-              <div
-                v-if="paymentProofPreview"
-                class="image-preview mt-3 text-center"
-              >
-                <h5>Preview of Uploaded Payment Proof:</h5>
-                <img
-                  :src="paymentProofPreview"
-                  alt="Payment Proof Preview"
-                  class="img-fluid preview-img"
-                />
-              </div>
-              <!-- End of Image Preview Section -->
-
-              <div
-                class="d-flex justify-content-between align-items-center mt-4"
+              <!-- Total Payment and Proceed Button Section -->
+              <section
+                class="total-payment d-flex justify-content-between align-items-center mt-4"
               >
                 <h4>Total Payment: Rp {{ packageDetails.price }}</h4>
                 <button
-                  class="btn btn-success proceed-button"
-                  :disabled="!paymentProof"
+                  class="btn proceed-button"
+                  :disabled="
+                    !paymentProof ||
+                    (packageDetails.type === 'Membership' && !startDate)
+                  "
                   @click="processPayment"
                 >
                   Proceed to Payment
                 </button>
-              </div>
+              </section>
+              <!-- End of Total Payment and Proceed Button Section -->
             </div>
 
+            <!-- Loading State -->
             <div v-else class="text-center mt-5">
               <p>Loading package details...</p>
             </div>
@@ -175,10 +226,12 @@ export default {
     const packageDetails = ref(null)
     const selectedPaymentMethod = ref('')
     const paymentProof = ref(null)
-    const paymentProofPreview = ref(null) // New Ref for Image Preview
+    const paymentProofPreview = ref(null)
     const startDate = ref('')
     const endDate = ref('')
-    const visitNumber = ref(0) // New Ref for Visit Number (if needed)
+    const visitNumber = ref(0)
+
+    const minStartDate = ref(dayjs().format('YYYY-MM-DD')) // Minimum selectable date is today
 
     let previousObjectURL = null // To keep track of the previous object URL
 
@@ -204,16 +257,11 @@ export default {
         packageDetails.value = response.data
 
         if (packageDetails.value.type === 'Membership') {
-          const { startDate: start, endDate: end } = calculateDates(
-            packageDetails.value.duration,
-          )
-          startDate.value = start
-          endDate.value = end
+          // Wait for user to select start date
         }
 
         // If the package is a VisitPackage, you might want to set visitNumber here
         if (packageDetails.value.type === 'Visit') {
-          // Assuming the packageDetails contains 'visitNumber', otherwise adjust accordingly
           visitNumber.value = packageDetails.value.visitNumber || 1
         }
       } catch (error) {
@@ -222,10 +270,18 @@ export default {
       }
     }
 
-    const calculateDates = duration => {
-      const start = dayjs().format('YYYY-MM-DD')
-      const end = dayjs().add(duration, 'month').format('YYYY-MM-DD')
-      return { startDate: start, endDate: end }
+    const calculateEndDate = start => {
+      return dayjs(start)
+        .add(packageDetails.value.duration, 'month')
+        .format('YYYY-MM-DD')
+    }
+
+    const updateEndDate = () => {
+      if (startDate.value) {
+        endDate.value = calculateEndDate(startDate.value)
+      } else {
+        endDate.value = ''
+      }
     }
 
     const handleFileUpload = event => {
@@ -251,6 +307,15 @@ export default {
     const processPayment = async () => {
       if (!selectedPaymentMethod.value) {
         Swal.fire('Error', 'Please select a payment method.', 'error')
+        return
+      }
+
+      if (packageDetails.value.type === 'Membership' && !startDate.value) {
+        Swal.fire(
+          'Error',
+          'Please select a start date for your membership.',
+          'error',
+        )
         return
       }
 
@@ -325,12 +390,14 @@ export default {
       packageDetails,
       selectedPaymentMethod,
       paymentProof,
-      paymentProofPreview, // Expose the preview ref
+      paymentProofPreview,
       startDate,
       endDate,
-      visitNumber, // Expose visitNumber
+      visitNumber,
       handleFileUpload,
       processPayment,
+      minStartDate,
+      updateEndDate,
     }
   },
 }
@@ -339,62 +406,143 @@ export default {
 <style scoped>
 /* General container styling */
 .container {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: auto;
   background-color: #f8f9fa;
-  text-align: center;
+  border-radius: 12px;
 }
 
-/* Card styling */
+/* Payment Card Styling */
 .payment-card {
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Page title */
+/* Page Title Styling */
 .page-title {
   font-size: 2.5rem;
-  font-weight: bold;
-  color: #000;
+  font-weight: 700;
+  color: #000; /* Black color for consistency */
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #000; /* Black color to match page title */
   margin-bottom: 20px;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 10px;
 }
 
-/* Payment method styling */
-.payment-methods .form-check-input {
-  width: 20px;
-  height: 20px;
+/* Info Box Styling */
+.info-box {
+  background-color: #f0f0f0; /* Light grey background to differentiate sections */
+  padding: 15px;
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.payment-methods label {
-  font-size: 1.2rem;
+.info-box strong {
+  font-size: 1.1rem;
+  color: #000; /* Black for labels */
+}
+
+.info-box span {
+  font-size: 1rem;
+  color: #555; /* Dark grey for values */
+  margin-top: 5px;
+}
+
+/* Payment Method Styling */
+.payment-method .form-check {
+  font-size: 1.1rem;
+}
+
+.payment-method .form-check-label {
   margin-left: 5px;
+  color: #000; /* Black labels */
 }
 
-/* QRIS Image */
+/* QRIS Image Styling */
 .qris-img {
-  max-width: 300px;
-  margin-top: 10px;
+  max-width: 250px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f8f9fa;
 }
 
-/* Preview Image */
+/* Payment Details Styling */
+.payment-details h5 {
+  font-size: 1.25rem;
+  color: #000; /* Black color */
+}
+
+.payment-details ul {
+  font-size: 1rem;
+  color: #555; /* Dark grey for text */
+}
+
+.payment-details ul li {
+  margin-bottom: 8px;
+}
+
+/* Payment Proof Upload Styling */
+.payment-proof .form-control[type='file'] {
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.3s;
+  cursor: pointer;
+  background-color: #f8f9fa;
+}
+
+.payment-proof .form-control[type='file']:hover {
+  border-color: #ff4500; /* Highlight border with accent color on hover */
+}
+
+/* Image Preview Styling */
+.image-preview h5 {
+  font-size: 1.1rem;
+  color: #000; /* Black color */
+}
+
 .preview-img {
   max-width: 100%;
   height: auto;
-  border: 2px solid #ddd;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
   padding: 5px;
+  margin-top: 10px;
 }
 
-/* Proceed button styling */
-.proceed-button {
-  background-color: #ff4500; /* Orange-red button color */
-  color: white;
-  border: none;
-  padding: 12px 24px;
+/* Total Payment and Button Styling */
+.total-payment {
+  background-color: #f0f0f0; /* Light grey background */
+  padding: 20px;
   border-radius: 8px;
-  font-size: 1.2rem;
-  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-payment h4 {
+  font-size: 1.5rem;
+  color: #000; /* Black color */
+}
+
+.proceed-button {
+  background-color: #ff4500; /* Matching accent color */
+  color: #ffffff; /* White text */
+  padding: 10px 25px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s;
   cursor: pointer;
 }
 
@@ -407,86 +555,70 @@ export default {
   cursor: not-allowed;
 }
 
-/* Input file styling */
-.form-control[type='file'] {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 1rem;
-  color: #555;
-  margin-top: 10px;
-  transition: border-color 0.3s;
-}
-
-.form-control[type='file']:hover {
-  border-color: #ff4500; /* Highlight border on hover */
-}
-
-/* Total Payment */
-h4 {
-  font-size: 1.5rem;
-  color: #000;
-  font-weight: bold;
-}
-
-/* Image Preview Section */
-.image-preview {
-  margin-top: 20px;
-}
-
-.image-preview h5 {
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.preview-img {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 5px;
-}
-
-/* Responsive Design */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .payment-card {
-    padding: 20px;
-  }
-
   .page-title {
     font-size: 2rem;
   }
 
-  .proceed-button {
-    padding: 10px 20px;
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .info-box strong {
     font-size: 1rem;
   }
 
-  .payment-methods label {
+  .info-box span {
+    font-size: 0.95rem;
+  }
+
+  .payment-method .form-check {
+    font-size: 1rem;
+  }
+
+  .qris-img {
+    max-width: 200px;
+  }
+
+  .proceed-button {
+    padding: 8px 20px;
     font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .qris-img {
-    max-width: 250px;
-  }
-
-  .payment-card {
-    padding: 15px;
-  }
-
   .page-title {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .info-box {
+    padding: 10px;
+  }
+
+  .info-box strong {
+    font-size: 0.95rem;
+  }
+
+  .info-box span {
+    font-size: 0.9rem;
+  }
+
+  .payment-method .form-check {
+    font-size: 0.95rem;
+  }
+
+  .qris-img {
+    max-width: 150px;
   }
 
   .proceed-button {
-    padding: 8px 18px;
-    font-size: 1rem;
-  }
-
-  h4 {
-    font-size: 1.2rem;
+    padding: 6px 15px;
+    font-size: 0.95rem;
   }
 }
 </style>
