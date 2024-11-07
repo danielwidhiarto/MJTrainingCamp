@@ -3,6 +3,7 @@ package com.project.bookMembership.transaction;
 import java.util.List;
 import java.util.Optional;
 
+import com.project.bookMembership.DTO.GetUserTransactionRequest;
 import com.project.bookMembership.DTO.UpdateTransactionStatusRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,14 @@ public class TransactionController {
 
             return ResponseEntity.ok(transactionResponses);
         }
+    }
+    @PostMapping("/getByUser")
+    public ResponseEntity<?> getTransactionByUser(@RequestBody GetUserTransactionRequest request) {
+
+            List<GetTransactionResponse> transactionResponse = transactionService.getByUser(request);
+
+            return ResponseEntity.ok(transactionResponse);
+
     }
 
     @PatchMapping("/update/{id}")

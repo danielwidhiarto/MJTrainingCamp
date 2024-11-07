@@ -1,15 +1,17 @@
 package com.project.bookMembership.transaction;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 
+import com.project.bookMembership.DTO.GetUserTransactionRequest;
+import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.membership.Membership;
 import com.project.bookMembership.membership.MembershipRepo;
 import com.project.bookMembership.user.User;
+import com.project.bookMembership.user.UserRepo;
 import com.project.bookMembership.visitPackage.VisitPackage;
 import com.project.bookMembership.visitPackage.VisitPackageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,17 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepo transactionRepository;
     private final MembershipRepo membershipRepo;
     private final VisitPackageRepo visitPackageRepo;
+    private final UserRepo userRepo;
+    private final JwtService jwtService;
     @Autowired
-    public TransactionServiceImpl(TransactionRepo transactionRepository,VisitPackageRepo visitPackageRepo,MembershipRepo membershipRepo) {
+    public TransactionServiceImpl(TransactionRepo transactionRepository,VisitPackageRepo visitPackageRepo,MembershipRepo membershipRepo
+    ,UserRepo userRepo
+    ,JwtService jwtService) {
         this.transactionRepository = transactionRepository;
         this.visitPackageRepo = visitPackageRepo;
         this.membershipRepo = membershipRepo;
+        this.userRepo = userRepo;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -82,6 +90,46 @@ public class TransactionServiceImpl implements TransactionService {
         });
     }
 
+    @Override
+    public List<GetTransactionResponse> getByUser(GetUserTransactionRequest request) {
+        String emailz = jwtService.extractUsername(request.getToken());
+        User user = userRepo.findByEmail(emailz)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long membershipId =user.getIdUser();
+
+        List<Transaction> transactions = transactionRepository.findByUser(membershipId);
+
+        return transactions.stream().map(tx -> {
+            GetTransactionResponse response = new GetTransactionResponse();
+            response.setIdTransaction(tx.getIdTransaction());
+            response.setPaymentMethod(tx.getPaymentMethod());
+            response.setPaymentType(tx.getPaymentType());
+            response.setTransactionPrice(tx.getTransactionPrice());
+            response.setPaymentStatus(tx.getPaymentStatus());
+
+            if (tx.getMembership() != null) {
+                Membership member = tx.getMembership();
+                User users = member.getUser();
+
+                response.setMemberName(users.getName());
+                response.setMembershipId(member.getIdMember());
+
+            }
+
+            // Handle VisitPackage if it is not null
+            if (tx.getVisitPackage() != null) {
+                VisitPackage visitPackage = tx.getVisitPackage();
+                User visitUser = visitPackage.getUser();
+                if (visitUser != null) {
+                    response.setMemberName(visitUser.getName());
+                }
+                response.setVisitId(visitPackage.getIdVisit());
+            }
+            response.setBuktiTransfer(null);
+            return response;
+        }).collect(Collectors.toList());
+    }
 
 
     @Override
