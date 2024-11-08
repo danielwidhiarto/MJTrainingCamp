@@ -7,3 +7,6 @@ bikin transaction history page for member
 both
 
 99.bikin upload profile
+bikin notes untuk status transaksi
+bikin di class history pakai visit atau member
+
