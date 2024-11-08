@@ -68,6 +68,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_USER'] },
   },
   {
+    path: '/member/transaction-history',
+    name: 'TransactionHistory',
+    component: () => import('../components/Member/TransactionHistory.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_USER'] },
+  },
+  {
     path: '/member/profile-page',
     name: 'ProfilePage',
     component: () => import('../components/Member/ProfilePage.vue'),

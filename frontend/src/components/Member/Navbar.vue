@@ -18,6 +18,9 @@
       <router-link to="/member/buy-membership">Buy Membership</router-link>
       <router-link to="/member/view-class">View Class</router-link>
       <router-link to="/member/class-history">Class History</router-link>
+      <router-link to="/member/transaction-history"
+        >Transaction History</router-link
+      >
     </div>
 
     <!-- Profile icon redirects to Profile Page -->
