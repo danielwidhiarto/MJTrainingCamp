@@ -2,6 +2,7 @@ ozann
 
 eman
 bikin notif error belum di verifikasi pas book 
+bikin transaction history page for member
 
 both
 
