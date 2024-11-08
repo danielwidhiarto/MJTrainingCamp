@@ -25,7 +25,6 @@
                 <th>Package Type</th>
                 <th>Payment Method</th>
                 <th>Price</th>
-                <th>Duration (Months)</th>
                 <th>Payment Status</th>
                 <th>Actions</th>
               </tr>
@@ -38,9 +37,8 @@
               >
                 <td>{{ transaction.idTransaction }}</td>
                 <td>{{ transaction.paymentType }}</td>
-                <td>{{ transaction.paymentMethod }}</td>
+                <td>{{ formatPaymentMethod(transaction.paymentMethod) }}</td>
                 <td>{{ formatPrice(transaction.transactionPrice) }}</td>
-                <td>{{ transaction.duration }}</td>
                 <td>{{ transaction.paymentStatus }}</td>
                 <td>
                   <button
@@ -87,13 +85,17 @@
               <strong>Price:</strong>
               {{ formatPrice(selectedTransaction.transactionPrice) }}
             </p>
-            <p>
+            <p v-if="selectedTransaction.paymentType === 'Visit'">
+              <strong>Visit Number:</strong>
+              {{ selectedTransaction.visitDetail.visitNumber }} Quota
+            </p>
+            <p v-else-if="selectedTransaction.paymentType === 'Membership'">
               <strong>Duration:</strong>
-              {{ selectedTransaction.duration }} months
+              {{ selectedTransaction.membershipDetail.duration }} Month
             </p>
             <p>
               <strong>Payment Method:</strong>
-              {{ selectedTransaction.paymentMethod }}
+              {{ formatPaymentMethod(selectedTransaction.paymentMethod) }}
             </p>
 
             <div
@@ -321,6 +323,23 @@ export default {
       }).format(price)
     }
 
+    /**
+     * Format payment method for better readability
+     * @param {String} method - Payment method
+     * @returns {String} - Formatted payment method
+     */
+    const formatPaymentMethod = method => {
+      switch (method) {
+        case 'credit_card':
+          return 'Credit Card'
+        case 'bank_transfer':
+          return 'Bank Transfer'
+        // Add more cases as needed
+        default:
+          return method
+      }
+    }
+
     onMounted(() => {
       fetchTransactions()
     })
@@ -340,6 +359,7 @@ export default {
       toggleSort,
       debouncedToggleSort,
       formatPrice,
+      formatPaymentMethod,
     }
   },
 }
