@@ -9,8 +9,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MembershipRepo extends JpaRepository<Membership,Long>{
-
-    @Query("SELECT m FROM Membership m WHERE m.user.idUser = :userId")
+    @Query("""
+    SELECT m FROM Membership m 
+    WHERE m.user.idUser = :userId 
+    AND m.transaction.paymentStatus != 'DECLINED'
+    """)
     List<Membership> findByUserId(@Param("userId") Long userId);
-
 }

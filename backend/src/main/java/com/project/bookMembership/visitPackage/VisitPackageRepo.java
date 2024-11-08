@@ -11,7 +11,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VisitPackageRepo extends JpaRepository<VisitPackage,Long> {
 
-    
-    @Query("SELECT m FROM VisitPackage m WHERE m.user.idUser = :userId")
+
+    @Query("""
+    SELECT v FROM VisitPackage v
+    JOIN v.transaction t
+    WHERE v.user.idUser = :userId
+    AND t.paymentStatus != 'DECLINED'
+""")
     List<VisitPackage> findByUserId(@Param("userId") Long userId);
-} 
+}
