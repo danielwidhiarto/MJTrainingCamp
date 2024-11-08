@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LazyNavbar />
+    <Navbar />
     <div class="container mx-auto p-6 mt-6">
       <h1 class="text-center mb-6">Manage Member Transactions</h1>
 
