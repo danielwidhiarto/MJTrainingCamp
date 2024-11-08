@@ -8,5 +8,6 @@ both
 
 99.bikin upload profile
 bikin notes untuk status transaksi
+bikin logo whatsapp dibawah untuk redirect ke wa
 bikin di class history pakai visit atau member
 
