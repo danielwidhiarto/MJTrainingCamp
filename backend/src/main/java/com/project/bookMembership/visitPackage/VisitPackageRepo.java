@@ -16,7 +16,7 @@ public interface VisitPackageRepo extends JpaRepository<VisitPackage,Long> {
     SELECT v FROM VisitPackage v
     JOIN v.transaction t
     WHERE v.user.idUser = :userId
-    AND t.paymentStatus != 'DECLINED'
+    AND t.paymentStatus = 'VERIFIED'
 """)
     List<VisitPackage> findByUserId(@Param("userId") Long userId);
 }
