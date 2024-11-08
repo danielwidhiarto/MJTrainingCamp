@@ -78,7 +78,9 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
             boolean hasAvailableVisit = false;
             for (VisitPackage visitPackage : visitPackages) {
-                if (visitPackage.getVisitNumber() > visitPackage.getVisitUsed()) {
+                // Check if visit package payment is "VERIFIED" and has available visits
+                if ("VERIFIED".equalsIgnoreCase(visitPackage.getTransaction().getPaymentStatus()) &&
+                        visitPackage.getVisitNumber() > visitPackage.getVisitUsed()) {
                     hasAvailableVisit = true;
                     visitPackage.incrementUsedVisits();
                     visitRepo.save(visitPackage);
@@ -128,7 +130,10 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         // Check if the user has available visits
         List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
         boolean validVisit = visitPackages.stream()
-                .anyMatch(visitPackage -> visitPackage.getVisitNumber() > visitPackage.getVisitUsed());
+                .anyMatch(visitPackage -> visitPackage.getVisitNumber() > visitPackage.getVisitUsed()
+
+
+                );
 
         // Create and populate response
         ClassBookingStatusResponse response = new ClassBookingStatusResponse();
