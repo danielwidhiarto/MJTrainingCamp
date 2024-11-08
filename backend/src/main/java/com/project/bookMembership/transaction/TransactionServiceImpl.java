@@ -139,7 +139,6 @@ public class TransactionServiceImpl implements TransactionService {
                 response.setMembershipId(member.getIdMember());
 
             }
-
             // Handle VisitPackage if it is not null
             if (tx.getVisitPackage() != null) {
                 VisitPackage visitPackage = tx.getVisitPackage();
