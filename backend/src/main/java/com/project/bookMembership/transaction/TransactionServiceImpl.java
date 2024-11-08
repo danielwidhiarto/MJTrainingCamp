@@ -7,6 +7,8 @@ import java.util.zip.DataFormatException;
 
 
 import com.project.bookMembership.DTO.GetUserTransactionRequest;
+import com.project.bookMembership.DTO.MembershipDetailResponse;
+import com.project.bookMembership.DTO.VisitDetailResponse;
 import com.project.bookMembership.config.JwtService;
 import com.project.bookMembership.membership.Membership;
 import com.project.bookMembership.membership.MembershipRepo;
@@ -63,20 +65,41 @@ public class TransactionServiceImpl implements TransactionService {
                 Membership member = tx.getMembership();
                 User user = member.getUser();
 
-                    response.setMemberName(user.getName());
-                    response.setMembershipId(member.getIdMember());
+                // Create MembershipDetailResponse and set fields
+                MembershipDetailResponse membershipDetail = new MembershipDetailResponse();
+                membershipDetail.setIdMember(member.getIdMember());
+                membershipDetail.setDuration(member.getDuration());
+                membershipDetail.setEndDate(member.getEndDate().toString());
+                membershipDetail.setPrice(member.getPrice());
+                membershipDetail.setStartDate(member.getStartDate().toString());
+                membershipDetail.setTransactionId(member.getTransaction().getIdTransaction());
+                membershipDetail.setUserId(user.getIdUser());
 
+                // Set MembershipDetailResponse in GetTransactionResponse
+                response.setMembershipDetail(membershipDetail);
+                response.setMemberName(user.getName());
+                response.setMembershipId(member.getIdMember());
             }
-
-            // Handle VisitPackage if it is not null
             if (tx.getVisitPackage() != null) {
                 VisitPackage visitPackage = tx.getVisitPackage();
                 User visitUser = visitPackage.getUser();
+
+                // Set the member name from visit package if available
                 if (visitUser != null) {
                     response.setMemberName(visitUser.getName());
                 }
 
+                // Create VisitDetailResponse and set fields
+                VisitDetailResponse visitDetail = new VisitDetailResponse();
+                visitDetail.setIdVisit(visitPackage.getIdVisit());
+                visitDetail.setPrice(visitPackage.getPrice());
+                visitDetail.setVisitNumber(visitPackage.getVisitNumber());
+                visitDetail.setVisitUsed(visitPackage.getVisitUsed());
+                visitDetail.setTransactionId(visitPackage.getTransaction().getIdTransaction());
+                visitDetail.setUserId(visitUser != null ? visitUser.getIdUser() : null);
 
+                // Set VisitDetailResponse in GetTransactionResponse
+                response.setVisitDetail(visitDetail);
                 response.setVisitId(visitPackage.getIdVisit());
             }
 
@@ -133,7 +156,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public List<GetTransactionResponse> getAllTransactions() {
+    public List<GetTransactionResponse>  getAllTransactions() {
         List<Transaction> transactions = transactionRepository.findAll();
 
         return transactions.stream().map(tx -> {

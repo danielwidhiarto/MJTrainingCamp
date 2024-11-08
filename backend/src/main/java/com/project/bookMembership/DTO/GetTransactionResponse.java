@@ -18,6 +18,8 @@ public class GetTransactionResponse {
     private String paymentStatus;
     private Long transactionPrice;
     private Long membershipId;
+    private  MembershipDetailResponse membershipDetail;
+    private VisitDetailResponse visitDetail;
     private Long visitId;
     private String memberName;
     private byte[] buktiTransfer;
