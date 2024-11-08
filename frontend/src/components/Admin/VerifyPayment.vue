@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Navbar />
+    <LazyNavbar />
     <div class="container mx-auto p-6 mt-6">
       <h1 class="text-center mb-6">Manage Member Transactions</h1>
 
@@ -41,8 +41,8 @@
                 <td>{{ formatPrice(transaction.transactionPrice) }}</td>
                 <td>{{ transaction.paymentStatus }}</td>
                 <td>
+                  <!-- Always show 'View Proof' button -->
                   <button
-                    v-if="!isVerifiedOrDeclined(transaction.paymentStatus)"
                     class="btn btn-info btn-sm"
                     @click="showDetails(transaction.idTransaction)"
                   >
@@ -74,6 +74,10 @@
           <!-- Transaction Details -->
           <div v-else>
             <h5 class="text-center mb-4">Transaction Details</h5>
+            <p>
+              <strong>Transaction ID:</strong>
+              {{ selectedTransaction.idTransaction }}
+            </p>
             <p>
               <strong>Member Name:</strong> {{ selectedTransaction.memberName }}
             </p>
@@ -111,19 +115,32 @@
               />
             </div>
 
+            <!-- Conditionally show 'Accept' and 'Decline' buttons in modal if status is 'WAITING FOR APPROVAL' -->
             <div
-              v-if="!isVerifiedOrDeclined(selectedTransaction.paymentStatus)"
+              v-if="
+                selectedTransaction.paymentStatus === 'WAITING FOR APPROVAL'
+              "
               class="mt-4 d-flex justify-content-between"
             >
               <button
                 class="btn btn-danger"
-                @click="updateTransactionStatus('DECLINED')"
+                @click="
+                  updateTransactionStatus(
+                    selectedTransaction.idTransaction,
+                    'DECLINED',
+                  )
+                "
               >
                 Decline
               </button>
               <button
                 class="btn btn-success"
-                @click="updateTransactionStatus('VERIFIED')"
+                @click="
+                  updateTransactionStatus(
+                    selectedTransaction.idTransaction,
+                    'VERIFIED',
+                  )
+                "
               >
                 Accept
               </button>
@@ -167,7 +184,7 @@ export default {
     const filteredTransactions = computed(() => {
       if (showPendingOnly.value) {
         return transactions.value.filter(
-          t => t.paymentStatus !== 'VERIFIED' && t.paymentStatus !== 'DECLINED',
+          t => t.paymentStatus === 'WAITING FOR APPROVAL',
         )
       }
       return transactions.value
@@ -262,13 +279,14 @@ export default {
 
     /**
      * Update transaction status (VERIFIED or DECLINED)
+     * @param {Number} id - Transaction ID
      * @param {String} status - New status
      */
-    const updateTransactionStatus = async status => {
+    const updateTransactionStatus = async (id, status) => {
       try {
         const token = localStorage.getItem('token')
         await axios.patch(
-          `http://localhost:8081/api/v1/transaction/update/${selectedTransaction.value.idTransaction}`,
+          `http://localhost:8081/api/v1/transaction/update/${id}`,
           { transactionStatus: status },
           {
             headers: {
@@ -395,6 +413,33 @@ h1 {
 
 .table td {
   vertical-align: middle;
+}
+
+/* Loading Indicator Styling */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #ff4500;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Modal Styling */
@@ -537,5 +582,12 @@ h1 {
 .btn-secondary:hover {
   background-color: #5a6268;
   border-color: #545b62;
+}
+
+/* Alert Styling */
+.alert-danger {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ff4500;
 }
 </style>
