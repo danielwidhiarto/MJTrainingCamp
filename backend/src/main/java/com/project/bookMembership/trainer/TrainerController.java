@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.project.bookMembership.DTO.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Collectors;
 
-import com.project.bookMembership.DTO.TrainerRequest;
-import com.project.bookMembership.DTO.TrainerResponse;
-import com.project.bookMembership.DTO.TrainerScheduleRequest;
-import com.project.bookMembership.DTO.TrainerScheduleResponse;
 import com.project.bookMembership.auth.AuthenticationService;
 import com.project.bookMembership.classes.TrainingClass;
 import com.project.bookMembership.user.User;
@@ -46,23 +43,12 @@ public class TrainerController {
     }
 
     @PostMapping("/getschedule")
-    public ResponseEntity<List<TrainerScheduleResponse>> getSchedule(@RequestBody TrainerScheduleRequest trainerScheduleRequest) {
-        List<TrainingClass> trainingClasses = new  ArrayList<>();
-        trainingClasses= trainerService.getTrainerSchedule(trainerScheduleRequest); 
+    public ResponseEntity<List<GetClassResponse>> getSchedule(@RequestBody TrainerScheduleRequest trainerScheduleRequest) {
+        List<GetClassResponse> classResponses = new ArrayList<>();
+        classResponses= trainerService.getTrainerSchedule(trainerScheduleRequest);
 
-        List<TrainerScheduleResponse> responseList = trainingClasses.stream()
-        .map(trainingClass -> TrainerScheduleResponse.builder()
-                .idClass(trainingClass.getIdClass())
-                .className((trainingClass.getClassName()))
-                .classRequirement(trainingClass.getClassRequirement())
-                .classDate(trainingClass.getClassDate())
-                .classTime(trainingClass.getClassTime())
-                .classCapasity(trainingClass.getClassCapasity())
-                
-                .build())
-            .collect(Collectors.toList());
 
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(classResponses);
     }
 
     @GetMapping("/getall")
