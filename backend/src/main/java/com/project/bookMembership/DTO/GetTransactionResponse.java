@@ -16,6 +16,7 @@ public class GetTransactionResponse {
     private String paymentType;
     private String paymentMethod;
     private String paymentStatus;
+    private String paymentNotes;
     private Long transactionPrice;
     private Long membershipId;
     private  MembershipDetailResponse membershipDetail;
@@ -23,5 +24,6 @@ public class GetTransactionResponse {
     private Long visitId;
     private String memberName;
     private byte[] buktiTransfer;
+
 
 }
