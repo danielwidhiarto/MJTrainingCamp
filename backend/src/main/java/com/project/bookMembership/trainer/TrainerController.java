@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Collectors;
 
 import com.project.bookMembership.auth.AuthenticationService;
-import com.project.bookMembership.classes.TrainingClass;
+
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserService;
 
