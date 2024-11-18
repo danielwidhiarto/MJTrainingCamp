@@ -45,6 +45,7 @@ public class Transaction {
      private String paymentType;
     private String paymentMethod;
     private String paymentStatus;
+    private String paymentStatusNote;
     private Long transactionPrice;
 
     @Lob

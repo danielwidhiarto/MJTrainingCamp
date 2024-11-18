@@ -69,7 +69,7 @@ public class TransactionController {
     public ResponseEntity<?> updateTransactionStatus(@PathVariable Long id, @RequestBody UpdateTransactionStatusRequest updateRequest) {
         try {
             // Update the transaction status
-            transactionService.updateTransactionStatus(id, updateRequest.getTransactionStatus());
+            transactionService.updateTransactionStatus(id, updateRequest.getTransactionStatus(),updateRequest.getNotes());
             return ResponseEntity.ok("Transaction status updated successfully");
         } catch (RuntimeException ex) {
             // Handle the exception and return a BAD_REQUEST status with the error message

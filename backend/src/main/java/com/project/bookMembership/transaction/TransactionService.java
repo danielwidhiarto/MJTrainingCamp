@@ -11,5 +11,5 @@ public interface TransactionService {
     Optional<GetTransactionResponse> getById(Long id);
     List<GetTransactionResponse> getByUser(GetUserTransactionRequest request);
     List<GetTransactionResponse> getAllTransactions();
-    Transaction updateTransactionStatus(Long id, String newStatus);
+    Transaction updateTransactionStatus(Long id, String newStatus,String notes);
 }

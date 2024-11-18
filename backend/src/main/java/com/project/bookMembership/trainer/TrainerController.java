@@ -52,7 +52,7 @@ public class TrainerController {
     }
 
     @GetMapping("/getall")
-public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
+    public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
     try {
         // Get all trainers
         List<Trainer> trainers = trainerService.getAll(); 
@@ -86,7 +86,5 @@ public ResponseEntity<List<TrainerResponse>> getAllTrainers() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Collections.emptyList()); // Or return an error message
     }
-}
-
- 
+ }
 }

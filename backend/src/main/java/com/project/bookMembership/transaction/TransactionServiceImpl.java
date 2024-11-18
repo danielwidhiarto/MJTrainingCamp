@@ -202,12 +202,14 @@ public class TransactionServiceImpl implements TransactionService {
             return response;
         }).collect(Collectors.toList());
     }
-    public Transaction updateTransactionStatus(Long id, String newStatus) {
+    public Transaction updateTransactionStatus(Long id, String newStatus,String notes) {
         Optional<Transaction> optionalTransaction = transactionRepository.findById(id);
 
         if (optionalTransaction.isPresent()) {
             Transaction transaction = optionalTransaction.get();
             transaction.setPaymentStatus(newStatus);
+            transaction.setPaymentStatusNote(notes);
+
             return transactionRepository.save(transaction);
         } else {
             throw new RuntimeException("Transaction not found with ID: " + id);

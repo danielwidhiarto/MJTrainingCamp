@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class UpdateTransactionStatusRequest {
 
     private String transactionStatus;
+    private String notes;
 
 
 }
