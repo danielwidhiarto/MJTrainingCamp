@@ -47,7 +47,7 @@ public Membership save(MembershipRequest membershipRequest) {
             .transactionPrice(membershipRequest.getTransactionPrice())
             .buktiTransfer(ImageUtils.compressImage(membershipRequest.getBuktiTransfer().getBytes()))
             .build();
-
+            System.out.println("prinline sini " + ImageUtils.compressImage(membershipRequest.getBuktiTransfer().getBytes()));
     transactionService.save(transaction);
 
     Membership membership = Membership.builder()
