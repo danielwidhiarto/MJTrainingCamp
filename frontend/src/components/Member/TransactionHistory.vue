@@ -179,7 +179,7 @@ export default {
         }
 
         const response = await axios.post(
-          'http://localhost:8081/api/v1/transaction/getByUser',
+          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/getByUser',
           {
             token: token, // Include token in the request body
           },
@@ -234,7 +234,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://localhost:8081/api/v1/transaction/get?id=${id}`,
+          `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/get?id=${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
