@@ -104,8 +104,6 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-
         // Get the training class information
         Long idTrainingClass = classDetailRequest.getIdClass();
         TrainingClass trainingClass = trainingClassRepo.findById(idTrainingClass)
@@ -182,7 +180,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if the user has an active membership for the class date
+
         List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
 
         // Check if the user has available visits

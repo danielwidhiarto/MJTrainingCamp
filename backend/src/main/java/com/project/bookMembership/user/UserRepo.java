@@ -12,7 +12,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     List<User> findByRole(Role role);
 
-    @Query(value = "SELECT * FROM user WHERE id_trainer = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM user_table WHERE id_trainer = ?1", nativeQuery = true)
     Optional<User> findByIdTrainer(Long idTrainer);
 }   
 

@@ -48,7 +48,6 @@ public class Transaction {
     private String paymentStatusNote;
     private Long transactionPrice;
 
-    @Lob
-    @Column(name = "bukti_transfer", columnDefinition = "LONGBLOB")
+    @Column(name = "bukti_transfer", columnDefinition = "bytea")
     private byte[] buktiTransfer;
 }

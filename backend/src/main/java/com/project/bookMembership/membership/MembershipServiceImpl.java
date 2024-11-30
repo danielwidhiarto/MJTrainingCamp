@@ -48,6 +48,8 @@ public Membership save(MembershipRequest membershipRequest) {
             .buktiTransfer(ImageUtils.compressImage(membershipRequest.getBuktiTransfer().getBytes()))
             .build();
 
+            System.out.println("Transaction bukti_transfer (length): " + transaction.getBuktiTransfer());
+
     transactionService.save(transaction);
 
     Membership membership = Membership.builder()

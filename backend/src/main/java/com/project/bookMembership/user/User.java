@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "userTable")
 public class User implements UserDetails {
     
     @Id
