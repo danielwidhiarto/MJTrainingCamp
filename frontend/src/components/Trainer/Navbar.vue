@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="../assets/logo.jpg" alt="Logo" class="logo" />
+      <!-- <img src="../assets/logo.jpg" alt="Logo" class="logo" /> -->
     </div>
 
     <!-- Hamburger Menu for Mobile -->
@@ -21,11 +21,11 @@
     <!-- Profile icon redirects to Profile Page -->
     <div class="navbar-right">
       <router-link to="/trainer/profile-page">
-        <img
+        <!-- <img
           src="../assets/profile-icon.png"
           alt="Profile"
           class="profile-icon"
-        />
+        /> -->
       </router-link>
     </div>
   </nav>
