@@ -209,7 +209,7 @@ export default {
         }
 
         const response = await axios.get(
-          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/get',
+          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/get',
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -246,7 +246,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/get?id=${id}`,
+          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/get?id=${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -286,7 +286,7 @@ export default {
       try {
         const token = localStorage.getItem('token')
         await axios.patch(
-          `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/update/${id}`,
+          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/transaction/update/${id}`,
           { transactionStatus: status },
           {
             headers: {

@@ -242,7 +242,7 @@ export default {
     async fetchTrainers() {
       try {
         const response = await axios.get(
-          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/getall',
+          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/getall',
           {
             headers: {
               Authorization: `Bearer ${this.token}`,
@@ -376,7 +376,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/add',
+          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/add',
           this.currentTrainer,
           {
             headers: {
@@ -430,7 +430,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/update/${this.currentTrainer.idTrainer}`,
+          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/update/${this.currentTrainer.idTrainer}`,
           this.currentTrainer,
           {
             headers: {
@@ -477,7 +477,7 @@ export default {
         if (result.isConfirmed) {
           try {
             await axios.delete(
-              `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/delete/${idTrainer}`,
+              `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/delete/${idTrainer}`,
               {
                 headers: {
                   Authorization: `Bearer ${this.token}`,

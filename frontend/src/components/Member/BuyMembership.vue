@@ -78,7 +78,7 @@ export default {
         }
 
         const response = await axios.get(
-          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get',
+          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get',
           {
             headers: {
               Authorization: `Bearer ${token}`,
