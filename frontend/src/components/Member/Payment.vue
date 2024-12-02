@@ -251,7 +251,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get?id=${idPackage}`,
+          `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get?id=${idPackage}`,
           { headers: { Authorization: `Bearer ${token}` } },
         )
         packageDetails.value = response.data
@@ -342,7 +342,7 @@ export default {
         let response
         if (packageDetails.value.type === 'Membership') {
           response = await axios.post(
-            'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/membership/buy',
+            'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/membership/buy',
             formData,
             {
               headers: {
@@ -353,7 +353,7 @@ export default {
           )
         } else if (packageDetails.value.type === 'Visit') {
           response = await axios.post(
-            'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/visitpackage/buy',
+            'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/visitpackage/buy',
             formData,
             {
               headers: {

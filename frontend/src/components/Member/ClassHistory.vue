@@ -105,7 +105,7 @@ export default {
 
         // Step 2: Make the API request with the token in headers and body
         const response = await axios.post(
-          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getHistory',
+          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getHistory',
           {
             token: token, // Include token in the request body
           },

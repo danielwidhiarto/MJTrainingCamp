@@ -302,7 +302,7 @@ export default {
     async fetchTrainers() {
       try {
         const response = await axios.get(
-          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/getall',
+          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/getall',
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -318,7 +318,7 @@ export default {
     async fetchClasses() {
       try {
         const response = await axios.get(
-          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getClasses',
+          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getClasses',
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -451,7 +451,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/add',
+          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/add',
           this.currentClass,
           {
             headers: {
@@ -493,7 +493,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/update/${this.currentClass.idClass}`,
+          `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/update/${this.currentClass.idClass}`,
           this.currentClass,
           {
             headers: {
@@ -538,7 +538,7 @@ export default {
         if (result.isConfirmed) {
           try {
             await axios.delete(
-              `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/delete/${idClass}`,
+              `http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/delete/${idClass}`,
               {
                 headers: {
                   Authorization: `Bearer ${this.token}`,

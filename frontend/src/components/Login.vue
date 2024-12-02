@@ -158,7 +158,7 @@ export default {
       this.isLoading = true
       try {
         const response = await axios.post(
-          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/auth/authenticate',
+          'http://https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/auth/authenticate',
           {
             email: this.email,
             password: this.password,
