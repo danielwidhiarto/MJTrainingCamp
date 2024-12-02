@@ -21,11 +21,11 @@
     <!-- Profile icon redirects to Profile Page -->
     <div class="navbar-right">
       <router-link to="/trainer/profile-page">
-        <img
+        <!-- <img
           src="../assets/profile-icon.png"
           alt="Profile"
           class="profile-icon"
-        />
+        /> -->
       </router-link>
     </div>
   </nav>
