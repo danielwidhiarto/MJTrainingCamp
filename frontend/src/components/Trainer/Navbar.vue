@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="../assets/logo.jpg" alt="Logo" class="logo" />
+      <!-- <img src="../assets/logo.jpg" alt="Logo" class="logo" /> -->
     </div>
 
     <!-- Hamburger Menu for Mobile -->
