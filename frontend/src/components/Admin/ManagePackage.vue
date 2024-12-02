@@ -349,7 +349,7 @@ export default {
     async fetchPackages() {
       try {
         const response = await axios.get(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get',
+          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/get',
           {
             headers: {
               Authorization: `Bearer ${this.token}`,
@@ -559,7 +559,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/add',
+          'http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/add',
           this.currentPackage,
           {
             headers: {
@@ -615,7 +615,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/update/${this.currentPackage.id}`,
+          `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/update/${this.currentPackage.id}`,
           this.currentPackage,
           {
             headers: {
@@ -662,7 +662,7 @@ export default {
         if (result.isConfirmed) {
           try {
             await axios.delete(
-              `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/delete/${packageId}`,
+              `http://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/package/delete/${packageId}`,
               {
                 headers: {
                   Authorization: `Bearer ${this.token}`,
