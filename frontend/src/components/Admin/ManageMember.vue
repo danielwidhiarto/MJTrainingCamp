@@ -212,7 +212,7 @@ export default {
         }
 
         const response = await axios.get(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/member/getall',
+          'https://mjtrainingcamp.my.id/api/v1/member/getall',
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -290,7 +290,7 @@ export default {
       try {
         const token = localStorage.getItem('token')
         const response = await axios.get(
-          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/member/get?id=${idMember}`,
+          `https://mjtrainingcamp.my.id/api/v1/member/get?id=${idMember}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -331,7 +331,7 @@ export default {
       try {
         const token = localStorage.getItem('token')
         await axios.delete(
-          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/member/delete/${idMember}`,
+          `https://mjtrainingcamp.my.id/api/v1/member/delete/${idMember}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },

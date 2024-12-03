@@ -302,7 +302,7 @@ export default {
     async fetchTrainers() {
       try {
         const response = await axios.get(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/trainer/getall',
+          'https://mjtrainingcamp.my.id/api/v1/trainer/getall',
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -318,7 +318,7 @@ export default {
     async fetchClasses() {
       try {
         const response = await axios.get(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getClasses',
+          'https://mjtrainingcamp.my.id/api/v1/class/getClasses',
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -451,7 +451,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/add',
+          'https://mjtrainingcamp.my.id/api/v1/class/add',
           this.currentClass,
           {
             headers: {
@@ -493,7 +493,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/update/${this.currentClass.idClass}`,
+          `https://mjtrainingcamp.my.id/api/v1/class/update/${this.currentClass.idClass}`,
           this.currentClass,
           {
             headers: {
@@ -538,7 +538,7 @@ export default {
         if (result.isConfirmed) {
           try {
             await axios.delete(
-              `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/delete/${idClass}`,
+              `https://mjtrainingcamp.my.id/api/v1/class/delete/${idClass}`,
               {
                 headers: {
                   Authorization: `Bearer ${this.token}`,

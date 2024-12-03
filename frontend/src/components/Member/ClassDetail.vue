@@ -157,7 +157,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/getClasses?id=${idClass}`,
+          `https://mjtrainingcamp.my.id/api/v1/class/getClasses?id=${idClass}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -233,7 +233,7 @@ export default {
 
         // Call eligibility API
         const eligibilityResponse = await axios.post(
-          'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/check-eligibility',
+          'https://mjtrainingcamp.my.id/api/v1/class/check-eligibility',
           {
             idClass: idClass,
             token: token,
@@ -373,7 +373,7 @@ export default {
 
             // API call to book the class
             await axios.post(
-              'https://ec2-13-229-129-198.ap-southeast-1.compute.amazonaws.com/api/v1/class/book',
+              'https://mjtrainingcamp.my.id/api/v1/class/book',
               {
                 idClass: this.classDetails.idClass,
                 type: type,
