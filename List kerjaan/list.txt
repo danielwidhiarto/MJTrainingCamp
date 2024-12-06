@@ -1,11 +1,8 @@
 ozann
 
 eman
-bikin notif error belum di verifikasi pas book 
-bikin transaction history page for member
 bikin tambahin alasan nolak verifikasi payment
 tambahin kolom alasan ditolak di history transaksi member
-ganti api adress ke aws
 
 
 both
