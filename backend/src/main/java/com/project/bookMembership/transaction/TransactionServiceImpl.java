@@ -59,6 +59,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentType(tx.getPaymentType());
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
+            response.setPaymentNotes(tx.getPaymentStatusNote());
 
 
             if (tx.getMembership() != null) {
@@ -166,6 +167,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setPaymentType(tx.getPaymentType());
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
+            response.setPaymentNotes(tx.getPaymentStatusNote());
 
             if (tx.getMembership() != null) {
                 Membership member = tx.getMembership();

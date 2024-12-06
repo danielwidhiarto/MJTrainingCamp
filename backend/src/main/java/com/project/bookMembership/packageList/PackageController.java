@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/package")
 @RequiredArgsConstructor
+//@CrossOrigin
 public class PackageController {
 
       private final PackageService packageService;

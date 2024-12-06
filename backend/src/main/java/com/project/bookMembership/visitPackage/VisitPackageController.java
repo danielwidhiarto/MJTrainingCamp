@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/visitpackage")
 @RequiredArgsConstructor
+@CrossOrigin
 public class VisitPackageController {
 
 

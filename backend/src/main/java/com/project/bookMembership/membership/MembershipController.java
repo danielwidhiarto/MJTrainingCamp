@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/membership")
 @RequiredArgsConstructor
+@CrossOrigin
 public class MembershipController {
 
     private final MembershipService membershipService;
