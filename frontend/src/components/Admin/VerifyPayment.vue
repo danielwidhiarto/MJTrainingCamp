@@ -115,6 +115,18 @@
               />
             </div>
 
+            <!-- Notes input field -->
+            <div class="mt-4">
+              <label for="notes" class="form-label">Notes</label>
+              <textarea
+                id="notes"
+                v-model="notes"
+                class="form-control"
+                rows="4"
+                placeholder="Enter your notes here..."
+              ></textarea>
+            </div>
+
             <!-- Conditionally show 'Accept' and 'Decline' buttons in modal if status is 'WAITING FOR APPROVAL' -->
             <div
               v-if="
@@ -128,6 +140,7 @@
                   updateTransactionStatus(
                     selectedTransaction.idTransaction,
                     'DECLINED',
+                    notes,
                   )
                 "
               >
@@ -139,6 +152,7 @@
                   updateTransactionStatus(
                     selectedTransaction.idTransaction,
                     'VERIFIED',
+                    notes,
                   )
                 "
               >
@@ -168,6 +182,7 @@ export default {
     const isModalOpen = ref(false)
     const isLoadingDetails = ref(false)
     const showPendingOnly = ref(true)
+    const notes = ref('') // New notes field
 
     /**
      * Debounced toggleSort to prevent rapid toggling
@@ -214,10 +229,8 @@ export default {
             headers: { Authorization: `Bearer ${token}` },
           },
         )
-        // Assuming the initial API does not return 'buktiTransfer' to prevent loading all images
         transactions.value = response.data.map(transaction => ({
           ...transaction,
-          // Remove the buktiTransfer field if present
           buktiTransfer: undefined,
         }))
       } catch (error) {
@@ -275,19 +288,21 @@ export default {
     const closeModal = () => {
       isModalOpen.value = false
       selectedTransaction.value = {}
+      notes.value = '' // Clear notes when closing the modal
     }
 
     /**
      * Update transaction status (VERIFIED or DECLINED)
      * @param {Number} id - Transaction ID
      * @param {String} status - New status
+     * @param {String} notes - Notes from the input field
      */
-    const updateTransactionStatus = async (id, status) => {
+    const updateTransactionStatus = async (id, status, notes) => {
       try {
         const token = localStorage.getItem('token')
         await axios.patch(
           `https://mjtrainingcamp.my.id/api/v1/transaction/update/${id}`,
-          { transactionStatus: status },
+          { transactionStatus: status, notes }, // Include notes in the update
           {
             headers: {
               'Content-Type': 'application/json',
@@ -352,7 +367,6 @@ export default {
           return 'Credit Card'
         case 'bank_transfer':
           return 'Bank Transfer'
-        // Add more cases as needed
         default:
           return method
       }
@@ -378,6 +392,7 @@ export default {
       debouncedToggleSort,
       formatPrice,
       formatPaymentMethod,
+      notes, // Return notes to be used in the template
     }
   },
 }
