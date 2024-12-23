@@ -2,10 +2,15 @@ package com.project.bookMembership.classes;
 
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.List;
 
 
 import com.project.bookMembership.DTO.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
@@ -98,6 +103,44 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
         return classDetailRepository.save(classDetail);
     }
+    @Transactional
+    @Override
+    public int cancel(ClassDetailRequest classDetailRequest) {
+        TrainingClass trainingClass = trainingClassRepo.findById(classDetailRequest.getIdClass())
+                .orElseThrow(() -> new RuntimeException("Training class not found"));
+
+        String email = jwtService.extractUsername(classDetailRequest.getToken());
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Date currentdate = new Date();
+
+
+        if (trainingClass.getClassDate().getTime() - currentdate.getTime() < 2 * 60 * 60 * 1000) {
+            throw new RuntimeException("Cancel booking is only available if the class is scheduled more than 2 hours from now");
+        }
+        int rowsDeleted=0;
+
+        try {
+             rowsDeleted = classDetailRepository.deleteByUserAndClass(classDetailRequest.getIdClass(), user.getIdUser());
+            if (rowsDeleted == 0) {
+                throw new EntityNotFoundException("No records found to delete.");
+            }
+            List<VisitPackage>  tobedeletedvisit=visitRepo.findByUserId(user.getIdUser());
+            for(VisitPackage v : tobedeletedvisit){
+                if(v.getVisitUsed()>0){
+                    v.setVisitUsed(v.getVisitUsed()-1);
+                    visitRepo.save(v);
+                          break;
+                }
+            }
+            return rowsDeleted;
+        } catch (Exception e) {
+
+            throw new RuntimeException("Failed to delete class detail", e);
+        }
+
+    }
+
     public ClassBookingStatusResponse checkBookingEligibility(ClassDetailRequest classDetailRequest) {
         // Extract user information from the token
         String email = jwtService.extractUsername(classDetailRequest.getToken());
