@@ -33,4 +33,7 @@ public class ClassDetail {
     @ManyToOne
     @JoinColumn(name = "class_id", referencedColumnName = "idClass")
     private TrainingClass idClass;
+
+    private String bookMethod;
+
 }

@@ -64,10 +64,10 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         if (bookedCount >= trainingClass.getClassCapasity()) {
             throw new RuntimeException("Class is full");
         }
-
+        String bookMehthod="";
         if (classDetailRequest.getType().equals("member")) {
             List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
-
+            bookMehthod="membership";
             boolean hasActiveMembership = memberships.stream()
                     .anyMatch(membership ->
                             !membership.getStartDate().after(trainingClass.getClassDate()) &&
@@ -80,7 +80,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
             }
         } else if (classDetailRequest.getType().equals("visit")) {
             List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
-
+            bookMehthod="visit";
             boolean hasAvailableVisit = false;
             for (VisitPackage visitPackage : visitPackages) {
                 // Check if visit package payment is "VERIFIED" and has available visits
@@ -99,6 +99,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         var classDetail = ClassDetail.builder()
                 .idUser(user)
                 .idClass(trainingClass)
+                .bookMethod(bookMehthod)
                 .build();
 
         return classDetailRepository.save(classDetail);
@@ -120,11 +121,17 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         }
         int rowsDeleted=0;
 
-        try {
+        try { ClassDetail tobedeletedclass=classDetailRepository.findByIdClassAndIdUser(classDetailRequest.getIdClass(), user.getIdUser());
              rowsDeleted = classDetailRepository.deleteByUserAndClass(classDetailRequest.getIdClass(), user.getIdUser());
+            System.out.println(classDetailRequest.getIdClass());
+            System.out.println(user.getIdUser());
+
             if (rowsDeleted == 0) {
                 throw new EntityNotFoundException("No records found to delete.");
             }
+
+
+            if(tobedeletedclass.getBookMethod().equals("visit")){
             List<VisitPackage>  tobedeletedvisit=visitRepo.findByUserId(user.getIdUser());
             for(VisitPackage v : tobedeletedvisit){
                 if(v.getVisitUsed()>0){
@@ -132,7 +139,8 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                     visitRepo.save(v);
                           break;
                 }
-            }
+            }}
+
             return rowsDeleted;
         } catch (Exception e) {
 

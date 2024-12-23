@@ -21,6 +21,9 @@ public interface ClassDetailRepository extends JpaRepository<ClassDetail,Long>{
     @Query(value = "SELECT * FROM class_detail WHERE class_id = :idClass", nativeQuery = true)
     List<ClassDetail> findByIdClass(@Param("idClass") Long idClass);
 
+    @Query(value = "SELECT * FROM class_detail WHERE class_id = :idClass AND user_id = :iduser", nativeQuery = true)
+    ClassDetail findByIdClassAndIdUser(@Param("idClass") Long idClass,@Param("iduser") Long iduser);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM class_detail WHERE class_id  = :idClass AND user_id = :iduser", nativeQuery = true)

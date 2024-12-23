@@ -60,11 +60,15 @@ public class ClassController {
     public ResponseEntity<String> cancel(@RequestBody ClassDetailRequest classDetailRequest) {
 
         try {
+
             int returnnn= classDetailService.cancel(classDetailRequest);
             return ResponseEntity.ok("Class canceled successfully "+returnnn);
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
+
+
+
     }
 
 
