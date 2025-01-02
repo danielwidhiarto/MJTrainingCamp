@@ -109,7 +109,7 @@
               <h5>Payment Proof</h5>
               <img
                 :src="`data:image/jpeg;base64,${selectedTransaction.buktiTransfer}`"
-                :alt="`Proof of Payment for Transaction ID ${selectedTransaction.idTransaction}`"
+                alt="Proof of Payment for Transaction ID {{ selectedTransaction.idTransaction }}"
                 class="img-fluid proof-image"
                 loading="lazy"
                 @error="handleImageError"
@@ -129,10 +129,11 @@
                 :class="{ 'is-invalid': notesError }"
                 rows="4"
                 placeholder="Enter your notes here..."
+                @input="handleNotesInput"
               ></textarea>
               <!-- Error Message -->
               <div v-if="notesError" class="invalid-feedback">
-                Notes are required when declining a transaction.
+                Please fill in the notes to decline the transaction.
               </div>
             </div>
 
@@ -143,24 +144,10 @@
               "
               class="mt-4 d-flex justify-content-between"
             >
-              <button
-                class="btn btn-danger"
-                @click="
-                  handleDecline(selectedTransaction.idTransaction, 'DECLINED')
-                "
-                :disabled="!canDecline"
-              >
+              <button class="btn btn-danger" @click="handleDecline">
                 Decline
               </button>
-              <button
-                class="btn btn-success"
-                @click="
-                  updateTransactionStatus(
-                    selectedTransaction.idTransaction,
-                    'VERIFIED',
-                  )
-                "
-              >
+              <button class="btn btn-success" @click="handleAccept">
                 Accept
               </button>
             </div>
@@ -187,8 +174,8 @@ export default {
     const isModalOpen = ref(false)
     const isLoadingDetails = ref(false)
     const showPendingOnly = ref(true)
-    const notes = ref('') // Notes field
-    const notesError = ref(false) // Validation state for notes
+    const notes = ref('')
+    const notesError = ref(false) // New reactive property for error state
 
     /**
      * Debounced toggleSort to prevent rapid toggling
@@ -209,13 +196,6 @@ export default {
         )
       }
       return transactions.value
-    })
-
-    /**
-     * Computed property to determine if Decline button should be enabled
-     */
-    const canDecline = computed(() => {
-      return notes.value.trim() !== ''
     })
 
     /**
@@ -302,38 +282,49 @@ export default {
       isModalOpen.value = false
       selectedTransaction.value = {}
       notes.value = '' // Clear notes when closing the modal
-      notesError.value = false // Reset validation state
+      notesError.value = false // Reset error state
     }
 
     /**
-     * Handle Decline action with validation
-     * @param {Number} id - Transaction ID
-     * @param {String} status - New status ('DECLINED')
+     * Handle Decline Action with Validation
      */
-    const handleDecline = async (id, status) => {
-      if (notes.value.trim() === '') {
+    const handleDecline = () => {
+      if (!notes.value.trim()) {
         notesError.value = true
         return
       }
+      // Proceed with decline if notes are filled
+      updateTransactionStatus(
+        selectedTransaction.value.idTransaction,
+        'DECLINED',
+        notes.value,
+      )
+    }
 
-      notesError.value = false // Reset error state
-
-      // Proceed to update transaction status
-      await updateTransactionStatus(id, status, notes.value)
+    /**
+     * Handle Accept Action without Validation
+     */
+    const handleAccept = () => {
+      // Proceed with accept without checking notes
+      updateTransactionStatus(
+        selectedTransaction.value.idTransaction,
+        'VERIFIED',
+        notes.value, // You can choose to send empty notes or ignore
+      )
     }
 
     /**
      * Update transaction status (VERIFIED or DECLINED)
      * @param {Number} id - Transaction ID
      * @param {String} status - New status
-     * @param {String} [notesContent] - Notes from the input field (optional for ACCEPT)
+     * @param {String} notes - Notes from the input field
      */
-    const updateTransactionStatus = async (id, status, notesContent = '') => {
+    const updateTransactionStatus = async (id, status, notes) => {
       try {
         const token = localStorage.getItem('token')
         await axios.patch(
           `https://mjtrainingcamp.my.id/api/v1/transaction/update/${id}`,
-          { transactionStatus: status, notes: notesContent }, // Include notes if provided
+          { transactionStatus: status, notes }, // Include notes in the update
           {
             headers: {
               'Content-Type': 'application/json',
@@ -348,7 +339,7 @@ export default {
         )
         closeModal()
         await fetchTransactions() // Refresh transactions list
-        // Optionally, you can refetch transaction details if needed
+        await fetchTransactionDetails(id) // Fetch the updated transaction details with the notes
       } catch (error) {
         console.error(error)
         Swal.fire('Error', 'Failed to update transaction status.', 'error')
@@ -360,7 +351,7 @@ export default {
      * @param {Event} event - Image load error event
      */
     const handleImageError = event => {
-      event.target.src = 'assets/default-image.png' // Replace with your actual image path
+      event.target.src = 'path/to/default-image.png' // Replace with your default image path
     }
 
     /**
@@ -403,6 +394,15 @@ export default {
       }
     }
 
+    /**
+     * Handle input in the notes field to reset error state
+     */
+    const handleNotesInput = () => {
+      if (notesError.value && notes.value.trim()) {
+        notesError.value = false
+      }
+    }
+
     onMounted(() => {
       fetchTransactions()
     })
@@ -416,18 +416,269 @@ export default {
       filteredTransactions,
       showDetails,
       closeModal,
-      updateTransactionStatus,
-      handleDecline,
+      handleDecline, // New method for declining
+      handleAccept, // New method for accepting
       statusClass,
       toggleSort,
       debouncedToggleSort,
       formatPrice,
       formatPaymentMethod,
       notes, // Return notes to be used in the template
-      notesError, // Return validation state
-      canDecline, // Return computed property
+      notesError, // Return error state
       handleImageError, // Return the error handler
+      handleNotesInput, // Return the input handler
     }
   },
 }
 </script>
+
+<style scoped>
+/* Container Styling */
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading Styles */
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ff4500;
+}
+
+.card-header {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.table th {
+  vertical-align: middle;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Loading Indicator Styling */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #ff4500;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal Styling */
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.custom-modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: 90vh; /* Prevents modal from exceeding viewport height */
+}
+
+.btn-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+}
+
+.btn-close:hover {
+  color: #ff4500;
+}
+
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 15px;
+}
+
+/* Proof Image Styling */
+.proof-image {
+  max-width: 300px; /* Adjust as needed */
+  max-height: 300px; /* Adjust as needed */
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* Ensures the image maintains aspect ratio */
+  border: 1px solid #ddd; /* Optional: Adds a subtle border */
+  border-radius: 8px; /* Optional: Rounds the corners */
+  padding: 5px; /* Optional: Adds padding around the image */
+  background-color: #f9f9f9; /* Optional: Adds a background color */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 30px 15px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .custom-modal-content {
+    padding: 20px;
+  }
+
+  .proof-image {
+    max-width: 80%; /* Adjust for smaller screens */
+    max-height: 200px;
+  }
+
+  .btn-success,
+  .btn-danger {
+    width: 48%;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .custom-modal-content {
+    padding: 15px;
+  }
+
+  .proof-image {
+    max-width: 100%;
+    max-height: 150px;
+  }
+
+  .btn-success,
+  .btn-danger {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .btn-success:last-child,
+  .btn-danger:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Additional Enhancements */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #ffe5d9;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+/* Alert Styling */
+.alert-danger {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ff4500;
+}
+
+/* Optional: Customize the invalid feedback message */
+.invalid-feedback {
+  display: block;
+  color: #dc3545; /* Bootstrap's danger color */
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+}
+
+/* Optional: Highlight the textarea border when invalid */
+textarea.is-invalid {
+  border-color: #dc3545;
+  padding-right: calc(1.5em + 0.75rem);
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+</style>
