@@ -125,6 +125,11 @@
               />
             </div>
           </div>
+          <p>
+            <br />
+            <strong>Decline Notes :</strong>
+            {{ formatPaymentMethod(selectedTransaction.paymentNotes) }}
+          </p>
         </div>
       </div>
     </div>
