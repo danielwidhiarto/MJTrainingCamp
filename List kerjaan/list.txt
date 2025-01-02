@@ -1,9 +1,6 @@
 ozann
 
 eman
-bikin tambahin alasan nolak verifikasi payment
-tambahin kolom alasan ditolak di history transaksi member
-kalok token expired auto balik ke menu login
 
 both
 
