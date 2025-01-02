@@ -109,10 +109,14 @@
               <h5>Payment Proof</h5>
               <img
                 :src="`data:image/jpeg;base64,${selectedTransaction.buktiTransfer}`"
-                alt="Proof of Payment"
-                class="img-fluid"
-                style="max-width: 400px"
+                alt="Proof of Payment for Transaction ID {{ selectedTransaction.idTransaction }}"
+                class="img-fluid proof-image"
+                loading="lazy"
+                @error="handleImageError"
               />
+            </div>
+            <div v-else class="text-center mt-3">
+              <p>No proof of payment available.</p>
             </div>
 
             <!-- Notes input field -->
@@ -325,12 +329,11 @@ export default {
     }
 
     /**
-     * Check if transaction is VERIFIED or DECLINED
-     * @param {String} status - Payment status
-     * @returns {Boolean}
+     * Handle image load errors by setting a fallback image
+     * @param {Event} event - Image load error event
      */
-    const isVerifiedOrDeclined = status => {
-      return status === 'VERIFIED' || status === 'DECLINED'
+    const handleImageError = event => {
+      event.target.src = 'path/to/default-image.png' // Replace with your default image path
     }
 
     /**
@@ -387,13 +390,13 @@ export default {
       showDetails,
       closeModal,
       updateTransactionStatus,
-      isVerifiedOrDeclined,
       statusClass,
       toggleSort,
       debouncedToggleSort,
       formatPrice,
       formatPaymentMethod,
       notes, // Return notes to be used in the template
+      handleImageError, // Return the error handler
     }
   },
 }
@@ -480,6 +483,8 @@ h1 {
   max-width: 600px;
   position: relative;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: 90vh; /* Prevents modal from exceeding viewport height */
 }
 
 .btn-close {
@@ -510,7 +515,20 @@ h1 {
   margin-bottom: 15px;
 }
 
-/* Responsive Styles */
+/* Proof Image Styling */
+.proof-image {
+  max-width: 300px; /* Adjust as needed */
+  max-height: 300px; /* Adjust as needed */
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* Ensures the image maintains aspect ratio */
+  border: 1px solid #ddd; /* Optional: Adds a subtle border */
+  border-radius: 8px; /* Optional: Rounds the corners */
+  padding: 5px; /* Optional: Adds padding around the image */
+  background-color: #f9f9f9; /* Optional: Adds a background color */
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .container {
     padding: 30px 15px;
@@ -522,6 +540,11 @@ h1 {
 
   .custom-modal-content {
     padding: 20px;
+  }
+
+  .proof-image {
+    max-width: 80%; /* Adjust for smaller screens */
+    max-height: 200px;
   }
 
   .btn-success,
@@ -537,6 +560,11 @@ h1 {
 
   .custom-modal-content {
     padding: 15px;
+  }
+
+  .proof-image {
+    max-width: 100%;
+    max-height: 150px;
   }
 
   .btn-success,
