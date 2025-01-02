@@ -1,7 +1,6 @@
 ozann
 
 eman
-tambahin kolom alasan ditolak di history transaksi member
 
 both
 
