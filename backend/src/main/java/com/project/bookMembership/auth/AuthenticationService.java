@@ -74,33 +74,36 @@ public class AuthenticationService {
         .token(jwtToken)
         .build();
 }
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-public AuthenticationResponse authenticate(AuthenticationRequest request) {
-    try {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-            )
-        );
+            var user = repo.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        var user = repo.findByEmail(request.getEmail())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            var jwtToken = jwtService.generateToken(user);
+            var expiryDate = jwtService.extractExpiration(jwtToken);  // Get the expiration date from the token
 
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-            .token(jwtToken)
-            .role(user.getRole())
-            .idUser(user.getIdUser())
-                .phone(user.getPNumber())
-                .email(user.getEmail())
-                .registrationDate(user.getRegistrationDate())
-                .name(user.getName())
-            .build();
-    } catch (BadCredentialsException ex) {
-        throw new RuntimeException("Wrong email or password"); // Customize this message as needed
-    } catch (RuntimeException ex) {
-        throw new RuntimeException("Authentication failed: " + ex.getMessage());
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .role(user.getRole())
+                    .idUser(user.getIdUser())
+                    .phone(user.getPNumber())
+                    .email(user.getEmail())
+                    .registrationDate(user.getRegistrationDate())
+                    .name(user.getName())
+                    .tokenExpiredDate(expiryDate)  // Add expiry date to the response
+                    .build();
+        } catch (BadCredentialsException ex) {
+            throw new RuntimeException("Wrong email or password"); // Customize this message as needed
+        } catch (RuntimeException ex) {
+            throw new RuntimeException("Authentication failed: " + ex.getMessage());
+        }
     }
-}
+
 }

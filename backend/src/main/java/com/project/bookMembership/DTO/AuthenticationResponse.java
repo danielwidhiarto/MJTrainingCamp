@@ -20,6 +20,7 @@ public class AuthenticationResponse {
     private String email;
     private String phone;
     private Date registrationDate;
+    private Date tokenExpiredDate;
 
 
 }
