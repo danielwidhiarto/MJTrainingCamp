@@ -121,8 +121,7 @@
               <img
                 :src="`data:image/jpeg;base64,${selectedTransaction.buktiTransfer}`"
                 alt="Proof of Payment"
-                class="img-fluid"
-                style="max-width: 400px"
+                class="img-fluid proof-image"
               />
             </div>
           </div>
@@ -409,6 +408,8 @@ h1 {
   max-width: 600px;
   position: relative;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: 90vh; /* Prevents modal from exceeding viewport height */
 }
 
 .btn-close {
@@ -439,7 +440,20 @@ h1 {
   margin-bottom: 15px;
 }
 
-/* Responsive Styles */
+/* Proof Image Styling */
+.proof-image {
+  max-width: 300px; /* Adjust as needed */
+  max-height: 300px; /* Adjust as needed */
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* Ensures the image maintains aspect ratio */
+  border: 1px solid #ddd; /* Optional: Adds a subtle border */
+  border-radius: 8px; /* Optional: Rounds the corners */
+  padding: 5px; /* Optional: Adds padding around the image */
+  background-color: #f9f9f9; /* Optional: Adds a background color */
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .container {
     padding: 30px 15px;
@@ -452,6 +466,11 @@ h1 {
   .custom-modal-content {
     padding: 20px;
   }
+
+  .proof-image {
+    max-width: 80%; /* Adjust for smaller screens */
+    max-height: 200px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -461,6 +480,11 @@ h1 {
 
   .custom-modal-content {
     padding: 15px;
+  }
+
+  .proof-image {
+    max-width: 100%;
+    max-height: 150px;
   }
 }
 
