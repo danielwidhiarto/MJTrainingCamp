@@ -440,7 +440,7 @@ h1 {
   margin-bottom: 15px;
 }
 
-/* Proof Image Styling */
+/* ProofImageStyling */
 .proof-image {
   max-width: 300px; /* Adjust as needed */
   max-height: 300px; /* Adjust as needed */
