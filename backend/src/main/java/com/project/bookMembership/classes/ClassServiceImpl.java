@@ -300,4 +300,29 @@ public class ClassServiceImpl implements ClassService {
             return new ArrayList<>(); 
         }
     }
+
+    @Override
+    public String addNotes(AddNotesRequest request) {
+        try {
+            // Cari objek TrainingClass berdasarkan ID
+            TrainingClass classes = trainingClassRepo.findOneClassbyId(request.getIdClass());
+
+            // Jika kelas tidak ditemukan, kembalikan pesan kesalahan
+            if (classes == null) {
+                return "class with ID " + request.getIdClass() + " not found .";
+            }
+
+            // Set catatan ke objek TrainingClass
+            classes.setClassNote(request.getNotes());
+
+            // Simpan perubahan ke database
+            trainingClassRepo.save(classes);
+
+            return "add notes succesfull.";
+        } catch (Exception e) {
+            // Tangani kesalahan dan log jika diperlukan
+            e.printStackTrace();
+            return "error =  " + e.getMessage();
+        }
+    }
 }

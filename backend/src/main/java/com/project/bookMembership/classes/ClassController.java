@@ -96,8 +96,6 @@ public class ClassController {
     
     @PostMapping("/getHistory")
     public ResponseEntity<List<GetClassResponse>> getHistory(@RequestBody ClassHistoryRequest classHistoryRequest) {
-
-
         List<GetClassResponse> classResponses = new ArrayList<>();
         classResponses = classService.getClassHistory(classHistoryRequest);
 
@@ -106,7 +104,18 @@ public class ClassController {
 
         }
 
+    @PostMapping("/addNotes")
+    public ResponseEntity<String> addNotes(@RequestBody AddNotesRequest request) {
+        try {
+            classService.addNotes(request);
+            return ResponseEntity.ok("add notes  successfully ");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+
     }
+    }
+
 
     
 

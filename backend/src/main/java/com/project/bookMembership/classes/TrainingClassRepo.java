@@ -15,7 +15,8 @@ public interface TrainingClassRepo extends JpaRepository<TrainingClass,Long>{
     @Query("SELECT t FROM TrainingClass t LEFT JOIN ClassDetail cd ON t = cd.idClass WHERE t.idClass = :classId")
     List<TrainingClass> findByClassId(@Param("classId") Long id);
 
-
+    @Query("SELECT t FROM TrainingClass t LEFT JOIN ClassDetail cd ON t = cd.idClass WHERE t.idClass = :classId")
+    TrainingClass findOneClassbyId(@Param("classId") Long id);
 
 
     @Query("SELECT t FROM TrainingClass t JOIN ClassDetail cd ON t.idClass  = cd.idClass.idClass WHERE cd.idUser.idUser = :userId")
