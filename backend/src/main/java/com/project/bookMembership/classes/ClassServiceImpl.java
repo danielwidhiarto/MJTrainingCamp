@@ -172,6 +172,7 @@ public class ClassServiceImpl implements ClassService {
                     .classCapasity(trainingClass.getClassCapasity())
                     .trainerDetail(trainerDetail)
                     .classMembers(classMembers)
+                    .classNote(trainingClass.getClassNote())
                     .build();
 
             responseList.add(classResponse);
