@@ -33,6 +33,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Capacity</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -41,6 +42,14 @@
               <td>{{ formatDate(classItem.classDate) }}</td>
               <td>{{ formatTime(classItem.classTime) }}</td>
               <td>{{ classItem.classCapasity }} members</td>
+              <td>
+                <button
+                  class="btn btn-danger"
+                  @click="cancelBooking(classItem.idClass)"
+                >
+                  Cancel
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -51,7 +60,6 @@
         v-if="!loading && pastClasses.length"
         class="class-history-container"
       >
-        <br />
         <h3 class="section-title">Past / Ongoing Classes</h3>
         <table class="class-history-table">
           <thead>
@@ -168,6 +176,65 @@ export default {
     }
 
     /**
+     * Cancels a booking for a class.
+     * @param {String} classId - The ID of the class to cancel.
+     */
+    const cancelBooking = async classId => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Login Required',
+            text: 'No authentication token found. Please log in.',
+          })
+          return
+        }
+
+        const confirmation = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to cancel this booking?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, cancel it!',
+          cancelButtonText: 'No, keep it',
+        })
+
+        if (!confirmation.isConfirmed) return
+
+        const response = await axios.post(
+          'https://mjtrainingcamp.my.id/api/v1/class/cancel',
+          {
+            idClass: classId,
+            token: token,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Cancelled!',
+          text: 'Your booking has been successfully canceled.',
+        })
+
+        // Refresh the class history after cancellation
+        fetchClassHistory()
+      } catch (err) {
+        console.error('Cancellation Error:', err)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: err.response?.data?.message || 'An unexpected error occurred.',
+        })
+      }
+    }
+
+    /**
      * Formats the date to "Monday, 4 November 2024".
      * @param {String} dateString - The date string.
      * @returns {String} - Formatted date.
@@ -205,13 +272,13 @@ export default {
       error,
       formatDate,
       formatTime,
+      cancelBooking,
     }
   },
 }
 </script>
 
 <style scoped>
-/* Container Styling */
 .container {
   padding: 40px 20px;
   max-width: 1200px;
@@ -223,7 +290,6 @@ export default {
   margin-top: 40px;
 }
 
-/* Heading Styles */
 h1 {
   font-size: 2.5rem;
   font-weight: 600;
@@ -231,14 +297,12 @@ h1 {
   color: #333;
 }
 
-/* Welcome Text */
 .welcome-text {
   font-size: 1.25rem;
   color: #555;
   margin-bottom: 40px;
 }
 
-/* Loading Indicator Styling */
 .loading-indicator {
   display: flex;
   align-items: center;
@@ -265,29 +329,27 @@ h1 {
   }
 }
 
-/* Error Message Styling */
 .alert-danger {
   font-size: 1.3rem;
   font-weight: 600;
   color: #ff4500;
 }
 
-/* Class History Table */
 .class-history-container {
-  width: 100%; /* Ensure it takes full width of the container */
-  max-width: 800px; /* Set a maximum width for the table container */
-  margin: 0 auto; /* Center the container horizontally */
-  overflow-x: auto; /* Enable horizontal scrolling if content overflows */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow-x: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* Center the table */
+  align-items: center;
 }
 
 .class-history-table {
-  width: 100%; /* Make the table take full width of its container */
-  border-collapse: collapse; /* Remove space between table cells */
-  text-align: left; /* Align text to the left */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
 .section-title {
@@ -301,7 +363,6 @@ h1 {
 .class-history-table td {
   padding: 12px 20px;
   border: 1px solid #ddd;
-  text-align: left;
 }
 
 .class-history-table th {
@@ -318,15 +379,25 @@ h1 {
   background-color: #ffe5d9;
 }
 
-/* No History Message */
 .no-history {
   margin-top: 20px;
   font-size: 1.25rem;
   color: #777;
-  text-align: center;
 }
 
-/* Responsive Styles */
+.btn-danger {
+  background-color: #ff4500;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #e63900;
+}
+
 @media (max-width: 768px) {
   .section-title {
     font-size: 1.5rem;
