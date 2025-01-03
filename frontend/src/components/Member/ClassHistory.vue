@@ -60,6 +60,7 @@
         v-if="!loading && pastClasses.length"
         class="class-history-container"
       >
+        <br />
         <h3 class="section-title">Past Classes</h3>
         <table class="class-history-table">
           <thead>
