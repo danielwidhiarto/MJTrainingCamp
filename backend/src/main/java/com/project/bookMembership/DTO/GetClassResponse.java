@@ -27,6 +27,7 @@ public class GetClassResponse {
     private String className;
 
     private TrainerDetailResponse trainerDetail;
+    private String classNote;
 
 
      private List<ClassDetailResponse> classMembers;
