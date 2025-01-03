@@ -125,6 +125,12 @@ const routes = [
     component: () => import('../components/Trainer/ProfilePage.vue'),
     meta: { requiresAuth: true, roles: ['ROLE_TRAINER'] },
   },
+  {
+    path: '/trainer/class-detail/:id',
+    name: 'TrainerClassDetail',
+    component: () => import('../components/Trainer/ClassDetail.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_TRAINER'] },
+  },
 ]
 
 // Create the router instance
