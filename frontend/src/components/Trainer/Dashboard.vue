@@ -188,11 +188,14 @@ export default {
     }
 
     /**
-     * View the class detail page.
+     * Redirects to the class detail page.
      * @param {String} classId - The ID of the class to view.
      */
     const viewClassDetail = classId => {
-      router.push({ name: 'ClassDetail', params: { id: classId } })
+      router.push({
+        name: 'TrainerClassDetail',
+        params: { id: classId },
+      })
     }
 
     /**
@@ -353,13 +356,12 @@ h1 {
 }
 
 .btn-primary {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  transition: background-color 0.3s;
+  background-color: #ff4500;
+  border-color: #ff4500;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #e03b00;
+  border-color: #e03b00;
 }
 </style>
