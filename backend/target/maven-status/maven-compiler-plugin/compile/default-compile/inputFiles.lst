@@ -54,6 +54,7 @@
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/transaction/TransactionController.java
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/user/Role.java
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/user/User.java
+/Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/DTO/AddNotesRequest.java
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/visitPackage/VisitPackageController.java
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/visitPackage/VisitPackageRepo.java
 /Users/fozant/All Coding/Skripsi/Repo/MJTrainingCamp/backend/src/main/java/com/project/bookMembership/trainer/TrainerService.java
