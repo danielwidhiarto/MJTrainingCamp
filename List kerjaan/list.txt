@@ -5,10 +5,6 @@ eman
 both
 
 
-bikin notes untuk status transaksi history+bikin warna status history beda beda
-bikin logo whatsapp dibawah untuk redirect ke wa
-bikin di class history pakai visit atau member
-nambahin fitur cancel BOOKING
 bikin page trainer
 
 

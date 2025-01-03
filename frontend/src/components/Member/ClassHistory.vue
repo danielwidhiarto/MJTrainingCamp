@@ -20,11 +20,48 @@
         {{ error }}
       </div>
 
-      <!-- Class History Table -->
+      <!-- Upcoming Classes Table -->
       <div
-        v-if="!loading && classHistory.length"
-        class="class-history-container flex justify-center"
+        v-if="!loading && upcomingClasses.length"
+        class="class-history-container"
       >
+        <h3 class="section-title">Upcoming Classes</h3>
+        <table class="class-history-table">
+          <thead>
+            <tr>
+              <th>Class Name</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Capacity</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="classItem in upcomingClasses" :key="classItem.id">
+              <td>{{ classItem.className }}</td>
+              <td>{{ formatDate(classItem.classDate) }}</td>
+              <td>{{ formatTime(classItem.classTime) }}</td>
+              <td>{{ classItem.classCapasity }} members</td>
+              <td>
+                <button
+                  class="btn btn-danger"
+                  @click="cancelBooking(classItem.idClass)"
+                >
+                  Cancel
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Past / Ongoing Classes Table -->
+      <div
+        v-if="!loading && pastClasses.length"
+        class="class-history-container"
+      >
+        <br />
+        <h3 class="section-title">Past Classes</h3>
         <table class="class-history-table">
           <thead>
             <tr>
@@ -35,7 +72,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="classItem in classHistory" :key="classItem.id">
+            <tr v-for="classItem in pastClasses" :key="classItem.id">
               <td>{{ classItem.className }}</td>
               <td>{{ formatDate(classItem.classDate) }}</td>
               <td>{{ formatTime(classItem.classTime) }}</td>
@@ -47,7 +84,7 @@
 
       <!-- No History Message -->
       <div
-        v-else-if="!loading && !classHistory.length"
+        v-else-if="!loading && !upcomingClasses.length && !pastClasses.length"
         class="no-history text-center"
       >
         You have no class history.
@@ -68,9 +105,6 @@ import timezone from 'dayjs/plugin/timezone'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-// Set default timezone if needed, e.g., 'America/New_York'
-// dayjs.tz.setDefault("America/New_York")
-
 // Lazy load Navbar component
 const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
 
@@ -79,6 +113,8 @@ export default {
   components: { LazyNavbar },
   setup() {
     const classHistory = ref([])
+    const upcomingClasses = ref([])
+    const pastClasses = ref([])
     const loading = ref(false)
     const error = ref(null)
 
@@ -90,70 +126,112 @@ export default {
       error.value = null
 
       try {
-        // Step 1: Get token from localStorage
         const token = localStorage.getItem('token')
         if (!token) {
-          // Token is missing
           Swal.fire({
             icon: 'info',
             title: 'Login Required',
             text: 'No authentication token found. Please log in.',
           })
-          console.warn('Authentication token missing')
           return
         }
 
-        // Step 2: Make the API request with the token in headers and body
         const response = await axios.post(
           'https://mjtrainingcamp.my.id/api/v1/class/getHistory',
           {
-            token: token, // Include token in the request body
+            token: token,
           },
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Include token in headers
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           },
         )
 
-        // Step 3: Process the response
-        console.log('API Response:', response.data) // Debug: log the entire response data
-
-        // Set classHistory directly to the response data, assuming it's an array
         if (Array.isArray(response.data)) {
           classHistory.value = response.data
-        } else {
-          console.warn(
-            'Expected an array in response.data but received:',
-            response.data,
-          )
-          classHistory.value = [] // Fallback to an empty array if data is not in expected format
+          splitClassesByDate(response.data)
         }
       } catch (err) {
-        console.error('API Request Error:', err) // Log the error details
-
-        // Check if it's a 403 Forbidden error specifically
-        if (err.response && err.response.status === 403) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Access Denied',
-            text: 'You do not have permission to view this content.',
-          })
-          console.warn('403 Forbidden - Token may be invalid or expired')
-        } else {
-          // Other errors
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text:
-              err.response?.data?.message || 'An unexpected error occurred.',
-          })
-        }
-
+        console.error('API Request Error:', err)
+        error.value =
+          err.response?.data?.message || 'An unexpected error occurred.'
         classHistory.value = []
       } finally {
         loading.value = false
+      }
+    }
+
+    /**
+     * Splits classes into upcoming and past/ongoing based on current date.
+     */
+    const splitClassesByDate = classes => {
+      const now = dayjs()
+      upcomingClasses.value = classes.filter(classItem =>
+        dayjs(classItem.classDate).isAfter(now, 'day'),
+      )
+      pastClasses.value = classes.filter(classItem =>
+        dayjs(classItem.classDate).isBefore(now, 'day'),
+      )
+    }
+
+    /**
+     * Cancels a booking for a class.
+     * @param {String} classId - The ID of the class to cancel.
+     */
+    const cancelBooking = async classId => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Login Required',
+            text: 'No authentication token found. Please log in.',
+          })
+          return
+        }
+
+        const confirmation = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to cancel this booking?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, cancel it!',
+          cancelButtonText: 'No, keep it',
+        })
+
+        if (!confirmation.isConfirmed) return
+
+        const response = await axios.post(
+          'https://mjtrainingcamp.my.id/api/v1/class/cancel',
+          {
+            idClass: classId,
+            token: token,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Cancelled!',
+          text: 'Your booking has been successfully canceled.',
+        })
+
+        // Refresh the class history after cancellation
+        fetchClassHistory()
+      } catch (err) {
+        console.error('Cancellation Error:', err)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: err.response?.data?.message || 'An unexpected error occurred.',
+        })
       }
     }
 
@@ -175,20 +253,12 @@ export default {
     const formatTime = time => {
       if (!time) return 'N/A'
 
-      // Attempt parsing with 'HH:mm:ss' first
       let parsedTime = dayjs(time, 'HH:mm:ss', true)
-
       if (!parsedTime.isValid()) {
-        // Attempt parsing with 'HH:mm'
         parsedTime = dayjs(time, 'HH:mm', true)
       }
 
-      if (parsedTime.isValid()) {
-        return parsedTime.format('h:mm A') // e.g., "2:30 PM"
-      } else {
-        console.warn('Invalid time format:', time)
-        return time // Return original string if parsing fails
-      }
+      return parsedTime.isValid() ? parsedTime.format('h:mm A') : time
     }
 
     onMounted(() => {
@@ -197,17 +267,19 @@ export default {
 
     return {
       classHistory,
+      upcomingClasses,
+      pastClasses,
       loading,
       error,
       formatDate,
       formatTime,
+      cancelBooking,
     }
   },
 }
 </script>
 
 <style scoped>
-/* Container Styling */
 .container {
   padding: 40px 20px;
   max-width: 1200px;
@@ -219,22 +291,19 @@ export default {
   margin-top: 40px;
 }
 
-/* Heading Styles */
 h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #000; /* Black text to match the logo's accent */
+  color: #333;
 }
 
-/* Welcome Text */
 .welcome-text {
   font-size: 1.25rem;
   color: #555;
   margin-bottom: 40px;
 }
 
-/* Loading Indicator Styling */
 .loading-indicator {
   display: flex;
   align-items: center;
@@ -261,32 +330,40 @@ h1 {
   }
 }
 
-/* Error Message Styling */
 .alert-danger {
   font-size: 1.3rem;
   font-weight: 600;
   color: #ff4500;
 }
 
-/* Class History Table */
 .class-history-container {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   overflow-x: auto;
   display: flex;
-  justify-content: center; /* Center the table horizontally */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .class-history-table {
   width: 100%;
-  max-width: 1000px; /* Increased max-width for more columns */
   border-collapse: collapse;
+  text-align: left;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .class-history-table th,
 .class-history-table td {
   padding: 12px 20px;
   border: 1px solid #ddd;
-  text-align: left;
 }
 
 .class-history-table th {
@@ -303,52 +380,33 @@ h1 {
   background-color: #ffe5d9;
 }
 
-/* No History Message */
 .no-history {
   margin-top: 20px;
   font-size: 1.25rem;
   color: #777;
-  text-align: center;
 }
 
-/* Responsive Styles */
+.btn-danger {
+  background-color: #ff4500;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #e63900;
+}
+
 @media (max-width: 768px) {
-  h1 {
-    font-size: 2.5rem;
-  }
-
-  .welcome-text {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
+  .section-title {
+    font-size: 1.5rem;
   }
 
   .class-history-table th,
   .class-history-table td {
-    padding: 10px 12px;
-  }
-
-  .class-history-table {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  .welcome-text {
-    font-size: 1rem;
-    margin-bottom: 20px;
-  }
-
-  .class-history-table th,
-  .class-history-table td {
-    padding: 8px 10px;
-    font-size: 0.95rem;
-  }
-
-  .no-history {
+    padding: 10px;
     font-size: 1rem;
   }
 }
