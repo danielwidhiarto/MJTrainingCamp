@@ -49,6 +49,10 @@
                 <strong>Requirements:</strong>
                 {{ classDetails.classRequirement }}
               </li>
+              <li class="list-group-item">
+                <strong>Class Notes:</strong>
+                {{ classDetails.classNote }}
+              </li>
             </ul>
           </div>
 
