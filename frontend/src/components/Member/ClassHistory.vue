@@ -20,11 +20,12 @@
         {{ error }}
       </div>
 
-      <!-- Class History Table -->
+      <!-- Upcoming Classes Table -->
       <div
-        v-if="!loading && classHistory.length"
-        class="class-history-container flex justify-center"
+        v-if="!loading && upcomingClasses.length"
+        class="class-history-container"
       >
+        <h3 class="section-title">Upcoming Classes</h3>
         <table class="class-history-table">
           <thead>
             <tr>
@@ -35,7 +36,34 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="classItem in classHistory" :key="classItem.id">
+            <tr v-for="classItem in upcomingClasses" :key="classItem.id">
+              <td>{{ classItem.className }}</td>
+              <td>{{ formatDate(classItem.classDate) }}</td>
+              <td>{{ formatTime(classItem.classTime) }}</td>
+              <td>{{ classItem.classCapasity }} members</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Past / Ongoing Classes Table -->
+      <div
+        v-if="!loading && pastClasses.length"
+        class="class-history-container"
+      >
+        <br />
+        <h3 class="section-title">Past / Ongoing Classes</h3>
+        <table class="class-history-table">
+          <thead>
+            <tr>
+              <th>Class Name</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Capacity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="classItem in pastClasses" :key="classItem.id">
               <td>{{ classItem.className }}</td>
               <td>{{ formatDate(classItem.classDate) }}</td>
               <td>{{ formatTime(classItem.classTime) }}</td>
@@ -47,7 +75,7 @@
 
       <!-- No History Message -->
       <div
-        v-else-if="!loading && !classHistory.length"
+        v-else-if="!loading && !upcomingClasses.length && !pastClasses.length"
         class="no-history text-center"
       >
         You have no class history.
@@ -68,9 +96,6 @@ import timezone from 'dayjs/plugin/timezone'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-// Set default timezone if needed, e.g., 'America/New_York'
-// dayjs.tz.setDefault("America/New_York")
-
 // Lazy load Navbar component
 const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
 
@@ -79,6 +104,8 @@ export default {
   components: { LazyNavbar },
   setup() {
     const classHistory = ref([])
+    const upcomingClasses = ref([])
+    const pastClasses = ref([])
     const loading = ref(false)
     const error = ref(null)
 
@@ -90,71 +117,54 @@ export default {
       error.value = null
 
       try {
-        // Step 1: Get token from localStorage
         const token = localStorage.getItem('token')
         if (!token) {
-          // Token is missing
           Swal.fire({
             icon: 'info',
             title: 'Login Required',
             text: 'No authentication token found. Please log in.',
           })
-          console.warn('Authentication token missing')
           return
         }
 
-        // Step 2: Make the API request with the token in headers and body
         const response = await axios.post(
           'https://mjtrainingcamp.my.id/api/v1/class/getHistory',
           {
-            token: token, // Include token in the request body
+            token: token,
           },
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Include token in headers
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           },
         )
 
-        // Step 3: Process the response
-        console.log('API Response:', response.data) // Debug: log the entire response data
-
-        // Set classHistory directly to the response data, assuming it's an array
         if (Array.isArray(response.data)) {
           classHistory.value = response.data
-        } else {
-          console.warn(
-            'Expected an array in response.data but received:',
-            response.data,
-          )
-          classHistory.value = [] // Fallback to an empty array if data is not in expected format
+          splitClassesByDate(response.data)
         }
       } catch (err) {
-        console.error('API Request Error:', err) // Log the error details
-
-        // Check if it's a 403 Forbidden error specifically
-        if (err.response && err.response.status === 403) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Access Denied',
-            text: 'You do not have permission to view this content.',
-          })
-          console.warn('403 Forbidden - Token may be invalid or expired')
-        } else {
-          // Other errors
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text:
-              err.response?.data?.message || 'An unexpected error occurred.',
-          })
-        }
-
+        console.error('API Request Error:', err)
+        error.value =
+          err.response?.data?.message || 'An unexpected error occurred.'
         classHistory.value = []
       } finally {
         loading.value = false
       }
+    }
+
+    /**
+     * Splits classes into upcoming and past/ongoing based on current date.
+     */
+    const splitClassesByDate = classes => {
+      const now = dayjs()
+      upcomingClasses.value = classes.filter(classItem =>
+        dayjs(classItem.classDate).isAfter(now, 'day'),
+      )
+      pastClasses.value = classes.filter(classItem =>
+        dayjs(classItem.classDate).isBefore(now, 'day'),
+      )
     }
 
     /**
@@ -175,20 +185,12 @@ export default {
     const formatTime = time => {
       if (!time) return 'N/A'
 
-      // Attempt parsing with 'HH:mm:ss' first
       let parsedTime = dayjs(time, 'HH:mm:ss', true)
-
       if (!parsedTime.isValid()) {
-        // Attempt parsing with 'HH:mm'
         parsedTime = dayjs(time, 'HH:mm', true)
       }
 
-      if (parsedTime.isValid()) {
-        return parsedTime.format('h:mm A') // e.g., "2:30 PM"
-      } else {
-        console.warn('Invalid time format:', time)
-        return time // Return original string if parsing fails
-      }
+      return parsedTime.isValid() ? parsedTime.format('h:mm A') : time
     }
 
     onMounted(() => {
@@ -197,6 +199,8 @@ export default {
 
     return {
       classHistory,
+      upcomingClasses,
+      pastClasses,
       loading,
       error,
       formatDate,
@@ -221,10 +225,10 @@ export default {
 
 /* Heading Styles */
 h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #000; /* Black text to match the logo's accent */
+  color: #333;
 }
 
 /* Welcome Text */
@@ -270,16 +274,27 @@ h1 {
 
 /* Class History Table */
 .class-history-container {
-  width: 100%;
-  overflow-x: auto;
+  width: 100%; /* Ensure it takes full width of the container */
+  max-width: 800px; /* Set a maximum width for the table container */
+  margin: 0 auto; /* Center the container horizontally */
+  overflow-x: auto; /* Enable horizontal scrolling if content overflows */
   display: flex;
-  justify-content: center; /* Center the table horizontally */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Center the table */
 }
 
 .class-history-table {
-  width: 100%;
-  max-width: 1000px; /* Increased max-width for more columns */
-  border-collapse: collapse;
+  width: 100%; /* Make the table take full width of its container */
+  border-collapse: collapse; /* Remove space between table cells */
+  text-align: left; /* Align text to the left */
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .class-history-table th,
@@ -313,42 +328,13 @@ h1 {
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-  h1 {
-    font-size: 2.5rem;
-  }
-
-  .welcome-text {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
+  .section-title {
+    font-size: 1.5rem;
   }
 
   .class-history-table th,
   .class-history-table td {
-    padding: 10px 12px;
-  }
-
-  .class-history-table {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  .welcome-text {
-    font-size: 1rem;
-    margin-bottom: 20px;
-  }
-
-  .class-history-table th,
-  .class-history-table td {
-    padding: 8px 10px;
-    font-size: 0.95rem;
-  }
-
-  .no-history {
+    padding: 10px;
     font-size: 1rem;
   }
 }
