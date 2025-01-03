@@ -187,7 +187,7 @@ export default {
           if (role === 'ROLE_ADMIN') {
             this.$router.push('/admin/dashboard')
           } else if (role === 'ROLE_TRAINER') {
-            this.$router.push('/trainer-dashboard')
+            this.$router.push('/trainer/dashboard')
           } else {
             this.$router.push('/member/dashboard')
           }
