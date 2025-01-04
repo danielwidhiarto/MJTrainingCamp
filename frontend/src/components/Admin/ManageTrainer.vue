@@ -82,7 +82,7 @@
             <label for="trainerName" class="form-label">Trainer Name</label>
             <input
               type="text"
-              v-model="currentTrainer.trainerName"
+              v-model="currentTrainer.name"
               class="form-control"
               id="trainerName"
               required
@@ -206,6 +206,7 @@ export default {
       currentTrainer: {
         idTrainer: null,
         trainerName: '',
+        name: '', // Add the name field
         email: '',
         password: '',
         pnumber: '',
@@ -216,9 +217,16 @@ export default {
       isEditMode: false,
       sortKey: 'idTrainer',
       sortOrder: 'asc',
-      errors: {}, // Object to hold validation error messages
+      errors: {},
     }
   },
+
+  watch: {
+    'currentTrainer.name'(newName) {
+      this.currentTrainer.trainerName = newName // Automatically sync trainerName with name
+    },
+  },
+
   computed: {
     sortedTrainers() {
       return [...this.trainers].sort((a, b) => {
