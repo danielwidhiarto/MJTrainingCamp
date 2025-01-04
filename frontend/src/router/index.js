@@ -94,6 +94,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
   },
   {
+    path: '/admin/manage-class/class-detail/:id',
+    name: 'AdminClassDetail',
+    component: () => import('../components/Admin/ClassDetail.vue'),
+    meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+  },
+  {
     path: '/admin/manage-trainer',
     name: 'ManageTrainer',
     component: () => import('../components/Admin/ManageTrainer.vue'),
@@ -116,6 +122,7 @@ const routes = [
     name: 'AdminProfilePage',
     component: () => import('../components/Admin/ProfilePage.vue'),
     meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+    props: true,
   },
 
   //Trainer
