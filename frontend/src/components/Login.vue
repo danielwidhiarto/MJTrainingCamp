@@ -166,8 +166,16 @@ export default {
         )
 
         // Destructure the full response
-        const { token, role, idUser, name, email, phone, registrationDate } =
-          response.data
+        const {
+          token,
+          role,
+          idUser,
+          name,
+          email,
+          phone,
+          registrationDate,
+          tokenExpiredDate,
+        } = response.data
 
         // Store each piece of information in localStorage
         localStorage.setItem('token', token)
@@ -177,6 +185,7 @@ export default {
         localStorage.setItem('email', email)
         localStorage.setItem('phone', phone)
         localStorage.setItem('registrationDate', registrationDate)
+        localStorage.setItem('tokenExpiredDate', tokenExpiredDate) // Add tokenExpiredDate
 
         Swal.fire({
           title: 'Login Successful!',

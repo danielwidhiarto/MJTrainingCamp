@@ -143,6 +143,33 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
+  const tokenExpiredDate = localStorage.getItem('tokenExpiredDate')
+
+  // If tokenExpiredDate exists, check if it's expired
+  if (tokenExpiredDate) {
+    const currentTime = new Date().toISOString()
+    if (new Date(tokenExpiredDate) < new Date(currentTime)) {
+      // Token is expired, remove stored data and redirect to login
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+      localStorage.removeItem('idUser')
+      localStorage.removeItem('name')
+      localStorage.removeItem('email')
+      localStorage.removeItem('phone')
+      localStorage.removeItem('registrationDate')
+      localStorage.removeItem('tokenExpiredDate')
+
+      Swal.fire({
+        title: 'Session Expired',
+        text: 'Your session has expired. Please log in again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      })
+
+      next({ name: 'Login' }) // Redirect to login
+      return
+    }
+  }
 
   // Redirect logged-in users from login/register to the dashboard
   if (token && (to.name === 'Login' || to.name === 'Register')) {
