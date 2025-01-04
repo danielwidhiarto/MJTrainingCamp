@@ -139,7 +139,7 @@ export default {
      * Navigates back to the ViewClass page.
      */
     goBack() {
-      this.$router.push({ name: 'ViewClass' })
+      this.$router.go(-1)
       // Alternatively, use router.go(-1) to go back to the previous history entry:
       // this.$router.go(-1)
     },
