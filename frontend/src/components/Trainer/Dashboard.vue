@@ -4,7 +4,8 @@
     <div class="container">
       <h1 class="mb-4">Trainer Dashboard</h1>
       <p class="welcome-text mb-6">
-        Here is your upcoming and past class schedule.
+        Welcome, {{ trainerName }}! Here is your upcoming and past class
+        schedule.
       </p>
 
       <!-- Loading Indicator -->
@@ -112,8 +113,8 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { defineAsyncComponent, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -124,22 +125,22 @@ import { useRouter } from 'vue-router'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-// Lazy load Navbar component
-const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
-
 export default {
   name: 'TrainerDashboard',
-  components: { LazyNavbar },
   setup() {
     const upcomingClasses = ref([])
     const pastClasses = ref([])
     const loading = ref(false)
     const error = ref(null)
+    const trainerName = ref('') // New ref to store trainer's name
     const router = useRouter()
 
-    /**
-     * Fetches the class schedule for the trainer.
-     */
+    // Fetch trainer's name from localStorage
+    onMounted(() => {
+      trainerName.value = localStorage.getItem('name') || 'Trainer' // Default to 'Trainer' if no name in localStorage
+      fetchTrainerSchedule()
+    })
+
     const fetchTrainerSchedule = async () => {
       loading.value = true
       error.value = null
@@ -167,7 +168,6 @@ export default {
         )
 
         if (Array.isArray(response.data)) {
-          // Separate upcoming and past classes
           const currentDate = dayjs().startOf('day')
           upcomingClasses.value = response.data.filter(classItem =>
             dayjs(classItem.classDate).isAfter(currentDate),
@@ -187,10 +187,6 @@ export default {
       }
     }
 
-    /**
-     * Redirects to the class detail page.
-     * @param {String} classId - The ID of the class to view.
-     */
     const viewClassDetail = classId => {
       router.push({
         name: 'TrainerClassDetail',
@@ -198,21 +194,11 @@ export default {
       })
     }
 
-    /**
-     * Formats the date to "Monday, 4 November 2024".
-     * @param {String} dateString - The date string.
-     * @returns {String} - Formatted date.
-     */
     const formatDate = dateString => {
       if (!dateString) return 'N/A'
       return dayjs(dateString).format('dddd, D MMMM YYYY')
     }
 
-    /**
-     * Formats the time to "1:30 PM".
-     * @param {String} time - The time string.
-     * @returns {String} - Formatted time.
-     */
     const formatTime = time => {
       if (!time) return 'N/A'
 
@@ -224,11 +210,8 @@ export default {
       return parsedTime.isValid() ? parsedTime.format('h:mm A') : time
     }
 
-    onMounted(() => {
-      fetchTrainerSchedule()
-    })
-
     return {
+      trainerName,
       upcomingClasses,
       pastClasses,
       loading,
