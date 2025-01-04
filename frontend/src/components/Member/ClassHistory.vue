@@ -87,7 +87,12 @@
               <td>{{ formatTime(classItem.classTime) }}</td>
               <td>{{ classItem.classCapasity }} members</td>
               <td>
-                <button class="btn btn-primary">View Detail</button>
+                <button
+                  class="btn btn-primary"
+                  @click="goToClassDetail(classItem.idClass)"
+                >
+                  View Detail
+                </button>
               </td>
             </tr>
           </tbody>
