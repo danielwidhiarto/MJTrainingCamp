@@ -43,12 +43,20 @@
               <td>{{ formatTime(classItem.classTime) }}</td>
               <td>{{ classItem.classCapasity }} members</td>
               <td>
-                <button
-                  class="btn btn-danger"
-                  @click="cancelBooking(classItem.idClass)"
-                >
-                  Cancel
-                </button>
+                <div class="action-buttons">
+                  <button
+                    class="btn btn-primary"
+                    @click="goToClassDetail(classItem.idClass)"
+                  >
+                    View Detail
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    @click="cancelBooking(classItem.idClass)"
+                  >
+                    Cancel Booking
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -69,6 +77,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Capacity</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -77,6 +86,9 @@
               <td>{{ formatDate(classItem.classDate) }}</td>
               <td>{{ formatTime(classItem.classTime) }}</td>
               <td>{{ classItem.classCapasity }} members</td>
+              <td>
+                <button class="btn btn-primary">View Detail</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -96,6 +108,7 @@
 <script>
 import axios from 'axios'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router' // Import useRouter
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -117,6 +130,9 @@ export default {
     const pastClasses = ref([])
     const loading = ref(false)
     const error = ref(null)
+
+    // Use the router for navigation
+    const router = useRouter()
 
     /**
      * Fetches the class history for the logged-in user.
@@ -246,6 +262,14 @@ export default {
     }
 
     /**
+     * Navigates to class detail page.
+     * @param {String} idClass - The ID of the class to view details.
+     */
+    const goToClassDetail = idClass => {
+      router.push({ name: 'ClassDetail', params: { id: idClass } }) // Use router.push here
+    }
+
+    /**
      * Formats the time to "1:30 PM".
      * @param {String} time - The time string.
      * @returns {String} - Formatted time.
@@ -274,6 +298,7 @@ export default {
       formatDate,
       formatTime,
       cancelBooking,
+      goToClassDetail,
     }
   },
 }
@@ -397,6 +422,71 @@ h1 {
 
 .btn-danger:hover {
   background-color: #e63900;
+}
+
+/* Add this to your existing styles */
+.action-buttons {
+  display: flex;
+  gap: 10px; /* Adds space between the buttons */
+  justify-content: center; /* Centers the buttons horizontally */
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background-color: #ff4500;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #e63900;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+/* Add this to your existing styles */
+.action-buttons {
+  display: flex;
+  gap: 10px; /* Adds space between the buttons */
+  justify-content: center; /* Centers the buttons horizontally */
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background-color: #ff4500;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #e63900;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 
 @media (max-width: 768px) {
