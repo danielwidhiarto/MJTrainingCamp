@@ -58,6 +58,12 @@
                 <td>
                   <button
                     class="btn btn-sm btn-primary me-2"
+                    @click="goToClassDetail(classItem.idClass)"
+                  >
+                    View Detail
+                  </button>
+                  <button
+                    class="btn btn-sm btn-primary me-2"
                     @click="editClass(classItem)"
                   >
                     <i class="fas fa-edit"></i> Edit
@@ -343,7 +349,10 @@ export default {
       this.isEditMode = true
       this.isModalOpen = true // Updated to isModalOpen
     },
-
+    goToClassDetail(idClass) {
+      // Using Vue Router to navigate to the class detail page
+      this.$router.push({ name: 'AdminClassDetail', params: { id: idClass } })
+    },
     // Close Modal
     closeModal() {
       this.isModalOpen = false // Updated to isModalOpen
