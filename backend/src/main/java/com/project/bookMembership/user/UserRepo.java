@@ -18,7 +18,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM user_table WHERE role = 'ROLE_USER'", nativeQuery = true)
     List<User> FindAllUserMember();
 
-
+    @Query(value = "SELECT COUNT(*) FROM user_table WHERE role = 'ROLE_USER'", nativeQuery = true)
+    int countAllUsers();
 
 }   
 

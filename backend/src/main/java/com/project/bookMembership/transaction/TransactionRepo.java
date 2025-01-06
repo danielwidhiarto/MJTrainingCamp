@@ -22,4 +22,18 @@ public interface TransactionRepo  extends JpaRepository<Transaction,Long> {
     WHERE (m.user.idUser = :userId OR v.user.idUser = :userId)
     """)
     List<Transaction> findByUser(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.paymentStatus = 'WAITING FOR APPROVAL'")
+    long countWaitingForApproval();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE MONTH(t.transactionDate) = MONTH(CURRENT_DATE) AND YEAR(t.transactionDate) = YEAR(CURRENT_DATE)")
+    long countTransactionThisMonth();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.paymentStatus = 'VERIFIED'")
+    long countTransactionSucess();
+
+    @Query("SELECT SUM(t.transactionPrice) FROM Transaction t WHERE t.paymentStatus = 'VERIFIED'")
+    long countTotalTransaction();
+
+
 }

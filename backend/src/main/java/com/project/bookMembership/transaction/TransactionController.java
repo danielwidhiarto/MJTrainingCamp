@@ -3,8 +3,11 @@ package com.project.bookMembership.transaction;
 import java.util.List;
 import java.util.Optional;
 
+import com.project.bookMembership.DTO.AdminDashboardDTO;
 import com.project.bookMembership.DTO.GetUserTransactionRequest;
 import com.project.bookMembership.DTO.UpdateTransactionStatusRequest;
+import com.project.bookMembership.membership.MembershipRepo;
+import com.project.bookMembership.user.UserRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin
 public class TransactionController {
     private final TransactionService transactionService;
-
+    private final UserRepo userRepo;
+    private final TransactionRepo transactionRepo;
+    private final MembershipRepo membershipRepo;
 //     @PostMapping("/get")
 //     public ResponseEntity<GetTransactionResponse> getTransaction(@RequestParam Long id) {
 //         Optional<GetTransactionResponse> transactionResponse = transactionService.getById(id);
@@ -38,7 +43,7 @@ public class TransactionController {
     @GetMapping("/get")
     public ResponseEntity<?> getAllTransactions(@RequestParam(required = false) Long id) {
         if (id != null) {
-            // Fetch by ID
+
             Optional<GetTransactionResponse> transactionResponse = transactionService.getById(id);
 
             if (transactionResponse.isPresent()) {
@@ -78,5 +83,28 @@ public class TransactionController {
         }
     }
 
+    @GetMapping("/adminDashBoard")
+    public ResponseEntity<AdminDashboardDTO> countPendingTransaction() {
+        int totaluser= userRepo.countAllUsers();
+        long activeMemberThisMonth= membershipRepo.countActiveMembershipThisMonth();
 
+
+        long thisMonthTransaction=transactionRepo.countTransactionThisMonth();
+        long pendingTransaction= transactionRepo.countWaitingForApproval();
+        long countTransactionSucess=transactionRepo.countTransactionSucess();
+        long totaltransaction=transactionRepo.countTotalTransaction();
+
+        // Creating the AdminDashboardDTO object with the fetched data
+        AdminDashboardDTO dashboardDTO = AdminDashboardDTO.builder()
+                .totalUser(totaluser)
+                .activeMemberThisMonth(activeMemberThisMonth)
+                .thisMonthTransaction(thisMonthTransaction)
+                .pendingTransaction(pendingTransaction)
+                .countTransactionSuccess(countTransactionSucess)
+                .totalSuccesTransactionRevenue(totaltransaction)
+                .build();
+
+        // Returning the response with the AdminDashboardDTO object
+        return ResponseEntity.ok(dashboardDTO);
+    }
 }

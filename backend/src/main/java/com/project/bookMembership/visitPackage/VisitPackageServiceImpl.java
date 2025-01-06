@@ -12,6 +12,7 @@ import com.project.bookMembership.user.UserRepo;
 import utils.ImageUtils;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Service
 
@@ -49,6 +50,7 @@ public class VisitPackageServiceImpl implements VisitPackageService{
             .paymentStatus("WAITING FOR APPROVAL")
             .transactionPrice(visitPackageRequest.getTransactionPrice())
                 .buktiTransfer(ImageUtils.compressImage(visitPackageRequest.getBuktiTransfer().getBytes()))
+                .transactionDate(new Date())
             .build();
 
             transactionService.save(transaction);

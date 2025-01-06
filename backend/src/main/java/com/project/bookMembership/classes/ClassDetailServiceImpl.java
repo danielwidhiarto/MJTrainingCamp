@@ -278,18 +278,18 @@ public class ClassDetailServiceImpl implements ClassDetailService {
 
     @Override
     public GetAllUserWithMembershipResponse getAllMembership( ) {
-        // Buat list untuk menyimpan data pengguna
+
         List<UserWithMembershipAndVisitPackage> userData = new ArrayList<>();
 
-        // Ambil semua pengguna yang memiliki membership
+
         List<User> userList = userRepo.FindAllUserMember();
 
         for (User user : userList) {
-            // Ambil daftar membership dan visit package untuk setiap pengguna
+
             List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
             List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
 
-            // Buat daftar DTO untuk membership
+
             List<MembershipDetailResponse> membershipDetails = memberships.stream()
                     .map(membership -> MembershipDetailResponse.builder()
                             .idMember(membership.getIdMember())
@@ -302,7 +302,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                             .build())
                     .collect(Collectors.toList());
 
-            // Buat daftar DTO untuk visit package
+
             List<VisitDetailResponse> visitDetails = visitPackages.stream()
                     .map(visitPackage -> VisitDetailResponse.builder()
                             .idVisit(visitPackage.getIdVisit())
@@ -314,9 +314,9 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                             .build())
                     .collect(Collectors.toList());
 
-            // Buat DTO untuk setiap pengguna
+
             UserWithMembershipAndVisitPackage userWithDetails = UserWithMembershipAndVisitPackage.builder()
-                    .idMember(user.getIdUser())
+                    .idUser(user.getIdUser())
                     .name(user.getName())
                     .email(user.getEmail())
                     .pNumber(user.getPNumber())
@@ -324,7 +324,7 @@ public class ClassDetailServiceImpl implements ClassDetailService {
                     .visitDetails(visitDetails)
                     .build();
 
-            // Tambahkan ke daftar pengguna
+
             userData.add(userWithDetails);
         }
 

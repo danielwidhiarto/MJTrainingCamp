@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserWithMembershipAndVisitPackage {
 
-    private long idMember;
+    private long idUser;
     private String name;
     private String email;
     private String pNumber;

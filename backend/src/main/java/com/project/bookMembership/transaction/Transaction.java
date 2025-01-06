@@ -20,6 +20,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -47,7 +49,7 @@ public class Transaction {
     private String paymentStatus;
     private String paymentStatusNote;
     private Long transactionPrice;
-
+    private Date transactionDate;
     @Column(name = "bukti_transfer", columnDefinition = "bytea")
     private byte[] buktiTransfer;
 }
