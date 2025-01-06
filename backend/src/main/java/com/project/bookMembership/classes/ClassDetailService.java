@@ -1,9 +1,6 @@
 package com.project.bookMembership.classes;
 
-import com.project.bookMembership.DTO.ClassBookingStatusResponse;
-import com.project.bookMembership.DTO.ClassDetailRequest;
-import com.project.bookMembership.DTO.MembershipStatusRequest;
-import com.project.bookMembership.DTO.MembershipStatusResponse;
+import com.project.bookMembership.DTO.*;
 
 public interface ClassDetailService {
     
@@ -12,4 +9,5 @@ public interface ClassDetailService {
 
     ClassBookingStatusResponse checkBookingEligibility(ClassDetailRequest classDetailRequest);
     MembershipStatusResponse checkMembershipStatus(MembershipStatusRequest membershipStatusRequest);
+    GetAllUserWithMembershipResponse getAllMembership( );
 }

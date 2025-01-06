@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 import com.project.bookMembership.DTO.*;
@@ -272,6 +273,64 @@ public class ClassDetailServiceImpl implements ClassDetailService {
         response.setVisitDetails(visitDetails); // Use the updated field name here
 
         return response;
+    }
+
+
+    @Override
+    public GetAllUserWithMembershipResponse getAllMembership( ) {
+        // Buat list untuk menyimpan data pengguna
+        List<UserWithMembershipAndVisitPackage> userData = new ArrayList<>();
+
+        // Ambil semua pengguna yang memiliki membership
+        List<User> userList = userRepo.FindAllUserMember();
+
+        for (User user : userList) {
+            // Ambil daftar membership dan visit package untuk setiap pengguna
+            List<Membership> memberships = membershipRepo.findByUserId(user.getIdUser());
+            List<VisitPackage> visitPackages = visitRepo.findByUserId(user.getIdUser());
+
+            // Buat daftar DTO untuk membership
+            List<MembershipDetailResponse> membershipDetails = memberships.stream()
+                    .map(membership -> MembershipDetailResponse.builder()
+                            .idMember(membership.getIdMember())
+                            .duration(membership.getDuration())
+                            .startDate(membership.getStartDate().toString())
+                            .endDate(membership.getEndDate().toString())
+                            .price(membership.getPrice())
+                            .transactionId(membership.getTransaction().getIdTransaction())
+                            .userId(membership.getUser().getIdUser())
+                            .build())
+                    .collect(Collectors.toList());
+
+            // Buat daftar DTO untuk visit package
+            List<VisitDetailResponse> visitDetails = visitPackages.stream()
+                    .map(visitPackage -> VisitDetailResponse.builder()
+                            .idVisit(visitPackage.getIdVisit())
+                            .price(visitPackage.getPrice())
+                            .visitNumber(visitPackage.getVisitNumber())
+                            .visitUsed(visitPackage.getVisitUsed())
+                            .transactionId(visitPackage.getTransaction().getIdTransaction())
+                            .userId(visitPackage.getUser().getIdUser())
+                            .build())
+                    .collect(Collectors.toList());
+
+            // Buat DTO untuk setiap pengguna
+            UserWithMembershipAndVisitPackage userWithDetails = UserWithMembershipAndVisitPackage.builder()
+                    .idMember(user.getIdUser())
+                    .name(user.getName())
+                    .email(user.getEmail())
+                    .pNumber(user.getPNumber())
+                    .memberships(membershipDetails)
+                    .visitDetails(visitDetails)
+                    .build();
+
+            // Tambahkan ke daftar pengguna
+            userData.add(userWithDetails);
+        }
+
+        return GetAllUserWithMembershipResponse.builder()
+                .userData(userData)
+                .build();
     }
 
 }

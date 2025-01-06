@@ -24,6 +24,17 @@ public class ClassController {
     private final ClassDetailService classDetailService;
 
 
+    @GetMapping("/getAllUser")
+    public ResponseEntity<GetAllUserWithMembershipResponse> getAllUser() {
+        // Panggil service untuk mendapatkan semua data pengguna
+        GetAllUserWithMembershipResponse response = classDetailService.getAllMembership();
+
+        // Kembalikan respons dengan status OK
+        return ResponseEntity.ok(response);
+    }
+
+
+
     @PostMapping("/check-eligibility")
     public ResponseEntity<ClassBookingStatusResponse> checkBookingEligibility(@RequestBody ClassDetailRequest classDetailRequest) {
         ClassBookingStatusResponse response = classDetailService.checkBookingEligibility(classDetailRequest);
