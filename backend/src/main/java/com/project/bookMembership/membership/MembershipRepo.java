@@ -15,4 +15,8 @@ public interface MembershipRepo extends JpaRepository<Membership,Long>{
     AND m.transaction.paymentStatus = 'VERIFIED'
     """)
     List<Membership> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(m) FROM Membership m WHERE m.startDate <= CURRENT_DATE AND m.endDate >= CURRENT_DATE")
+    long countActiveMembershipThisMonth();
+
 }

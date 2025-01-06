@@ -10,6 +10,8 @@ import com.project.bookMembership.transaction.TransactionService;
 import com.project.bookMembership.user.User;
 import com.project.bookMembership.user.UserRepo;
 import java.io.IOException;
+import java.util.Date;
+
 import utils.ImageUtils;
 
 @Service
@@ -45,11 +47,9 @@ public Membership save(MembershipRequest membershipRequest) {
             .paymentMethod(membershipRequest.getPaymentMethod())
             .paymentStatus("WAITING FOR APPROVAL")
             .transactionPrice(membershipRequest.getTransactionPrice())
+            .transactionDate(new Date())
             .buktiTransfer(ImageUtils.compressImage(membershipRequest.getBuktiTransfer().getBytes()))
             .build();
-
-            System.out.println("Transaction bukti_transfer (length): " + transaction.getBuktiTransfer());
-
     transactionService.save(transaction);
 
     Membership membership = Membership.builder()

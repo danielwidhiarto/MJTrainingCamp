@@ -3,6 +3,9 @@ ozann
 eman
 bikin estetik website
 trainer logout belom ada
+tambah transactionDate di verify payment dan transactionHistory
+
+
 both
 bikin get membership
 bikin home page admin sama member
