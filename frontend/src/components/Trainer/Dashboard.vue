@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Use the LazyNavbar component -->
     <LazyNavbar />
     <div class="container">
       <h1 class="mb-4">Trainer Dashboard</h1>
@@ -113,7 +114,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
@@ -125,19 +126,22 @@ import { useRouter } from 'vue-router'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+// Lazy load the Navbar component
+const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
+
 export default {
   name: 'TrainerDashboard',
+  components: { LazyNavbar },
   setup() {
     const upcomingClasses = ref([])
     const pastClasses = ref([])
     const loading = ref(false)
     const error = ref(null)
-    const trainerName = ref('') // New ref to store trainer's name
+    const trainerName = ref('')
     const router = useRouter()
 
-    // Fetch trainer's name from localStorage
     onMounted(() => {
-      trainerName.value = localStorage.getItem('name') || 'Trainer' // Default to 'Trainer' if no name in localStorage
+      trainerName.value = localStorage.getItem('name') || 'Trainer'
       fetchTrainerSchedule()
     })
 
@@ -177,11 +181,8 @@ export default {
           )
         }
       } catch (err) {
-        console.error('API Request Error:', err)
         error.value =
           err.response?.data?.message || 'An unexpected error occurred.'
-        upcomingClasses.value = []
-        pastClasses.value = []
       } finally {
         loading.value = false
       }
@@ -195,19 +196,12 @@ export default {
     }
 
     const formatDate = dateString => {
-      if (!dateString) return 'N/A'
       return dayjs(dateString).format('dddd, D MMMM YYYY')
     }
 
     const formatTime = time => {
-      if (!time) return 'N/A'
-
-      let parsedTime = dayjs(time, 'HH:mm:ss', true)
-      if (!parsedTime.isValid()) {
-        parsedTime = dayjs(time, 'HH:mm', true)
-      }
-
-      return parsedTime.isValid() ? parsedTime.format('h:mm A') : time
+      const parsedTime = dayjs(time, 'HH:mm:ss', true)
+      return parsedTime.isValid() ? parsedTime.format('h:mm A') : 'N/A'
     }
 
     return {
