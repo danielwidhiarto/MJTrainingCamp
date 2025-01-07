@@ -173,7 +173,7 @@ router.beforeEach((to, from, next) => {
         confirmButtonText: 'OK',
       })
 
-      next({ name: 'Login' }) // Redirect to login
+      next({ path: '/' })
       return
     }
   }
