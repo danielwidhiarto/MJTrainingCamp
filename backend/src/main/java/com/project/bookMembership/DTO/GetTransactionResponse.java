@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -24,6 +26,7 @@ public class GetTransactionResponse {
     private Long visitId;
     private String memberName;
     private byte[] buktiTransfer;
+    private Date transactionDate;
 
 
 }

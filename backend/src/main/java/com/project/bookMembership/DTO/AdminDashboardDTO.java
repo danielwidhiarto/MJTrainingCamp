@@ -18,5 +18,6 @@ public class AdminDashboardDTO {
     private long pendingTransaction;
     private long countTransactionSuccess;
     private long totalSuccesTransactionRevenue;
+    private GetTotalAttendance totalAttendanceList;
 
 }

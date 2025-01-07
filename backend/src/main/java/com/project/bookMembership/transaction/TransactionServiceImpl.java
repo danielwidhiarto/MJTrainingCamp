@@ -132,6 +132,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
             response.setPaymentNotes(tx.getPaymentStatusNote());
+            response.setTransactionDate(tx.getTransactionDate());
 
             if (tx.getMembership() != null) {
                 Membership member = tx.getMembership();
@@ -168,6 +169,7 @@ public class TransactionServiceImpl implements TransactionService {
             response.setTransactionPrice(tx.getTransactionPrice());
             response.setPaymentStatus(tx.getPaymentStatus());
             response.setPaymentNotes(tx.getPaymentStatusNote());
+            response.setTransactionDate(tx.getTransactionDate());
 
             if (tx.getMembership() != null) {
                 Membership member = tx.getMembership();
