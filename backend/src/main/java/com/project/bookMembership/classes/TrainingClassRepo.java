@@ -27,5 +27,9 @@ public interface TrainingClassRepo extends JpaRepository<TrainingClass,Long>{
 
 
 
+    @Query("SELECT COUNT(ctd) FROM ClassTrainerDetail ctd JOIN ctd.idClass t WHERE t.classDate = CAST(:date AS date)")
+    Long countTotalAttendanceToday(@Param("date") Date date);
+
+
 
 }
