@@ -124,7 +124,7 @@ export default {
     const statisticsTitles = {
       totalUser: 'Total Users',
       activeMemberThisMonth: 'Active Memberships',
-      totalSuccesTransactionRevenue: 'Total Revenue (IDR)',
+      totalSuccesTransactionRevenue: 'Total Revenue This Month(IDR)',
       pendingTransaction: 'Pending Transactions',
       countTransactionSuccess: 'Successful Transactions',
       thisMonthTransaction: 'This Month Transactions',
