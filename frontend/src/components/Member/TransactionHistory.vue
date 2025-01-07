@@ -34,6 +34,7 @@
             <thead class="thead-light">
               <tr>
                 <th>Transaction ID</th>
+                <th>Transaction Date</th>
                 <th>Package Type</th>
                 <th>Payment Method</th>
                 <th>Price</th>
@@ -48,6 +49,7 @@
                 :class="statusClass(transaction.paymentStatus)"
               >
                 <td>{{ transaction.idTransaction }}</td>
+                <td>{{ formatDate(transaction.transactionDate) }}</td>
                 <td>{{ transaction.paymentType }}</td>
                 <td>{{ formatPaymentMethod(transaction.paymentMethod) }}</td>
                 <td>{{ formatPrice(transaction.transactionPrice) }}</td>
@@ -137,6 +139,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { debounce } from 'lodash'
@@ -154,7 +157,9 @@ export default {
     const isLoadingDetails = ref(false)
     const loading = ref(false)
     const error = ref(null)
-
+    const formatDate = date => {
+      return dayjs(date).format('dddd, DD MMM YYYY') // Example format: Monday, 01 Jan 2025
+    }
     /**
      * Computed property to return all transactions without filtering
      */
@@ -327,6 +332,7 @@ export default {
       formatPaymentMethod,
       loading,
       error,
+      formatDate,
     }
   },
 }

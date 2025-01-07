@@ -22,6 +22,7 @@
             <thead class="thead-light">
               <tr>
                 <th>Transaction ID</th>
+                <th>Transaction Date</th>
                 <th>Package Type</th>
                 <th>Payment Method</th>
                 <th>Price</th>
@@ -36,6 +37,7 @@
                 :class="statusClass(transaction.paymentStatus)"
               >
                 <td>{{ transaction.idTransaction }}</td>
+                <td>{{ formatDate(transaction.transactionDate) }}</td>
                 <td>{{ transaction.paymentType }}</td>
                 <td>{{ formatPaymentMethod(transaction.paymentMethod) }}</td>
                 <td>{{ formatPrice(transaction.transactionPrice) }}</td>
@@ -159,6 +161,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import Navbar from './Navbar.vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -176,6 +179,9 @@ export default {
     const showPendingOnly = ref(true)
     const notes = ref('')
     const notesError = ref(false) // New reactive property for error state
+    const formatDate = date => {
+      return dayjs(date).format('dddd, DD MMM YYYY') // Example format: Monday, 01 Jan 2025
+    }
 
     /**
      * Debounced toggleSort to prevent rapid toggling
@@ -427,6 +433,7 @@ export default {
       notesError, // Return error state
       handleImageError, // Return the error handler
       handleNotesInput, // Return the input handler
+      formatDate,
     }
   },
 }
