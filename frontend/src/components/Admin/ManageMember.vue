@@ -1,11 +1,11 @@
 <template>
   <div>
     <Navbar />
-    <div class="container mx-auto p-6 mt-6">
-      <h1 class="text-center mb-6">Manage Members</h1>
+    <div class="container mt-4">
+      <h1 class="mb-4 text-center">Manage Members</h1>
 
-      <!-- Search Bar -->
-      <div class="mb-4 d-flex justify-content-between align-items-center">
+      <!-- Member List Header with Search Bar -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h5>Member List</h5>
         <input
           type="text"
@@ -17,69 +17,45 @@
         />
       </div>
 
-      <!-- Members List Table -->
-      <div class="card shadow-sm mb-6">
-        <div
-          class="card-header bg-dark text-white d-flex justify-content-between align-items-center"
-        >
-          <span>Member List</span>
-          <button class="btn btn-secondary btn-sm" @click="toggleSort">
-            {{ sortAscending ? 'Sort Descending' : 'Sort Ascending' }}
-          </button>
-        </div>
+      <!-- Member List -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">Member List</div>
         <div class="card-body">
-          <table
-            class="table table-hover table-responsive"
-            v-if="filteredMembers.length > 0"
-          >
-            <thead class="thead-light">
+          <!-- Members Table -->
+          <table class="table table-hover" v-if="paginatedMembers.length > 0">
+            <thead>
               <tr>
-                <th @click="sortBy('idMember')" class="sortable">
-                  Member ID
-                  <i :class="getSortIcon('idMember')"></i>
+                <th @click="sort('idUser')" class="sortable">
+                  User ID
+                  <i :class="getSortIcon('idUser')"></i>
                 </th>
-                <th @click="sortBy('name')" class="sortable">
+                <th @click="sort('name')" class="sortable">
                   Name
                   <i :class="getSortIcon('name')"></i>
                 </th>
-                <th @click="sortBy('email')" class="sortable">
+                <th @click="sort('email')" class="sortable">
                   Email
                   <i :class="getSortIcon('email')"></i>
                 </th>
-                <th @click="sortBy('phoneNumber')" class="sortable">
+                <th @click="sort('phoneNumber')" class="sortable">
                   Phone Number
                   <i :class="getSortIcon('phoneNumber')"></i>
-                </th>
-                <th @click="sortBy('membershipStatus')" class="sortable">
-                  Membership Status
-                  <i :class="getSortIcon('membershipStatus')"></i>
                 </th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="member in paginatedMembers"
-                :key="member.idMember"
-                :class="membershipStatusClass(member.membershipStatus)"
-              >
-                <td>{{ member.idMember }}</td>
+              <tr v-for="member in paginatedMembers" :key="member.idUser">
+                <td>{{ member.idUser }}</td>
                 <td>{{ member.name }}</td>
                 <td>{{ member.email }}</td>
                 <td>{{ member.phoneNumber }}</td>
-                <td>{{ member.membershipStatus }}</td>
                 <td>
                   <button
-                    class="btn btn-info btn-sm me-2"
-                    @click="viewMember(member.idMember)"
+                    class="btn btn-sm btn-info"
+                    @click="openMemberDetailsModal(member)"
                   >
-                    <i class="fas fa-eye"></i> View
-                  </button>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    @click="confirmDelete(member.idMember)"
-                  >
-                    <i class="fas fa-trash-alt"></i> Delete
+                    <i class="fas fa-eye"></i> View Details
                   </button>
                 </td>
               </tr>
@@ -129,35 +105,54 @@
       </div>
 
       <!-- Member Details Modal -->
-      <div v-if="isModalOpen" class="custom-modal">
+      <div v-if="isMemberDetailsModalOpen" class="custom-modal">
         <div class="custom-modal-content">
-          <button class="btn-close" @click="closeModal">&times;</button>
+          <button class="btn-close" @click="closeMemberDetailsModal">
+            &times;
+          </button>
           <h5 class="modal-title mb-4 text-center">Member Details</h5>
-          <div v-if="isLoadingDetails" class="modal-loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <span>Loading member details...</span>
-          </div>
-          <div v-else>
-            <p><strong>Member ID:</strong> {{ selectedMember.idMember }}</p>
+          <div class="member-details">
+            <p><strong>User ID:</strong> {{ selectedMember.idUser }}</p>
             <p><strong>Name:</strong> {{ selectedMember.name }}</p>
             <p><strong>Email:</strong> {{ selectedMember.email }}</p>
             <p>
               <strong>Phone Number:</strong> {{ selectedMember.phoneNumber }}
             </p>
             <p>
-              <strong>Membership Status:</strong>
-              {{ selectedMember.membershipStatus }}
+              <strong>Visits Left:</strong>
+              {{
+                selectedMember.visitDetails.length > 0
+                  ? selectedMember.visitDetails.reduce(
+                      (sum, visit) =>
+                        sum + (visit.visitNumber - visit.visitUsed),
+                      0,
+                    )
+                  : 'N/A'
+              }}
             </p>
-            <p>
-              <strong>Join Date:</strong>
-              {{ formatDate(selectedMember.joinDate) }}
-            </p>
-            <p>
-              <strong>Last Active:</strong>
-              {{ formatDate(selectedMember.lastActive) }}
-            </p>
+            <p><strong>Memberships:</strong></p>
+            <ul>
+              <li
+                v-for="membership in selectedMember.memberships"
+                :key="membership.idMembership"
+              >
+                <p><strong>ID:</strong> {{ membership.idMember }}</p>
+                <p>
+                  <strong>Duration:</strong>
+                  {{ membership.duration }} months
+                </p>
+                <p>
+                  <strong>Start Date:</strong>
+                  {{ formatDate(membership.startDate) }}
+                </p>
+                <p>
+                  <strong>End Date:</strong>
+                  {{ formatDate(membership.endDate) }}
+                </p>
+                <p><strong>Price:</strong> ${{ membership.price }}</p>
+                <hr />
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -166,12 +161,13 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue' // Import the Navbar component
-import axios from 'axios'
-import Swal from 'sweetalert2'
-import { debounce } from 'lodash'
-import DOMPurify from 'dompurify'
+import Navbar from './Navbar.vue'
+// Removed CustomModal import since it's not used
 import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { debounce } from 'lodash'
+import dayjs from 'dayjs'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'ManageMember',
@@ -179,92 +175,117 @@ export default {
     Navbar,
   },
   setup() {
+    // Reactive References
     const members = ref([])
-    const selectedMember = ref({})
-    const isModalOpen = ref(false)
-    const isLoadingDetails = ref(false)
     const searchQuery = ref('')
-    const sortKey = ref('idMember')
+    const sortKey = ref('idUser')
     const sortAscending = ref(true)
-
-    // Pagination
     const currentPage = ref(1)
     const itemsPerPage = ref(5)
+    const isMembershipModalOpen = ref(false)
+    const selectedMemberships = ref([])
+    const isMemberDetailsModalOpen = ref(false)
+    const selectedMember = ref({})
 
-    // Debounced search
     const debouncedSearch = debounce(() => {
       currentPage.value = 1
     }, 300)
 
-    // Fetch members from API (dummy API endpoint)
+    // Fetch Members
     const fetchMembers = async () => {
       try {
         const token = localStorage.getItem('token')
         if (!token) {
-          Swal.fire(
-            'Authentication Required',
-            'Please log in to manage members.',
-            'warning',
-          ).then(() => {
-            window.location.href = '/login' // Redirect to login
-          })
+          window.location.href = '/login'
           return
         }
-
         const response = await axios.get(
-          'https://mjtrainingcamp.my.id/api/v1/member/getall',
+          'https://mjtrainingcamp.my.id/api/v1/class/getAllUser',
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         )
-        members.value = response.data
+        members.value = response.data.userData.map(member => ({
+          ...member,
+          phoneNumber: member.pnumber,
+        }))
       } catch (error) {
-        console.error(error)
+        console.error('Error fetching members:', error)
         Swal.fire('Error', 'Failed to fetch members.', 'error')
       }
     }
 
-    // Computed property for filtered and sorted members
+    // Computed Properties
     const filteredMembers = computed(() => {
-      let filtered = members.value.filter(member => {
-        const query = searchQuery.value.toLowerCase()
-        return (
+      const query = searchQuery.value.toLowerCase()
+      return members.value.filter(
+        member =>
           member.name.toLowerCase().includes(query) ||
-          member.email.toLowerCase().includes(query)
-        )
-      })
+          member.email.toLowerCase().includes(query),
+      )
+    })
 
-      // Sorting
-      filtered.sort((a, b) => {
+    const sortedMembers = computed(() => {
+      return [...filteredMembers.value].sort((a, b) => {
         let aVal = a[sortKey.value]
         let bVal = b[sortKey.value]
 
-        if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase()
-          bVal = bVal.toLowerCase()
+        // Handle nested properties if any
+        if (sortKey.value.includes('.')) {
+          const keys = sortKey.value.split('.')
+          aVal = keys.reduce((acc, key) => acc && acc[key], a)
+          bVal = keys.reduce((acc, key) => acc && acc[key], b)
         }
+
+        // If sorting by visitsLeft, calculate it
+        if (sortKey.value === 'visitsLeft') {
+          aVal =
+            a.visitDetails.length > 0
+              ? a.visitDetails.reduce(
+                  (sum, visit) => sum + (visit.visitNumber - visit.visitUsed),
+                  0,
+                )
+              : 0
+          bVal =
+            b.visitDetails.length > 0
+              ? b.visitDetails.reduce(
+                  (sum, visit) => sum + (visit.visitNumber - visit.visitUsed),
+                  0,
+                )
+              : 0
+        }
+
+        // For dates
+        if (
+          sortKey.value === 'membershipDetail.startDate' ||
+          sortKey.value === 'membershipDetail.endDate'
+        ) {
+          aVal = dayjs(aVal).unix()
+          bVal = dayjs(bVal).unix()
+        }
+
+        // Convert to lowercase if string
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase()
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase()
 
         if (aVal < bVal) return sortAscending.value ? -1 : 1
         if (aVal > bVal) return sortAscending.value ? 1 : -1
         return 0
       })
-
-      return filtered
     })
-
-    // Pagination calculations
-    const totalPages = computed(() =>
-      Math.ceil(filteredMembers.value.length / itemsPerPage.value),
-    )
 
     const paginatedMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage.value
       const end = start + itemsPerPage.value
-      return filteredMembers.value.slice(start, end)
+      return sortedMembers.value.slice(start, end)
     })
 
-    // Sorting function
-    const sortBy = key => {
+    const totalPages = computed(() =>
+      Math.ceil(sortedMembers.value.length / itemsPerPage.value),
+    )
+
+    // Sorting Function
+    const sort = key => {
       if (sortKey.value === key) {
         sortAscending.value = !sortAscending.value
       } else {
@@ -278,117 +299,61 @@ export default {
       return sortAscending.value ? 'fas fa-sort-up' : 'fas fa-sort-down'
     }
 
-    // Toggle sort order
-    const toggleSort = () => {
-      sortAscending.value = !sortAscending.value
+    // Pagination
+    const goToPage = page => {
+      if (page < 1 || page > totalPages.value) return
+      currentPage.value = page
     }
 
-    // View member details
-    const viewMember = async idMember => {
-      isModalOpen.value = true
-      isLoadingDetails.value = true
-      try {
-        const token = localStorage.getItem('token')
-        const response = await axios.get(
-          `https://mjtrainingcamp.my.id/api/v1/member/get?id=${idMember}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        )
-        selectedMember.value = response.data
-      } catch (error) {
-        console.error(error)
-        Swal.fire('Error', 'Failed to fetch member details.', 'error')
-      } finally {
-        isLoadingDetails.value = false
-      }
+    // Format Date
+    const formatDate = date => {
+      return dayjs(date).format('DD MMM YYYY')
     }
 
-    // Close modal
-    const closeModal = () => {
-      isModalOpen.value = false
+    // Membership Modal
+    const openMembershipModal = membershipsList => {
+      selectedMemberships.value = membershipsList
+      isMembershipModalOpen.value = true
+    }
+
+    const closeMembershipModal = () => {
+      isMembershipModalOpen.value = false
+      selectedMemberships.value = []
+    }
+
+    // Member Details Modal
+    const openMemberDetailsModal = member => {
+      selectedMember.value = member
+      isMemberDetailsModalOpen.value = true
+    }
+
+    const closeMemberDetailsModal = () => {
+      isMemberDetailsModalOpen.value = false
       selectedMember.value = {}
     }
 
-    // Confirm deletion
-    const confirmDelete = idMember => {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'Do you want to delete this member?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel',
-      }).then(async result => {
-        if (result.isConfirmed) {
-          await deleteMember(idMember)
-        }
-      })
-    }
-
-    // Delete member
-    const deleteMember = async idMember => {
-      try {
-        const token = localStorage.getItem('token')
-        await axios.delete(
-          `https://mjtrainingcamp.my.id/api/v1/member/delete/${idMember}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        )
-        // Remove member from the list
-        members.value = members.value.filter(
-          member => member.idMember !== idMember,
-        )
-        Swal.fire('Deleted!', 'The member has been deleted.', 'success')
-      } catch (error) {
-        console.error(error)
-        Swal.fire('Error', 'Failed to delete member.', 'error')
-      }
-    }
-
-    // Assign Bootstrap table classes based on membership status
-    const membershipStatusClass = status => {
-      if (status === 'Active') return 'table-success'
-      if (status === 'Inactive') return 'table-secondary'
-      if (status === 'Pending') return 'table-warning'
-      return ''
-    }
-
-    // Format date using Day.js
-    const formatDate = date => {
-      return dayjs(date).format('dddd, D MMMM YYYY')
-    }
-
-    // Sanitize inputs (if any user-generated content is displayed)
-    // Currently, member details are fetched from the API and displayed directly.
-    // If you plan to allow editing or input fields, ensure to sanitize them using DOMPurify.
-
-    onMounted(() => {
-      fetchMembers()
-    })
+    onMounted(fetchMembers)
 
     return {
-      members,
-      selectedMember,
-      isModalOpen,
-      isLoadingDetails,
       searchQuery,
       sortKey,
       sortAscending,
       currentPage,
       itemsPerPage,
-      filteredMembers,
       paginatedMembers,
       totalPages,
-      sortBy,
+      sort,
       getSortIcon,
-      toggleSort,
-      viewMember,
-      closeModal,
-      confirmDelete,
-      membershipStatusClass,
+      goToPage,
       formatDate,
+      isMembershipModalOpen,
+      selectedMemberships,
+      openMembershipModal,
+      closeMembershipModal,
+      isMemberDetailsModalOpen,
+      selectedMember,
+      openMemberDetailsModal,
+      closeMemberDetailsModal,
       debouncedSearch,
     }
   },
@@ -396,17 +361,14 @@ export default {
 </script>
 
 <style scoped>
-/* Container Styling */
 .container {
   padding: 40px 20px;
   max-width: 1200px;
   margin: auto;
   background-color: #f8f9fa;
   border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Heading Styles */
 h1 {
   font-size: 2.5rem;
   font-weight: bold;
@@ -414,7 +376,6 @@ h1 {
   color: #ff4500;
 }
 
-/* Card Styling */
 .card {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -423,33 +384,36 @@ h1 {
 .card-header {
   font-size: 1.2rem;
   font-weight: bold;
+}
+
+.table th {
   cursor: pointer;
 }
 
-.sortable {
-  cursor: pointer;
+.sortable:hover {
+  color: #ff4500;
 }
 
-.sortable i {
-  margin-left: 5px;
-  color: #6c757d;
+.btn-info {
+  background-color: #17a2b8;
+  border: none;
+  color: #fff;
+  transition: background-color 0.3s ease;
 }
 
-/* Table Styling */
-.table th,
-.table td {
-  vertical-align: middle;
+.btn-info:hover {
+  background-color: #138496;
 }
 
-.table-hover tbody tr:hover {
-  background-color: #ffe5d9;
+.pagination .page-link {
+  color: #ff4500;
 }
 
-.table-responsive {
-  overflow-x: auto;
+.pagination .page-item.active .page-link {
+  background-color: #ff4500;
+  color: #fff;
 }
 
-/* Modal Styling */
 .custom-modal {
   position: fixed;
   top: 0;
@@ -471,6 +435,8 @@ h1 {
   max-width: 600px;
   position: relative;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .btn-close {
@@ -488,39 +454,26 @@ h1 {
   color: #ff4500;
 }
 
-.modal-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.member-details p,
+.membership-details p {
+  margin-bottom: 0.5rem;
 }
 
-.modal-loading .spinner-border {
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 15px;
+.member-details ul,
+.membership-details ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
 }
 
-/* Pagination Styling */
-.pagination .page-link {
-  color: #ff4500;
-}
-
-.pagination .page-item.active .page-link {
-  background-color: #ff4500;
-  border-color: #ff4500;
-  color: #fff;
-}
-
-.pagination .page-link:hover {
-  background-color: #ff4500;
-  color: #fff;
+.member-details ul li,
+.membership-details ul li {
+  margin-bottom: 0.5rem;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 30px 15px;
+    padding: 20px;
   }
 
   h1 {
@@ -533,37 +486,6 @@ h1 {
 
   .custom-modal-content {
     padding: 20px;
-  }
-
-  .btn-info,
-  .btn-danger {
-    padding: 5px 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.75rem;
-  }
-
-  .custom-modal-content {
-    padding: 15px;
-  }
-
-  .table th,
-  .table td {
-    font-size: 0.9rem;
-  }
-
-  .btn-info,
-  .btn-danger {
-    padding: 4px 6px;
-    font-size: 0.8rem;
-  }
-
-  .pagination .page-link {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
   }
 }
 </style>
