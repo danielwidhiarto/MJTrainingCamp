@@ -2,30 +2,11 @@
   <div class="package-card">
     <!-- Package Image -->
     <img
-      v-if="packageItem.imageUrl"
-      :src="packageItem.imageUrl"
+      :src="getImagePath(buttonType)"
       alt="Package Image"
       class="package-image"
       loading="lazy"
     />
-    <div v-else class="package-placeholder">
-      <!-- Placeholder for missing images -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="150"
-        fill="#ccc"
-        class="bi bi-image"
-        viewBox="0 0 16 16"
-      >
-        <path
-          d="M6.002 5.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V5.5zM3 5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5V5zm0 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5V13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5z"
-        />
-        <path
-          d="M4.502 8a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5.502a1 1 0 0 1-1-1V8z"
-        />
-      </svg>
-    </div>
 
     <!-- Package Details -->
     <h2>Rp. {{ formattedPrice }}</h2>
@@ -42,6 +23,7 @@
     </button>
   </div>
 </template>
+
 <script>
 export default {
   name: 'PackageCard',
@@ -101,9 +83,22 @@ export default {
     handleSelect() {
       this.$emit('select', this.packageItem.idPackage)
     },
+    /**
+     * Returns the appropriate image path based on the package type.
+     */
+    getImagePath(packageType) {
+      if (packageType === 'membership') {
+        return new URL('../assets/Membership.png', import.meta.url).href
+      } else if (packageType === 'visit') {
+        return new URL('../assets/Visit.png', import.meta.url).href
+      } else {
+        return new URL('../assets/logo.jpg', import.meta.url).href // Fallback placeholder
+      }
+    },
   },
 }
 </script>
+
 <style scoped>
 /* Package Card Container */
 .package-card {
@@ -134,23 +129,6 @@ export default {
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
-}
-
-/* Placeholder for Missing Images */
-.package-placeholder {
-  width: 100%;
-  height: 150px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.package-placeholder svg {
-  width: 50px;
-  height: 50px;
 }
 
 /* Headings and Text */
