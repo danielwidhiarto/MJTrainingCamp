@@ -100,7 +100,7 @@
 
     <div class="container mt-5">
       <h1 class="mb-5 text-center primary-text">
-        Welcome to MJ Training Camp!
+        Welcome to MJ Training Camp, {{ userName }} !
       </h1>
 
       <!-- Overview of MJ Training Camp -->
@@ -303,6 +303,8 @@ export default {
   },
   data() {
     return {
+      userName: '', // Menyimpan username yang diambil dari localStorage
+
       // Membership Related Data
       currentMemberships: [], // Array to store current memberships
       upcomingMemberships: [], // Array to store upcoming memberships
@@ -325,6 +327,8 @@ export default {
     },
   },
   created() {
+    this.userName = localStorage.getItem('name') || 'Guest' // Default ke 'Guest' jika username tidak ditemukan
+
     // Fetch membership and class data when component is created
     this.fetchMembershipDetails()
     this.fetchClassHistory()
