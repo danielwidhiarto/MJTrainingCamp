@@ -373,7 +373,7 @@ export default {
         if (error.response && error.response.status === 401) {
           Swal.fire('Session Expired', 'Please log in again.', 'warning').then(
             () => {
-              window.location.href = '/login'
+              window.location.href = '/'
             },
           )
         }

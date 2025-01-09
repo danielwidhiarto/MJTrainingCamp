@@ -217,7 +217,7 @@ export default {
             'error',
           ).then(() => {
             // Redirect to Login page
-            window.location.href = '/login' // Adjust the route as needed
+            window.location.href = '/' // Adjust the route as needed
           })
           return
         }
