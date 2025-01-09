@@ -8,7 +8,7 @@
       <div class="profile-card">
         <div class="profile-header">
           <img
-            :src="user.profilePicture"
+            src="@/assets/MemberProfile.png"
             alt="User Profile Picture"
             class="profile-picture"
           />
