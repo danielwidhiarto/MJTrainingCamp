@@ -46,12 +46,6 @@
           errors.password
         }}</span>
       </div>
-
-      <!-- Forgot Password Link -->
-      <div class="mb-3 text-end">
-        <a href="#" class="forgot-password">Forgot Password?</a>
-      </div>
-
       <!-- Submit Button -->
       <button
         type="submit"
