@@ -2,7 +2,7 @@
   <div>
     <Navbar />
     <div class="container mt-5">
-      <h1 class="page-title text-center">Admin Profile</h1>
+      <h1 class="page-title text-center">Trainer Profile</h1>
 
       <!-- Profile Card -->
       <div class="profile-card">
@@ -24,21 +24,6 @@
           </p>
         </div>
         <button class="logout-button" @click="logout">Logout</button>
-      </div>
-
-      <!-- Admin Settings Section -->
-      <div class="card mt-5">
-        <div class="card-body">
-          <h3 class="card-title">Admin Settings</h3>
-          <div class="settings-buttons">
-            <button class="btn btn-outline-secondary mt-2">
-              Change Password
-            </button>
-            <button class="btn btn-outline-secondary mt-2">
-              Manage Notifications
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -68,7 +53,7 @@ export default {
   },
   created() {
     // Fetch user data from localStorage
-    this.user.name = localStorage.getItem('name') || 'John Doe'
+    this.user.name = localStorage.getItem('name') || 'Admin 1'
     this.user.email = localStorage.getItem('email') || 'admin@example.com'
     this.user.phone = localStorage.getItem('phone') || 'Not provided'
     this.user.joinDate =
