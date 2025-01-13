@@ -32,7 +32,7 @@ public interface TransactionRepo  extends JpaRepository<Transaction,Long> {
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.paymentStatus = 'VERIFIED'")
     long countTransactionSucess();
 
-    @Query("SELECT SUM(t.transactionPrice) FROM Transaction t WHERE t.paymentStatus = 'VERIFIED'")
+    @Query("SELECT SUM(t.transactionPrice) FROM Transaction t WHERE t.paymentStatus = 'VERIFIED' AND EXTRACT(MONTH FROM t.transactionDate) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM t.transactionDate) = EXTRACT(YEAR FROM CURRENT_DATE)")
     long countTotalTransaction();
 
 
