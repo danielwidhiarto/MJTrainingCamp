@@ -54,41 +54,20 @@
             </div>
           </div>
 
-          <!-- Transaction Status Distribution Chart -->
+          <!-- Weekly Attendance Trends Chart -->
           <div class="col-md-6 mb-4">
             <div class="card card-analytics">
               <div class="card-body">
-                <h5 class="card-title text-center">
-                  Transaction Status Distribution
-                </h5>
+                <h5 class="card-title text-center">Weekly Attendance Trends</h5>
                 <apexchart
-                  type="donut"
-                  :options="transactionStatusOptions"
-                  :series="transactionStatusSeries"
+                  type="bar"
+                  :options="classAttendanceOptions"
+                  :series="classAttendanceSeries"
                 />
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Optional: User Engagement Metrics Chart -->
-        <!-- Uncomment and implement if historical data becomes available -->
-        <!--
-        <div class="row mt-4">
-          <div class="col-md-12 mb-4">
-            <div class="card card-analytics">
-              <div class="card-body">
-                <h5 class="card-title text-center">Active Members Over Time</h5>
-                <apexchart
-                  type="area"
-                  :options="userEngagementOptions"
-                  :series="userEngagementSeries"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        -->
       </div>
     </div>
   </div>
@@ -108,6 +87,7 @@ export default {
     Navbar,
     apexchart: ApexCharts,
   },
+
   setup() {
     const adminName = ref('Admin') // Replace with actual admin name fetched from user data
     const dashboardData = ref({
@@ -117,6 +97,15 @@ export default {
       pendingTransaction: 0,
       countTransactionSuccess: 0,
       thisMonthTransaction: 0,
+      totalAttendanceList: {
+        today: 0,
+        dmin1: 0,
+        dmin2: 0,
+        dmin3: 0,
+        dmin4: 0,
+        dmin5: 0,
+        dmin6: 0,
+      },
     })
     const isLoading = ref(true)
 
@@ -124,7 +113,7 @@ export default {
     const statisticsTitles = {
       totalUser: 'Total Users',
       activeMemberThisMonth: 'Active Memberships',
-      totalSuccesTransactionRevenue: 'Total Revenue This Month(IDR)',
+      totalSuccesTransactionRevenue: 'Total Revenue This Month (IDR)',
       pendingTransaction: 'Pending Transactions',
       countTransactionSuccess: 'Successful Transactions',
       thisMonthTransaction: 'This Month Transactions',
@@ -183,12 +172,8 @@ export default {
     // Chart Data References
     const userGrowthSeries = ref([])
     const userGrowthOptions = ref({})
-    const transactionStatusSeries = ref([])
-    const transactionStatusOptions = ref({})
-    const revenueSeries = ref([])
-    const revenueOptions = ref({})
-    const revenueVsTransactionsSeries = ref([])
-    const revenueVsTransactionsOptions = ref({})
+    const classAttendanceSeries = ref([]) // Renamed for consistency
+    const classAttendanceOptions = ref({}) // Renamed for consistency
 
     // Fetch Dashboard Data from API
     const fetchDashboardData = async () => {
@@ -201,7 +186,7 @@ export default {
             'Please log in to access the admin dashboard.',
             'warning',
           ).then(() => {
-            window.location.href = '/login' // Redirect to login
+            window.location.href = '/' // Redirect to login
           })
           return
         }
@@ -262,7 +247,7 @@ export default {
       ]
       userGrowthOptions.value = {
         chart: {
-          height: 350,
+          height: '100%', // Set to 100% to fill the container
           type: 'line',
           zoom: { enabled: false },
           toolbar: { show: false },
@@ -283,36 +268,95 @@ export default {
         dataLabels: {
           enabled: true,
         },
+        title: {
+          text: 'User Growth Over Time',
+          align: 'center',
+          style: {
+            fontSize: '16px',
+            color: '#333',
+          },
+        },
       }
 
-      // Transaction Status Distribution
-      transactionStatusSeries.value = [
-        data.countTransactionSuccess,
-        data.pendingTransaction,
+      // Weekly Attendance Trends Chart
+      const attendanceData = data.totalAttendanceList
+
+      // Define labels for the past six days and today
+      const attendanceLabels = [
+        dayjs().subtract(6, 'day').format('MMM D'),
+        dayjs().subtract(5, 'day').format('MMM D'),
+        dayjs().subtract(4, 'day').format('MMM D'),
+        dayjs().subtract(3, 'day').format('MMM D'),
+        dayjs().subtract(2, 'day').format('MMM D'),
+        dayjs().subtract(1, 'day').format('MMM D'),
+        dayjs().format('MMM D'),
       ]
-      transactionStatusOptions.value = {
-        labels: ['Successful Transactions', 'Pending Transactions'],
-        colors: ['#28a745', '#ffc107'],
-        responsive: [
-          {
-            breakpoint: 480,
-            options: {
-              chart: {
-                width: 200,
-              },
-              legend: {
-                position: 'bottom',
-              },
+
+      // Extract attendance counts in chronological order
+      const attendanceCounts = [
+        attendanceData.dmin6,
+        attendanceData.dmin5,
+        attendanceData.dmin4,
+        attendanceData.dmin3,
+        attendanceData.dmin2,
+        attendanceData.dmin1,
+        attendanceData.today,
+      ]
+
+      // Configure the Attendance Series
+      classAttendanceSeries.value = [
+        {
+          name: 'Attendance',
+          data: attendanceCounts,
+        },
+      ]
+
+      // Configure the Attendance Chart Options
+      classAttendanceOptions.value = {
+        chart: {
+          type: 'bar',
+          height: '100%', // Set to 100% to fill the container
+          toolbar: { show: false },
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded',
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent'],
+        },
+        xaxis: {
+          categories: attendanceLabels,
+          title: {
+            text: 'Date',
+          },
+        },
+        yaxis: {
+          title: {
+            text: 'Number of Attendees',
+          },
+        },
+        fill: {
+          opacity: 1,
+          colors: ['#ff4500'], // Changed to match the new UI color
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return val
             },
           },
-        ],
-        legend: {
-          position: 'right',
-          offsetY: 0,
-          height: 230,
         },
         title: {
-          text: 'Transaction Status',
+          text: 'Weekly Attendance Trends', // Updated title
           align: 'center',
           style: {
             fontSize: '16px',
@@ -329,7 +373,7 @@ export default {
         if (error.response && error.response.status === 401) {
           Swal.fire('Session Expired', 'Please log in again.', 'warning').then(
             () => {
-              window.location.href = '/login'
+              window.location.href = '/'
             },
           )
         }
@@ -353,12 +397,8 @@ export default {
       trendClass,
       userGrowthSeries,
       userGrowthOptions,
-      transactionStatusSeries,
-      transactionStatusOptions,
-      revenueSeries,
-      revenueOptions,
-      revenueVsTransactionsSeries,
-      revenueVsTransactionsOptions,
+      classAttendanceSeries, // Updated reference
+      classAttendanceOptions, // Updated reference
     }
   },
 }

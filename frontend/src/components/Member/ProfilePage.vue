@@ -8,7 +8,7 @@
       <div class="profile-card">
         <div class="profile-header">
           <img
-            :src="user.profilePicture"
+            src="@/assets/MemberProfile.png"
             alt="User Profile Picture"
             class="profile-picture"
           />
@@ -94,53 +94,6 @@
         <div class="card-body">
           <h3 class="card-title">Visits Left</h3>
           <p><strong>Remaining Visits:</strong> {{ visitsLeft }}</p>
-          <button class="btn btn-secondary">View Visit History</button>
-        </div>
-      </div>
-
-      <!-- Activity Summary Section -->
-      <div class="card mt-5">
-        <div class="card-body">
-          <h3 class="card-title">Activity Summary</h3>
-          <ul class="activity-list">
-            <li><strong>Yoga Class:</strong> Attended on October 1, 2024</li>
-            <li>
-              <strong>Pilates Class:</strong> Attended on September 28, 2024
-            </li>
-            <li><strong>CrossFit:</strong> Booked for October 5, 2024</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Settings Section -->
-      <div class="card mt-5">
-        <div class="card-body">
-          <h3 class="card-title">Settings</h3>
-          <div class="settings-buttons">
-            <button class="btn btn-outline-secondary mt-2">
-              Change Password
-            </button>
-            <button class="btn btn-outline-secondary mt-2">
-              Manage Notifications
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preferences Section -->
-      <div class="card mt-5">
-        <div class="card-body">
-          <h3 class="card-title">Preferences</h3>
-          <div class="preferences">
-            <label class="preference-item">
-              <input type="checkbox" v-model="userPreferences.darkMode" />
-              Dark Mode
-            </label>
-            <label class="preference-item">
-              <input type="checkbox" v-model="userPreferences.emailUpdates" />
-              Receive Email Updates
-            </label>
-          </div>
         </div>
       </div>
     </div>

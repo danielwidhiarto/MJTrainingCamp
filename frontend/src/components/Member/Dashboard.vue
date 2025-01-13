@@ -29,39 +29,52 @@
           data-bs-slide-to="2"
           aria-label="Slide 3"
         ></button>
+        <button
+          type="button"
+          data-bs-target="#trainingCarousel"
+          data-bs-slide-to="3"
+          aria-label="Slide 4"
+        ></button>
       </div>
       <div class="carousel-inner">
         <div class="carousel-item active">
           <img
-            src="../../assets/logo.jpg"
+            src="../../assets/img4.jpeg"
             class="d-block w-100 carousel-image"
-            alt="Fitness Class 1"
+            alt="MJ Fight Team"
           />
           <div class="carousel-caption d-none d-md-block">
-            <h5>Join Our Yoga Classes</h5>
-            <p>Start your day with a refreshing yoga session.</p>
+            <h5>MJ Fight Team</h5>
           </div>
         </div>
         <div class="carousel-item">
           <img
-            src="../../assets/logo.jpg"
+            src="../../assets/img1.jpeg"
             class="d-block w-100 carousel-image"
-            alt="Fitness Class 2"
+            alt="Mitra, Head Coach at Byon 3"
           />
           <div class="carousel-caption d-none d-md-block">
-            <h5>Advanced Pilates</h5>
-            <p>Challenge yourself with our advanced pilates classes.</p>
+            <h5>Mitra, Head Coach at Byon 3</h5>
           </div>
         </div>
         <div class="carousel-item">
           <img
-            src="../../assets/logo.jpg"
+            src="../../assets/img2.jpeg"
             class="d-block w-100 carousel-image"
-            alt="Fitness Class 3"
+            alt="Mitra, Head Coach at Byon 3"
           />
           <div class="carousel-caption d-none d-md-block">
-            <h5>CrossFit Workouts</h5>
-            <p>Push your limits with intense CrossFit sessions.</p>
+            <h5>Mitra, Head Coach at Byon 3</h5>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img
+            src="../../assets/img3.jpeg"
+            class="d-block w-100 carousel-image"
+            alt="Hadirman Waruwu at HSS"
+          />
+          <div class="carousel-caption d-none d-md-block">
+            <h5>Hadirman Waruwu at HSS</h5>
           </div>
         </div>
       </div>
@@ -87,7 +100,7 @@
 
     <div class="container mt-5">
       <h1 class="mb-5 text-center primary-text">
-        Welcome to MJ Training Camp!
+        Welcome to MJ Training Camp, {{ userName }} !
       </h1>
 
       <!-- Overview of MJ Training Camp -->
@@ -290,6 +303,8 @@ export default {
   },
   data() {
     return {
+      userName: '', // Menyimpan username yang diambil dari localStorage
+
       // Membership Related Data
       currentMemberships: [], // Array to store current memberships
       upcomingMemberships: [], // Array to store upcoming memberships
@@ -312,6 +327,8 @@ export default {
     },
   },
   created() {
+    this.userName = localStorage.getItem('name') || 'Guest' // Default ke 'Guest' jika username tidak ditemukan
+
     // Fetch membership and class data when component is created
     this.fetchMembershipDetails()
     this.fetchClassHistory()
@@ -815,7 +832,8 @@ export default {
 /* Carousel Image Styling */
 .carousel-image {
   height: 400px;
-  object-fit: cover;
+  object-fit: contain; /* Changed from cover to contain */
+  background-color: #000; /* Optional: Adds a background to fill empty space */
 }
 
 .carousel-caption {

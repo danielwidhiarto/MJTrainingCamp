@@ -8,7 +8,7 @@
       <div class="profile-card">
         <div class="profile-header">
           <img
-            :src="user.profilePicture"
+            src="@/assets/AdminProfile.png"
             alt="Admin Profile Picture"
             class="profile-picture"
           />
@@ -24,21 +24,6 @@
           </p>
         </div>
         <button class="logout-button" @click="logout">Logout</button>
-      </div>
-
-      <!-- Admin Settings Section -->
-      <div class="card mt-5">
-        <div class="card-body">
-          <h3 class="card-title">Admin Settings</h3>
-          <div class="settings-buttons">
-            <button class="btn btn-outline-secondary mt-2">
-              Change Password
-            </button>
-            <button class="btn btn-outline-secondary mt-2">
-              Manage Notifications
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>

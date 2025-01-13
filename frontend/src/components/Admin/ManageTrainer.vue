@@ -577,7 +577,7 @@ export default {
     } else {
       Swal.fire('Error', 'Token not found. Please log in.', 'error').then(
         () => {
-          this.$router.push('/login')
+          this.$router.push('/')
         },
       )
     }
