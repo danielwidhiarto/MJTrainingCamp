@@ -57,23 +57,21 @@ public class TrainerController {
 
         // Create a response list
         List<TrainerResponse> responseList = trainers.stream()
-            .map(trainer -> {
-                Long idtrainer = trainer.getIdTrainer();
-                System.out.println("Fetching user for trainer ID: " + idtrainer);
-                
-                User user = userService.getUserByTrainerId(idtrainer)
-                        .orElseThrow(() -> new RuntimeException("User not found for trainer: " + trainer.getIdTrainer()));
+                .map(trainer -> {
+                    Long idtrainer = trainer.getIdTrainer();
+                    System.out.println("Fetching user for trainer ID: " + idtrainer);
 
+                    User user = userService.getUserByTrainerId(idtrainer).orElse(null);
 
-                return TrainerResponse.builder()
-                        .idTrainer(trainer.getIdTrainer())    
-                        .trainerName(trainer.getTrainerName()) 
-                        .trainerDescription(trainer.getTrainerDescription())
-                        .email(user.getEmail())
-                        .PNumber(user.getPNumber())
-                        .build();
-            })
-            .collect(Collectors.toList());
+                    return TrainerResponse.builder()
+                            .idTrainer(trainer.getIdTrainer())
+                            .trainerName(trainer.getTrainerName())
+                            .trainerDescription(trainer.getTrainerDescription())
+                            .email(user != null ? user.getEmail() : "N/A")
+                            .PNumber(user != null ? user.getPNumber() : "N/A")
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         // Return the response
         return ResponseEntity.ok(responseList);
