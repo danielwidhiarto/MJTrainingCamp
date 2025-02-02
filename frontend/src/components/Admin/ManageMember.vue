@@ -149,7 +149,7 @@
                   <strong>End Date:</strong>
                   {{ formatDate(membership.endDate) }}
                 </p>
-                <p><strong>Price:</strong> ${{ membership.price }}</p>
+                <p><strong>Price:</strong> Rp. {{ membership.price }}</p>
                 <hr />
               </li>
             </ul>
