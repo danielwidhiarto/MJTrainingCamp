@@ -52,7 +52,7 @@
                   </button>
                   <button
                     class="btn btn-danger"
-                    @click="cancelBooking(classItem.idClass)"
+                    @click="cancelBooking(classItem)"
                   >
                     Cancel Booking
                   </button>
@@ -63,7 +63,7 @@
         </table>
       </div>
 
-      <!-- Past / Ongoing Classes Table -->
+      <!-- Past Classes Table -->
       <div
         v-if="!loading && pastClasses.length"
         class="class-history-container"
@@ -113,15 +113,9 @@
 <script>
 import axios from 'axios'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router' // Import useRouter
+import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-
-// Extend dayjs with UTC and Timezone plugins
-dayjs.extend(utc)
-dayjs.extend(timezone)
 
 // Lazy load Navbar component
 const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
@@ -136,12 +130,8 @@ export default {
     const loading = ref(false)
     const error = ref(null)
 
-    // Use the router for navigation
     const router = useRouter()
 
-    /**
-     * Fetches the class history for the logged-in user.
-     */
     const fetchClassHistory = async () => {
       loading.value = true
       error.value = null
@@ -159,9 +149,7 @@ export default {
 
         const response = await axios.post(
           'https://mjtrainingcamp.my.id/api/v1/class/getHistory',
-          {
-            token: token,
-          },
+          { token },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -184,9 +172,6 @@ export default {
       }
     }
 
-    /**
-     * Splits classes into upcoming and past/ongoing based on current date.
-     */
     const splitClassesByDate = classes => {
       const now = dayjs()
       upcomingClasses.value = classes.filter(classItem =>
@@ -197,11 +182,7 @@ export default {
       )
     }
 
-    /**
-     * Cancels a booking for a class.
-     * @param {String} classId - The ID of the class to cancel.
-     */
-    const cancelBooking = async classId => {
+    const cancelBooking = async classItem => {
       try {
         const token = localStorage.getItem('token')
         if (!token) {
@@ -209,6 +190,23 @@ export default {
             icon: 'info',
             title: 'Login Required',
             text: 'No authentication token found. Please log in.',
+          })
+          return
+        }
+
+        // Validasi waktu kelas
+        const classStart = dayjs(
+          `${classItem.classDate} ${classItem.classTime}`,
+          'YYYY-MM-DD HH:mm:ss',
+        )
+        const now = dayjs()
+        const hoursDiff = classStart.diff(now, 'hour', true)
+
+        if (hoursDiff < 2) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Cancellation Not Allowed',
+            text: 'You can only cancel a class at least 2 hours before it starts.',
           })
           return
         }
@@ -224,12 +222,9 @@ export default {
 
         if (!confirmation.isConfirmed) return
 
-        const response = await axios.post(
+        await axios.post(
           'https://mjtrainingcamp.my.id/api/v1/class/cancel',
-          {
-            idClass: classId,
-            token: token,
-          },
+          { idClass: classItem.idClass, token },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -244,7 +239,6 @@ export default {
           text: 'Your booking has been successfully canceled.',
         })
 
-        // Refresh the class history after cancellation
         fetchClassHistory()
       } catch (err) {
         console.error('Cancellation Error:', err)
@@ -256,43 +250,16 @@ export default {
       }
     }
 
-    /**
-     * Formats the date to "Monday, 4 November 2024".
-     * @param {String} dateString - The date string.
-     * @returns {String} - Formatted date.
-     */
-    const formatDate = dateString => {
-      if (!dateString) return 'N/A'
-      return dayjs(dateString).format('dddd, D MMMM YYYY')
-    }
+    const formatDate = dateString =>
+      dateString ? dayjs(dateString).format('dddd, D MMMM YYYY') : 'N/A'
+    const formatTime = time =>
+      time ? dayjs(time, 'HH:mm:ss').format('h:mm A') : 'N/A'
 
-    /**
-     * Navigates to class detail page.
-     * @param {String} idClass - The ID of the class to view details.
-     */
     const goToClassDetail = idClass => {
-      router.push({ name: 'ClassDetail', params: { id: idClass } }) // Use router.push here
+      router.push({ name: 'ClassDetail', params: { id: idClass } })
     }
 
-    /**
-     * Formats the time to "1:30 PM".
-     * @param {String} time - The time string.
-     * @returns {String} - Formatted time.
-     */
-    const formatTime = time => {
-      if (!time) return 'N/A'
-
-      let parsedTime = dayjs(time, 'HH:mm:ss', true)
-      if (!parsedTime.isValid()) {
-        parsedTime = dayjs(time, 'HH:mm', true)
-      }
-
-      return parsedTime.isValid() ? parsedTime.format('h:mm A') : time
-    }
-
-    onMounted(() => {
-      fetchClassHistory()
-    })
+    onMounted(fetchClassHistory)
 
     return {
       classHistory,
