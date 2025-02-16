@@ -35,10 +35,6 @@
                   Capacity
                   <i :class="getSortIcon('classCapasity')"></i>
                 </th>
-                <th @click="sort('registeredUsers')">
-                  Registered Member
-                  <i :class="getSortIcon('registeredUsers')"></i>
-                </th>
                 <th @click="sort('trainerDetail.trainerName')">
                   Trainer
                   <i :class="getSortIcon('trainerDetail.trainerName')"></i>
@@ -51,15 +47,11 @@
                 <td>{{ classItem.className }}</td>
                 <td>{{ formatDate(classItem.classDate) }}</td>
                 <td>{{ classItem.classTime }}</td>
-                <td>{{ classItem.classCapasity }}</td>
                 <td>
                   {{
                     classItem.classMembers ? classItem.classMembers.length : 0
-                  }}
+                  }}/{{ classItem.classCapasity }}
                 </td>
-                <!-- Menghitung jumlah peserta -->
-
-                <!-- Tambahkan di sini -->
                 <td>
                   {{
                     classItem.trainerDetail
