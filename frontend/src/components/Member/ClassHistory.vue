@@ -40,7 +40,7 @@
             <tr v-for="classItem in upcomingClasses" :key="classItem.id">
               <td>{{ classItem.className }}</td>
               <td>{{ formatDate(classItem.classDate) }}</td>
-              <td>{{ formatTime(classItem.classTime) }}</td>
+              <td>{{ classItem.classTime }}</td>
               <td>{{ classItem.classCapasity }} members</td>
               <td>
                 <div class="action-buttons">
@@ -84,7 +84,7 @@
             <tr v-for="classItem in pastClasses" :key="classItem.id">
               <td>{{ classItem.className }}</td>
               <td>{{ formatDate(classItem.classDate) }}</td>
-              <td>{{ formatTime(classItem.classTime) }}</td>
+              <td>{{ classItem.classTime }}</td>
               <td>{{ classItem.classCapasity }} members</td>
               <td>
                 <button
@@ -188,45 +188,68 @@ export default {
     }
 
     const cancelBooking = async classItem => {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) {
-          Swal.fire({
-            icon: 'info',
-            title: 'Login Required',
-            text: 'No authentication token found. Please log in.',
-          })
-          return
-        }
-
-        // Validasi waktu kelas
-        const classStart = dayjs(
-          `${classItem.classDate} ${classItem.classTime}`,
-          'YYYY-MM-DD HH:mm:ss',
-        )
-        const now = dayjs()
-        const hoursDiff = classStart.diff(now, 'hour', true)
-
-        if (hoursDiff < 2) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Cancellation Not Allowed',
-            text: 'You can only cancel a class at least 2 hours before it starts.',
-          })
-          return
-        }
-
-        const confirmation = await Swal.fire({
-          title: 'Are you sure?',
-          text: 'Do you want to cancel this booking?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, cancel it!',
-          cancelButtonText: 'No, keep it',
+      const token = localStorage.getItem('token')
+      if (!token) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Login Required',
+          text: 'No authentication token found. Please log in.',
         })
+        return
+      }
 
-        if (!confirmation.isConfirmed) return
+      // Ensure classDate and classTime exist
+      if (!classItem.classDate || !classItem.classTime) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Class Data',
+          text: 'The class date or time is missing. Please check your schedule.',
+        })
+        return
+      }
 
+      // Convert `classDate` from ISO format to local date
+      const classDateLocal = dayjs(classItem.classDate).format('YYYY-MM-DD')
+
+      // Combine `classDateLocal` with `classTime`
+      const classStart = dayjs(
+        `${classDateLocal} ${classItem.classTime}`,
+        'YYYY-MM-DD HH:mm:ss',
+      )
+
+      if (!classStart.isValid()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Date Format',
+          text: 'There was an issue parsing the class time. Please contact support.',
+        })
+        return
+      }
+
+      const now = dayjs()
+      const hoursDiff = classStart.diff(now, 'hour', true)
+
+      if (hoursDiff < 2) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Cannot Cancel',
+          text: 'Cancellation is only allowed at least 2 hours before the class starts.',
+        })
+        return // Stop execution, no API call will be made
+      }
+
+      const confirmation = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to cancel this booking?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it',
+      })
+
+      if (!confirmation.isConfirmed) return
+
+      try {
         await axios.post(
           'https://mjtrainingcamp.my.id/api/v1/class/cancel',
           { idClass: classItem.idClass, token },
@@ -244,7 +267,7 @@ export default {
           text: 'Your booking has been successfully canceled.',
         })
 
-        fetchClassHistory()
+        fetchClassHistory() // Refresh class list after successful cancellation
       } catch (err) {
         console.error('Cancellation Error:', err)
         Swal.fire({
