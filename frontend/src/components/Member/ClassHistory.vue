@@ -116,6 +116,9 @@ import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+
+dayjs.extend(isSameOrAfter) // Aktifkan plugin
 
 // Lazy load Navbar component
 const LazyNavbar = defineAsyncComponent(() => import('./Navbar.vue'))
@@ -173,10 +176,12 @@ export default {
     }
 
     const splitClassesByDate = classes => {
-      const now = dayjs()
+      const now = dayjs().startOf('day') // Pastikan perbandingan mulai dari awal hari
+
       upcomingClasses.value = classes.filter(classItem =>
-        dayjs(classItem.classDate).isAfter(now, 'day'),
+        dayjs(classItem.classDate).isSameOrAfter(now, 'day'),
       )
+
       pastClasses.value = classes.filter(classItem =>
         dayjs(classItem.classDate).isBefore(now, 'day'),
       )
